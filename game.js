@@ -128,6 +128,8 @@ let last = 0;
 
 let worldX = 0;
 
+let score = 0;
+
 let currentBeat = -1;
 
 let beatPulse = 0;
