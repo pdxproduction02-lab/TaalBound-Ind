@@ -1,11 +1,19 @@
 (() => {
 'use strict';
 
+
+// ============================================================
+// TAALBOUND v0.3
+// PULSE — MUSIC SYNCHRONIZED LEVEL SYSTEM
+// ============================================================
+
+
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
 
 const startScreen = document.getElementById('startScreen');
 const deathScreen = document.getElementById('deathScreen');
+
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 
@@ -14,6 +22,8 @@ const percent = document.getElementById('percent');
 
 const music = document.getElementById('music');
 
+const resultTitle = document.getElementById('resultTitle');
+
 
 // ============================================================
 // DISPLAY
@@ -21,43 +31,70 @@ const music = document.getElementById('music');
 
 let W = innerWidth;
 let H = innerHeight;
-let dpr = Math.min(devicePixelRatio || 1, 2);
+
+let dpr = Math.min(
+  devicePixelRatio || 1,
+  2
+);
 
 function resize() {
+
   W = innerWidth;
   H = innerHeight;
 
-  dpr = Math.min(devicePixelRatio || 1, 2);
+  dpr = Math.min(
+    devicePixelRatio || 1,
+    2
+  );
 
-  canvas.width = Math.floor(W * dpr);
-  canvas.height = Math.floor(H * dpr);
+  canvas.width =
+    Math.floor(W * dpr);
 
-  canvas.style.width = W + 'px';
-  canvas.style.height = H + 'px';
+  canvas.height =
+    Math.floor(H * dpr);
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  canvas.style.width =
+    W + 'px';
+
+  canvas.style.height =
+    H + 'px';
+
+  ctx.setTransform(
+    dpr,
+    0,
+    0,
+    dpr,
+    0,
+    0
+  );
 }
 
-addEventListener('resize', resize);
+addEventListener(
+  'resize',
+  resize
+);
+
 resize();
 
 
 // ============================================================
-// PULSE MUSIC
+// MUSIC / RHYTHM
 // ============================================================
 
 const BPM = 128;
-const BEAT_TIME = 60 / BPM;
 
-// 150 pixels travelled per beat.
-// 150 * 128 / 60 = 320 pixels/sec.
+const BEAT_TIME =
+  60 / BPM;
+
+// World distance travelled per beat.
 const BEAT_DISTANCE = 150;
-const SPEED = BEAT_DISTANCE / BEAT_TIME;
 
-// PULSE master is approximately 2:56.
-// Leave a little room at the end.
+// 128 BPM × 150 pixels per beat.
+const SPEED =
+  BEAT_DISTANCE / BEAT_TIME;
+
+// Approximate PULSE duration.
 const LEVEL_DURATION = 176;
-const WORLD_END = SPEED * LEVEL_DURATION;
 
 
 // ============================================================
@@ -65,11 +102,16 @@ const WORLD_END = SPEED * LEVEL_DURATION;
 // ============================================================
 
 const GRAVITY = 1850;
+
 const JUMP = -720;
 
 const PLAYER_X = 140;
 
-const GROUND_Y = () => H - 105;
+const GROUND_OFFSET = 105;
+
+function GROUND_Y() {
+  return H - GROUND_OFFSET;
+}
 
 
 // ============================================================
@@ -77,203 +119,359 @@ const GROUND_Y = () => H - 105;
 // ============================================================
 
 let running = false;
+
 let dead = false;
+
+let finished = false;
 
 let last = 0;
 
 let worldX = 0;
-let score = 0;
 
-let currentBeat = 0;
+let currentBeat = -1;
+
 let beatPulse = 0;
 
-let player = {
+let sectionPulse = 0;
+
+let particles = [];
+
+
+// ============================================================
+// PLAYER
+// ============================================================
+
+const player = {
+
   x: PLAYER_X,
+
   y: 0,
+
   w: 34,
+
   h: 34,
+
   vy: 0,
+
   onGround: false,
+
   rot: 0
+
 };
+
+
+// ============================================================
+// LEVEL OBJECTS
+// ============================================================
 
 let hazards = [];
 
 
 // ============================================================
-// LEVEL DATA
+// LEVEL BUILDER
 // ============================================================
 
 function buildLevel() {
 
   hazards = [];
 
-  const addSpike = (beat, width = 38, height = 42) => {
-
-    hazards.push({
-      x: beat * BEAT_DISTANCE,
-      w: width,
-      h: height
-    });
-
-  };
-
 
   /*
-    Level is authored in BEATS.
+    Every object is placed using BEATS.
 
-    This makes future level design much easier.
+    This means the level remains synchronized
+    with the 128 BPM music.
 
-    Example:
-
-    addSpike(16)
-
-    means:
-
-    spike appears exactly on beat 16.
+    beat 100 = exactly 100 beats into PULSE.
   */
 
 
-  // ----------------------------------------------------------
-  // INTRO
-  // ----------------------------------------------------------
+  function spike(
+    beat,
+    width = 38,
+    height = 42
+  ) {
 
-  addSpike(12);
-  addSpike(16);
-  addSpike(20);
+    hazards.push({
 
-  addSpike(24);
-  addSpike(28);
+      type: 'spike',
 
-  addSpike(32);
-  addSpike(36);
+      x: beat * BEAT_DISTANCE,
 
+      w: width,
 
-  // ----------------------------------------------------------
-  // FIRST RHYTHMIC SECTION
-  // ----------------------------------------------------------
+      h: height
 
-  addSpike(40);
-  addSpike(44);
+    });
 
-  addSpike(48);
-  addSpike(50);
-
-  addSpike(54);
-  addSpike(58);
-
-  addSpike(62);
-  addSpike(64);
+  }
 
 
-  // ----------------------------------------------------------
+  function doubleSpike(beat) {
+
+    spike(
+      beat,
+      38,
+      42
+    );
+
+    spike(
+      beat + 1,
+      38,
+      42
+    );
+
+  }
+
+
+  function tallBarrier(beat) {
+
+    hazards.push({
+
+      type: 'barrier',
+
+      x: beat * BEAT_DISTANCE,
+
+      w: 44,
+
+      h: 72
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // INTRO — LEARN THE RHYTHM
+  // ==========================================================
+
+  spike(12);
+
+  spike(16);
+
+  spike(20);
+
+  spike(24);
+
+  spike(28);
+
+
+  // ==========================================================
+  // EARLY RHYTHM
+  // ==========================================================
+
+  spike(32);
+
+  spike(36);
+
+  doubleSpike(40);
+
+  spike(44);
+
+  spike(48);
+
+  doubleSpike(52);
+
+  spike(56);
+
+  spike(60);
+
+  spike(64);
+
+
+  // ==========================================================
   // BUILD
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  for (let beat = 68; beat <= 96; beat += 4) {
-    addSpike(beat);
+  for (
+    let beat = 68;
+    beat <= 96;
+    beat += 4
+  ) {
+
+    spike(beat);
+
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // FIRST DROP
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  addSpike(100);
-  addSpike(104);
+  doubleSpike(100);
 
-  addSpike(108);
-  addSpike(110);
+  spike(104);
 
-  addSpike(114);
-  addSpike(118);
+  doubleSpike(108);
 
-  addSpike(122);
-  addSpike(124);
+  spike(112);
 
-  addSpike(128);
-  addSpike(130);
+  doubleSpike(116);
 
-  addSpike(134);
-  addSpike(138);
+  spike(120);
 
-  addSpike(142);
-  addSpike(144);
+  doubleSpike(124);
 
+  spike(128);
 
-  // ----------------------------------------------------------
-  // SECOND RHYTHMIC PATTERN
-  // ----------------------------------------------------------
+  doubleSpike(132);
 
-  for (let beat = 148; beat <= 176; beat += 4) {
+  spike(136);
 
-    addSpike(beat);
+  doubleSpike(140);
 
-    if ((beat / 4) % 2 === 0) {
-      addSpike(beat + 2);
-    }
-
-  }
+  spike(144);
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
+  // RHYTHMIC SWITCH
+  // ==========================================================
+
+  spike(148);
+
+  spike(152);
+
+  doubleSpike(156);
+
+  spike(160);
+
+  spike(164);
+
+  doubleSpike(168);
+
+  spike(172);
+
+  spike(176);
+
+
+  // ==========================================================
   // BREAKDOWN
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  addSpike(180);
-  addSpike(188);
-  addSpike(196);
+  spike(184);
+
+  spike(192);
+
+  tallBarrier(200);
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // BUILD 2
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  for (let beat = 200; beat <= 224; beat += 4) {
-    addSpike(beat);
-  }
+  spike(204);
+
+  spike(208);
+
+  spike(212);
+
+  spike(216);
+
+  spike(220);
+
+  tallBarrier(224);
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // SECOND DROP
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  for (let beat = 228; beat <= 280; beat += 4) {
+  doubleSpike(228);
 
-    addSpike(beat);
+  spike(232);
 
-    if (beat % 8 === 4) {
-      addSpike(beat + 2);
-    }
+  doubleSpike(236);
 
-  }
+  spike(240);
+
+  doubleSpike(244);
+
+  spike(248);
+
+  doubleSpike(252);
+
+  spike(256);
+
+  doubleSpike(260);
+
+  spike(264);
+
+  doubleSpike(268);
+
+  spike(272);
+
+  doubleSpike(276);
+
+  spike(280);
 
 
-  // ----------------------------------------------------------
-  // FINAL RUN
-  // ----------------------------------------------------------
+  // ==========================================================
+  // FINAL SECTION
+  // ==========================================================
 
-  for (let beat = 284; beat <= 330; beat += 4) {
+  spike(284);
 
-    addSpike(beat);
+  doubleSpike(288);
 
-    if (beat % 12 === 4) {
-      addSpike(beat + 2);
-    }
+  spike(292);
 
-  }
+  doubleSpike(296);
 
+  spike(300);
 
-  // ----------------------------------------------------------
-  // END
-  // ----------------------------------------------------------
+  doubleSpike(304);
 
-  addSpike(336);
-  addSpike(340);
+  spike(308);
+
+  doubleSpike(312);
+
+  spike(316);
+
+  doubleSpike(320);
+
+  spike(324);
+
+  doubleSpike(328);
+
+  spike(332);
+
+  spike(336);
+
+  spike(340);
+
 
 }
 
 buildLevel();
+
+
+// ============================================================
+// SECTION SYSTEM
+// ============================================================
+
+function getSection(time) {
+
+  if (time < 30)
+    return 'INTRO';
+
+  if (time < 60)
+    return 'RHYTHM';
+
+  if (time < 90)
+    return 'BUILD';
+
+  if (time < 120)
+    return 'DROP';
+
+  if (time < 150)
+    return 'BREAK';
+
+  if (time < 175)
+    return 'FINAL DROP';
+
+  return 'FINALE';
+
+}
 
 
 // ============================================================
@@ -282,51 +480,89 @@ buildLevel();
 
 function reset() {
 
-  worldX = 0;
-  score = 0;
-
-  currentBeat = 0;
-  beatPulse = 0;
-
-  dead = false;
-  running = true;
-
-  player.x = PLAYER_X;
-  player.y = GROUND_Y() - player.h;
-  player.vy = 0;
-  player.onGround = true;
-  player.rot = 0;
-
-  deathScreen.classList.add('hidden');
-  startScreen.classList.add('hidden');
-
-  progressFill.style.width = '0%';
-  percent.textContent = '0%';
-
-
-  // Reset audio.
-
   music.pause();
+
   music.currentTime = 0;
 
 
-  // Browser allows audio because this function
-  // is triggered by a button/touch interaction.
+  worldX = 0;
 
-  const playPromise = music.play();
+  currentBeat = -1;
 
-  if (playPromise !== undefined) {
+  beatPulse = 0;
+
+  sectionPulse = 0;
+
+  particles = [];
+
+
+  dead = false;
+
+  finished = false;
+
+  running = true;
+
+
+  player.x =
+    PLAYER_X;
+
+  player.y =
+    GROUND_Y() -
+    player.h;
+
+  player.vy = 0;
+
+  player.onGround = true;
+
+  player.rot = 0;
+
+
+  resultTitle.textContent =
+    'PULSE FAILED';
+
+
+  deathScreen.classList.add(
+    'hidden'
+  );
+
+  startScreen.classList.add(
+    'hidden'
+  );
+
+
+  progressFill.style.width =
+    '0%';
+
+  percent.textContent =
+    '0%';
+
+
+  const playPromise =
+    music.play();
+
+  if (
+    playPromise !== undefined
+  ) {
 
     playPromise.catch(() => {
-      console.log('Audio playback was blocked.');
+
+      console.log(
+        'Audio playback blocked.'
+      );
+
     });
 
   }
 
 
-  last = performance.now();
+  last =
+    performance.now();
 
-  requestAnimationFrame(loop);
+
+  requestAnimationFrame(
+    loop
+  );
+
 }
 
 
@@ -336,12 +572,29 @@ function reset() {
 
 function jump() {
 
-  if (!running || dead) return;
+  if (
+    !running ||
+    dead ||
+    finished
+  ) {
 
-  if (player.onGround) {
+    return;
 
-    player.vy = JUMP;
-    player.onGround = false;
+  }
+
+
+  if (
+    player.onGround
+  ) {
+
+    player.vy =
+      JUMP;
+
+    player.onGround =
+      false;
+
+
+    createJumpParticles();
 
   }
 
@@ -352,19 +605,23 @@ function jump() {
 // INPUT
 // ============================================================
 
-addEventListener('keydown', e => {
+addEventListener(
+  'keydown',
+  e => {
 
-  if (
-    e.code === 'Space' ||
-    e.code === 'ArrowUp'
-  ) {
+    if (
+      e.code === 'Space' ||
+      e.code === 'ArrowUp'
+    ) {
 
-    e.preventDefault();
-    jump();
+      e.preventDefault();
+
+      jump();
+
+    }
 
   }
-
-});
+);
 
 
 canvas.addEventListener(
@@ -372,15 +629,21 @@ canvas.addEventListener(
   e => {
 
     e.preventDefault();
+
     jump();
 
   },
-  { passive: false }
+  {
+    passive: false
+  }
 );
 
 
-startButton.onclick = reset;
-restartButton.onclick = reset;
+startButton.onclick =
+  reset;
+
+restartButton.onclick =
+  reset;
 
 
 // ============================================================
@@ -389,14 +652,73 @@ restartButton.onclick = reset;
 
 function die() {
 
-  if (dead) return;
+  if (
+    dead ||
+    finished
+  ) {
+
+    return;
+
+  }
+
 
   dead = true;
+
   running = false;
+
 
   music.pause();
 
-  deathScreen.classList.remove('hidden');
+
+  resultTitle.textContent =
+    'PULSE FAILED';
+
+
+  deathScreen.classList.remove(
+    'hidden'
+  );
+
+}
+
+
+// ============================================================
+// FINISH
+// ============================================================
+
+function finish() {
+
+  if (
+    finished ||
+    dead
+  ) {
+
+    return;
+
+  }
+
+
+  finished = true;
+
+  running = false;
+
+
+  music.pause();
+
+
+  progressFill.style.width =
+    '100%';
+
+  percent.textContent =
+    '100%';
+
+
+  resultTitle.textContent =
+    'PULSE COMPLETE';
+
+
+  deathScreen.classList.remove(
+    'hidden'
+  );
 
 }
 
@@ -408,11 +730,158 @@ function die() {
 function rectHit(a, b) {
 
   return (
-    a.x < b.x + b.w &&
-    a.x + a.w > b.x &&
-    a.y < b.y + b.h &&
-    a.y + a.h > b.y
+
+    a.x <
+    b.x + b.w &&
+
+    a.x + a.w >
+    b.x &&
+
+    a.y <
+    b.y + b.h &&
+
+    a.y + a.h >
+    b.y
+
   );
+
+}
+
+
+// ============================================================
+// PARTICLES
+// ============================================================
+
+function createJumpParticles() {
+
+  for (
+    let i = 0;
+    i < 6;
+    i++
+  ) {
+
+    particles.push({
+
+      x:
+        player.x +
+        player.w / 2,
+
+      y:
+        player.y +
+        player.h,
+
+      vx:
+        (Math.random() - 0.5) *
+        90,
+
+      vy:
+        Math.random() *
+        70,
+
+      life:
+        0.35 +
+
+        Math.random() *
+        0.2
+
+    });
+
+  }
+
+}
+
+
+function createBeatParticles() {
+
+  for (
+    let i = 0;
+    i < 5;
+    i++
+  ) {
+
+    particles.push({
+
+      x:
+        W * 0.5,
+
+      y:
+        GROUND_Y(),
+
+      vx:
+        (Math.random() - 0.5) *
+        260,
+
+      vy:
+        -Math.random() *
+        180,
+
+      life:
+        0.25 +
+
+        Math.random() *
+        0.25
+
+    });
+
+  }
+
+}
+
+
+function updateParticles(dt) {
+
+  for (
+    const p of particles
+  ) {
+
+    p.x +=
+      p.vx * dt;
+
+    p.y +=
+      p.vy * dt;
+
+    p.vy +=
+      400 * dt;
+
+    p.life -=
+      dt;
+
+  }
+
+
+  particles =
+    particles.filter(
+      p => p.life > 0
+    );
+
+}
+
+
+function drawParticles() {
+
+  for (
+    const p of particles
+  ) {
+
+    ctx.globalAlpha =
+      Math.max(
+        0,
+        p.life * 2
+      );
+
+    ctx.fillStyle =
+      '#68e7ff';
+
+    ctx.fillRect(
+      p.x,
+      p.y,
+      3,
+      3
+    );
+
+  }
+
+  ctx.globalAlpha = 1;
 
 }
 
@@ -423,132 +892,247 @@ function rectHit(a, b) {
 
 function update(dt) {
 
-  // ----------------------------------------------------------
+  if (
+    !music.paused &&
+    music.readyState >= 2
+  ) {
+
+    /*
+      IMPORTANT:
+
+      Audio is now the authoritative clock.
+
+      We no longer rely on accumulated dt
+      for level synchronization.
+    */
+
+    worldX =
+      music.currentTime *
+      SPEED;
+
+  }
+
+
+  // ==========================================================
   // PLAYER PHYSICS
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  player.vy += GRAVITY * dt;
-  player.y += player.vy * dt;
+  player.vy +=
+    GRAVITY * dt;
 
-  const gy = GROUND_Y();
+  player.y +=
+    player.vy * dt;
 
 
-  if (player.y + player.h >= gy) {
+  const gy =
+    GROUND_Y();
 
-    player.y = gy - player.h;
+
+  if (
+    player.y +
+    player.h >=
+    gy
+  ) {
+
+    player.y =
+      gy -
+      player.h;
+
     player.vy = 0;
-    player.onGround = true;
 
-  } else {
+    player.onGround =
+      true;
 
-    player.onGround = false;
+  }
+
+  else {
+
+    player.onGround =
+      false;
 
   }
 
 
-  // ----------------------------------------------------------
-  // WORLD MOVEMENT
-  // ----------------------------------------------------------
+  // ==========================================================
+  // BEAT CLOCK
+  // ==========================================================
 
-  worldX += SPEED * dt;
-
-
-  // ----------------------------------------------------------
-  // PLAYER ROTATION
-  // ----------------------------------------------------------
-
-  if (!player.onGround) {
-
-    player.rot += 8 * dt;
-
-  }
+  const newBeat =
+    Math.floor(
+      music.currentTime /
+      BEAT_TIME
+    );
 
 
-  // ----------------------------------------------------------
-  // BEAT CALCULATION
-  // ----------------------------------------------------------
+  if (
+    newBeat !==
+    currentBeat
+  ) {
 
-  const newBeat = Math.floor(worldX / BEAT_DISTANCE);
+    currentBeat =
+      newBeat;
 
-  if (newBeat !== currentBeat) {
-
-    currentBeat = newBeat;
     beatPulse = 1;
 
+    sectionPulse = 1;
+
+    createBeatParticles();
+
   }
 
-  beatPulse *= Math.pow(0.001, dt);
+
+  beatPulse *=
+    Math.pow(
+      0.001,
+      dt
+    );
 
 
-  // ----------------------------------------------------------
+  sectionPulse *=
+    Math.pow(
+      0.01,
+      dt
+    );
+
+
+  // ==========================================================
+  // PLAYER ROTATION
+  // ==========================================================
+
+  if (
+    !player.onGround
+  ) {
+
+    player.rot +=
+      8 * dt;
+
+  }
+
+
+  // ==========================================================
   // COLLISION
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  const playerWorldX = worldX + player.x;
+  const playerWorldX =
+    worldX +
+    player.x;
 
-  for (const h of hazards) {
 
-    const hx = h.x;
+  for (
+    const h of hazards
+  ) {
 
-    const hy = GROUND_Y() - h.h;
+    const hx =
+      h.x;
+
+
+    const hy =
+      gy -
+      h.h;
+
 
     const box = {
+
       x: hx,
+
       y: hy,
+
       w: h.w,
+
       h: h.h
+
     };
 
 
-    // Small collision forgiveness.
+    /*
+      Slight collision forgiveness.
+
+      Visual player remains 34px,
+      collision box is slightly smaller.
+    */
 
     const playerBox = {
-      x: playerWorldX + 5,
-      y: player.y + 5,
-      w: player.w - 10,
-      h: player.h - 8
+
+      x:
+        playerWorldX +
+        5,
+
+      y:
+        player.y +
+        5,
+
+      w:
+        player.w -
+        10,
+
+      h:
+        player.h -
+        8
+
     };
 
 
-    if (rectHit(playerBox, box)) {
+    if (
+      rectHit(
+        playerBox,
+        box
+      )
+    ) {
 
       die();
-      break;
+
+      return;
 
     }
 
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // PROGRESS
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  score = Math.min(
-    100,
-    Math.floor(
-      (worldX + player.x) /
-      WORLD_END *
-      100
-    )
-  );
+  const progress =
+    Math.min(
+      100,
+
+      Math.floor(
+        (
+          music.currentTime /
+          LEVEL_DURATION
+        ) * 100
+      )
+    );
 
 
-  progressFill.style.width = score + '%';
-  percent.textContent = score + '%';
+  score =
+    progress;
 
 
-  // ----------------------------------------------------------
-  // END OF LEVEL
-  // ----------------------------------------------------------
+  progressFill.style.width =
+    score + '%';
 
-  if (worldX + player.x >= WORLD_END) {
+  percent.textContent =
+    score + '%';
 
-    running = false;
 
-    music.pause();
+  // ==========================================================
+  // END
+  // ==========================================================
+
+  if (
+    music.currentTime >=
+    LEVEL_DURATION - 0.15
+  ) {
+
+    finish();
+
+    return;
 
   }
+
+
+  updateParticles(dt);
 
 }
 
@@ -559,43 +1143,91 @@ function update(dt) {
 
 function drawBackground() {
 
-  const gy = GROUND_Y();
+  const gy =
+    GROUND_Y();
 
 
-  // ----------------------------------------------------------
-  // SKY
-  // ----------------------------------------------------------
+  const time =
+    music.currentTime;
 
-  const grad = ctx.createLinearGradient(
+
+  const section =
+    getSection(time);
+
+
+  // ==========================================================
+  // SECTION-BASED BACKGROUND
+  // ==========================================================
+
+  let topColor =
+    '#070a12';
+
+  let bottomColor =
+    '#101b28';
+
+
+  if (
+    section === 'DROP'
+  ) {
+
+    topColor =
+      '#090b18';
+
+    bottomColor =
+      '#172333';
+
+  }
+
+
+  if (
+    section === 'FINAL DROP'
+  ) {
+
+    topColor =
+      '#100916';
+
+    bottomColor =
+      '#24162c';
+
+  }
+
+
+  if (
+    section === 'FINALE'
+  ) {
+
+    topColor =
+      '#101018';
+
+    bottomColor =
+      '#201f2b';
+
+  }
+
+
+  const grad =
+    ctx.createLinearGradient(
+      0,
+      0,
+      0,
+      H
+    );
+
+
+  grad.addColorStop(
     0,
-    0,
-    0,
-    H
+    topColor
   );
 
-  grad.addColorStop(0, '#070a12');
-  grad.addColorStop(1, '#101b28');
-
-  ctx.fillStyle = grad;
-
-  ctx.fillRect(
-    0,
-    0,
-    W,
-    H
+  grad.addColorStop(
+    1,
+    bottomColor
   );
 
-
-  // ----------------------------------------------------------
-  // BEAT REACTIVE ATMOSPHERE
-  // ----------------------------------------------------------
-
-  const pulseAlpha =
-    0.04 +
-    beatPulse * 0.12;
 
   ctx.fillStyle =
-    `rgba(104,231,255,${pulseAlpha})`;
+    grad;
+
 
   ctx.fillRect(
     0,
@@ -605,20 +1237,51 @@ function drawBackground() {
   );
 
 
-  // ----------------------------------------------------------
-  // DISTANT TOWERS
-  // ----------------------------------------------------------
+  // ==========================================================
+  // BEAT FLASH
+  // ==========================================================
 
-  for (let i = -2; i < 16; i++) {
+  ctx.fillStyle =
+    `rgba(104,231,255,${
+      0.025 +
+      beatPulse * 0.10
+    })`;
+
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  // ==========================================================
+  // DISTANT CITY
+  // ==========================================================
+
+  for (
+    let i = -2;
+    i < 16;
+    i++
+  ) {
 
     const x =
-      ((i * 180 - (worldX * 0.08) % 180) + W) % W;
+      (
+        i * 180 -
+        (worldX * 0.08) % 180 +
+        W
+      ) % W;
+
 
     const height =
-      80 + (i % 4) * 38;
+      80 +
+      (i % 4) * 38;
+
 
     ctx.fillStyle =
       'rgba(40,100,120,.18)';
+
 
     ctx.fillRect(
       x,
@@ -631,6 +1294,7 @@ function drawBackground() {
     ctx.fillStyle =
       'rgba(104,231,255,.12)';
 
+
     ctx.fillRect(
       x + 8,
       gy - height + 12,
@@ -641,54 +1305,91 @@ function drawBackground() {
   }
 
 
-  // ----------------------------------------------------------
-  // RHYTHM / MANDALA STRUCTURES
-  // ----------------------------------------------------------
+  // ==========================================================
+  // LARGE RHYTHM RINGS
+  // ==========================================================
 
-  for (let i = 0; i < 5; i++) {
+  for (
+    let i = 0;
+    i < 5;
+    i++
+  ) {
 
     const x =
-      ((i * 260 - (worldX * 0.16) % 260) + W) % W;
+      (
+        i * 260 -
+        (worldX * 0.16) % 260 +
+        W
+      ) % W;
+
 
     const y =
-      gy - 180 - (i % 2) * 70;
+      gy -
+      180 -
+      (i % 2) * 70;
+
 
     const radius =
-      45 + (i % 3) * 15;
+      45 +
+      (i % 3) * 15;
 
 
     ctx.strokeStyle =
-      `rgba(104,231,255,${0.09 + beatPulse * 0.04})`;
+      `rgba(104,231,255,${
+        0.07 +
+        beatPulse * 0.04
+      })`;
 
-    ctx.lineWidth = 2;
+
+    ctx.lineWidth =
+      2;
 
 
     ctx.beginPath();
 
+
     ctx.arc(
       x,
       y,
-      radius,
+      radius +
+      beatPulse * 12,
       0,
       Math.PI * 2
     );
 
+
     ctx.stroke();
 
 
-    for (let k = 0; k < 8; k++) {
+    for (
+      let k = 0;
+      k < 8;
+      k++
+    ) {
 
-      const a = k * Math.PI / 4;
+      const a =
+        k * Math.PI / 4;
+
 
       ctx.beginPath();
 
+
       ctx.arc(
-        x + Math.cos(a) * 65,
-        y + Math.sin(a) * 65,
+        x +
+        Math.cos(a) *
+        65,
+
+        y +
+        Math.sin(a) *
+        65,
+
         3,
+
         0,
+
         Math.PI * 2
       );
+
 
       ctx.stroke();
 
@@ -697,11 +1398,13 @@ function drawBackground() {
   }
 
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // FLOOR
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  ctx.fillStyle = '#0a111b';
+  ctx.fillStyle =
+    '#0a111b';
+
 
   ctx.fillRect(
     0,
@@ -711,7 +1414,9 @@ function drawBackground() {
   );
 
 
-  ctx.fillStyle = '#68e7ff';
+  ctx.fillStyle =
+    '#68e7ff';
+
 
   ctx.fillRect(
     0,
@@ -721,16 +1426,21 @@ function drawBackground() {
   );
 
 
-  // Floor grid.
+  // Beat grid.
 
-  ctx.globalAlpha = 0.12;
+  ctx.globalAlpha =
+    0.10;
 
-  const spacing = BEAT_DISTANCE;
 
   for (
-    let x = -(worldX % spacing);
+    let x =
+      -(worldX %
+      BEAT_DISTANCE);
+
     x < W;
-    x += spacing
+
+    x +=
+      BEAT_DISTANCE
   ) {
 
     ctx.fillRect(
@@ -742,7 +1452,44 @@ function drawBackground() {
 
   }
 
-  ctx.globalAlpha = 1;
+
+  ctx.globalAlpha =
+    1;
+
+
+  // ==========================================================
+  // SECTION LABEL
+  // ==========================================================
+
+  ctx.globalAlpha =
+    Math.min(
+      1,
+      0.35 +
+      sectionPulse
+    );
+
+
+  ctx.fillStyle =
+    '#68e7ff';
+
+
+  ctx.font =
+    '700 11px Arial';
+
+
+  ctx.textAlign =
+    'right';
+
+
+  ctx.fillText(
+    section,
+    W - 18,
+    H - 18
+  );
+
+
+  ctx.globalAlpha =
+    1;
 
 }
 
@@ -755,18 +1502,33 @@ function drawPlayer() {
 
   ctx.save();
 
+
   ctx.translate(
-    player.x + player.w / 2,
-    player.y + player.h / 2
+    player.x +
+    player.w / 2,
+
+    player.y +
+    player.h / 2
   );
 
-  ctx.rotate(player.rot);
+
+  ctx.rotate(
+    player.rot
+  );
 
 
-  ctx.fillStyle = '#f2f6f8';
+  // Outer glow.
 
-  ctx.shadowColor = '#68e7ff';
-  ctx.shadowBlur = 18;
+  ctx.fillStyle =
+    '#f2f6f8';
+
+
+  ctx.shadowColor =
+    '#68e7ff';
+
+
+  ctx.shadowBlur =
+    18;
 
 
   ctx.fillRect(
@@ -777,11 +1539,16 @@ function drawPlayer() {
   );
 
 
-  ctx.shadowBlur = 0;
+  ctx.shadowBlur =
+    0;
 
 
-  ctx.strokeStyle = '#68e7ff';
-  ctx.lineWidth = 2;
+  ctx.strokeStyle =
+    '#68e7ff';
+
+
+  ctx.lineWidth =
+    2;
 
 
   ctx.strokeRect(
@@ -792,9 +1559,11 @@ function drawPlayer() {
   );
 
 
-  // Inner core.
+  // Core.
 
-  ctx.fillStyle = '#0b111a';
+  ctx.fillStyle =
+    '#0b111a';
+
 
   ctx.fillRect(
     -7,
@@ -815,49 +1584,164 @@ function drawPlayer() {
 
 function drawHazards() {
 
-  for (const h of hazards) {
+  const gy =
+    GROUND_Y();
 
-    const sx = h.x - worldX;
+
+  for (
+    const h of hazards
+  ) {
+
+    const sx =
+      h.x -
+      worldX;
 
 
     if (
-      sx < -80 ||
-      sx > W + 80
-    ) continue;
+      sx <
+      -100 ||
+      sx >
+      W + 100
+    ) {
+
+      continue;
+
+    }
 
 
-    const gy = GROUND_Y();
+    if (
+      h.type ===
+      'spike'
+    ) {
+
+      ctx.fillStyle =
+        '#ff5b4d';
 
 
-    ctx.fillStyle = '#ff5b4d';
-
-    ctx.shadowColor = '#ff5b4d';
-    ctx.shadowBlur = 12;
+      ctx.shadowColor =
+        '#ff5b4d';
 
 
-    ctx.beginPath();
-
-    ctx.moveTo(
-      sx,
-      gy
-    );
-
-    ctx.lineTo(
-      sx + h.w / 2,
-      gy - h.h
-    );
-
-    ctx.lineTo(
-      sx + h.w,
-      gy
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
+      ctx.shadowBlur =
+        12;
 
 
-    ctx.shadowBlur = 0;
+      ctx.beginPath();
+
+
+      ctx.moveTo(
+        sx,
+        gy
+      );
+
+
+      ctx.lineTo(
+        sx +
+        h.w / 2,
+
+        gy -
+        h.h
+      );
+
+
+      ctx.lineTo(
+        sx +
+        h.w,
+
+        gy
+      );
+
+
+            ctx.closePath();
+
+      ctx.fill();
+
+      ctx.shadowBlur =
+        0;
+
+    }
+
+
+    if (
+      h.type ===
+      'barrier'
+    ) {
+
+      ctx.fillStyle =
+        '#ffb347';
+
+
+      ctx.shadowColor =
+        '#ffb347';
+
+
+      ctx.shadowBlur =
+        15;
+
+
+      ctx.fillRect(
+        sx,
+        gy - h.h,
+
+        h.w,
+        h.h
+      );
+
+
+      ctx.shadowBlur =
+        0;
+
+
+      ctx.strokeStyle =
+        '#ffe0a3';
+
+
+      ctx.lineWidth =
+        2;
+
+
+      ctx.strokeRect(
+        sx,
+        gy - h.h,
+
+        h.w,
+        h.h
+      );
+
+
+      // Internal rhythm lines.
+
+      ctx.strokeStyle =
+        'rgba(10,17,27,.7)';
+
+
+      for (
+        let y =
+          gy - h.h + 12;
+
+        y <
+          gy - 5;
+
+        y += 12
+      ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          sx + 5,
+          y
+        );
+
+        ctx.lineTo(
+          sx + h.w - 5,
+          y
+        );
+
+        ctx.stroke();
+
+      }
+
+    }
 
   }
 
@@ -874,6 +1758,8 @@ function draw() {
 
   drawHazards();
 
+  drawParticles();
+
   drawPlayer();
 
 }
@@ -885,7 +1771,9 @@ function draw() {
 
 function loop(now) {
 
-  if (!running) {
+  if (
+    !running
+  ) {
 
     draw();
 
@@ -896,12 +1784,15 @@ function loop(now) {
 
   const dt =
     Math.min(
-      (now - last) / 1000,
+      (now - last) /
+      1000,
+
       0.033
     );
 
 
-  last = now;
+  last =
+    now;
 
 
   update(dt);
@@ -909,9 +1800,13 @@ function loop(now) {
   draw();
 
 
-  if (running) {
+  if (
+    running
+  ) {
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(
+      loop
+    );
 
   }
 
@@ -926,6 +1821,8 @@ player.y =
   GROUND_Y() -
   player.h;
 
+
 draw();
+
 
 })();
