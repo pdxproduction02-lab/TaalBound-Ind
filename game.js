@@ -19,7 +19,7 @@ const restartButton = document.getElementById('restartButton');
 
 const progressFill = document.getElementById('progressFill');
 const percent = document.getElementById('percent');
-
+const sectionName = document.getElementById('sectionName');
 const music = document.getElementById('music');
 
 const resultTitle = document.getElementById('resultTitle');
