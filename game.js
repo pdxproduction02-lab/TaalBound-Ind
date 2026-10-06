@@ -279,8 +279,6 @@ function buildLevel() {
   doubleSpike(372);
 }
 
-buildLevel();
-
 
 // ============================================================
 // SECTION SYSTEM
@@ -434,6 +432,7 @@ function getWorldXForTime(time) {
 }
 
 buildWorldDistanceTable();
+buildLevel();
 
 // ============================================================
 // RESET
