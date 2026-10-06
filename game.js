@@ -141,7 +141,11 @@ let particles = [];
 const NORMAL_SPEED = 320;
 const INTENSE_SPEED = 390;
 const BUILD_SPEED = 345;
+const SPEED_RAMP_TIME = 1.35;
+const SPEED_SAMPLE_RATE = 120;
 
+let currentSpeed = NORMAL_SPEED;
+  
 // Jump physics
 const GRAVITY = 1800;
 const JUMP = -780;
@@ -188,274 +192,91 @@ let hazards = [];
 // ============================================================
 
 function buildLevel() {
-
   hazards = [];
 
-
-  /*
-    Every object is placed using BEATS.
-
-    This means the level remains synchronized
-    with the 128 BPM music.
-
-    beat 100 = exactly 100 beats into PULSE.
-  */
-
-
-  function spike(
-    beat,
-    width = 38,
-    height = 42
-  ) {
-
+  function spike(beat, width = 38, height = 42) {
     hazards.push({
-
       type: 'spike',
-
       x: getWorldXForTime(beat * BEAT_TIME),
-
       w: width,
-
       h: height
-
     });
-
   }
-
 
   function doubleSpike(beat) {
-
-    spike(
-      beat,
-      38,
-      42
-    );
-
-    spike(
-      beat + 1,
-      38,
-      42
-    );
-
+    spike(beat, 38, 42);
+    spike(beat + 2, 38, 42);
   }
-
 
   function tallBarrier(beat) {
-
     hazards.push({
-
       type: 'barrier',
-
       x: getWorldXForTime(beat * BEAT_TIME),
-
       w: 44,
-
       h: 72
-
     });
-
   }
 
+  function rhythmPattern(startBeat, pattern) {
+    for (const offset of pattern) {
+      spike(startBeat + offset);
+    }
+  }
 
-  // ==========================================================
-  // INTRO — LEARN THE RHYTHM
-  // ==========================================================
+  // INTRO
+  rhythmPattern(16, [0, 4, 8, 12, 16, 20, 24, 28]);
 
-  spike(12);
+  // RHYTHM
+  rhythmPattern(48, [0, 4, 8, 12]);
+  doubleSpike(64);
+  spike(72);
+  doubleSpike(76);
+  spike(84);
+  doubleSpike(88);
+  spike(96);
 
-  spike(16);
-
-  spike(20);
-
-  spike(24);
-
-  spike(28);
-
-
-  // ==========================================================
-  // EARLY RHYTHM
-  // ==========================================================
-
-  spike(32);
-
-  spike(36);
-
-  doubleSpike(40);
-
-  spike(44);
-
-  spike(48);
-
-  doubleSpike(52);
-
-  spike(56);
-
-  spike(60);
-
-  spike(64);
-
-
-  // ==========================================================
   // BUILD
-  // ==========================================================
-
-  for (
-    let beat = 68;
-    beat <= 96;
-    beat += 4
-  ) {
-
-    spike(beat);
-
-  }
-
-
-  // ==========================================================
-  // FIRST DROP
-  // ==========================================================
-
-  doubleSpike(100);
-
-  spike(104);
-
-  doubleSpike(108);
-
-  spike(112);
-
-  doubleSpike(116);
-
-  spike(120);
-
-  doubleSpike(124);
-
-  spike(128);
-
+  rhythmPattern(104, [0, 4, 8, 12, 16, 20, 24]);
   doubleSpike(132);
-
-  spike(136);
-
-  doubleSpike(140);
-
-  spike(144);
-
-
-  // ==========================================================
-  // RHYTHMIC SWITCH
-  // ==========================================================
-
-  spike(148);
-
+  spike(140);
+  doubleSpike(144);
   spike(152);
-
   doubleSpike(156);
-
-  spike(160);
-
   spike(164);
+  tallBarrier(168);
 
-  doubleSpike(168);
-
-  spike(172);
-
-  spike(176);
-
-
-  // ==========================================================
-  // BREAKDOWN
-  // ==========================================================
-
-  spike(184);
-
-  spike(192);
-
-  tallBarrier(200);
-
-
-  // ==========================================================
-  // BUILD 2
-  // ==========================================================
-
-  spike(204);
-
-  spike(208);
-
+  // FIRST DROP
+  rhythmPattern(176, [0, 4, 8, 12]);
+  doubleSpike(192);
+  spike(200);
+  doubleSpike(204);
   spike(212);
-
-  spike(216);
-
-  spike(220);
-
-  tallBarrier(224);
-
-
-  // ==========================================================
-  // SECOND DROP
-  // ==========================================================
-
+  doubleSpike(216);
+  spike(224);
   doubleSpike(228);
-
-  spike(232);
-
-  doubleSpike(236);
-
-  spike(240);
-
-  doubleSpike(244);
-
+  spike(236);
+  doubleSpike(240);
   spike(248);
 
-  doubleSpike(252);
-
-  spike(256);
-
-  doubleSpike(260);
-
-  spike(264);
-
-  doubleSpike(268);
-
+  // BREAK
+  spike(260);
   spike(272);
+  tallBarrier(284);
+  spike(296);
 
-  doubleSpike(276);
-
-  spike(280);
-
-
-  // ==========================================================
-  // FINAL SECTION
-  // ==========================================================
-
-  spike(284);
-
-  doubleSpike(288);
-
-  spike(292);
-
-  doubleSpike(296);
-
-  spike(300);
-
-  doubleSpike(304);
-
-  spike(308);
-
-  doubleSpike(312);
-
-  spike(316);
-
-  doubleSpike(320);
-
-  spike(324);
-
-  doubleSpike(328);
-
+  // BUILD 2
+  rhythmPattern(304, [0, 4, 8, 12, 16]);
+  tallBarrier(324);
   spike(332);
 
-  spike(336);
-
-  spike(340);
-
-
+  // FINAL DROP
+  doubleSpike(336);
+  spike(344);
+  doubleSpike(348);
+  spike(356);
+  doubleSpike(360);
+  spike(368);
+  doubleSpike(372);
 }
 
 buildLevel();
@@ -466,106 +287,153 @@ buildLevel();
 // ============================================================
 
 function getSection(time) {
-
-  if (time < 30)
-    return 'INTRO';
-
-  if (time < 60)
-    return 'RHYTHM';
-
-  if (time < 90)
-    return 'BUILD';
-
-  if (time < 120)
-    return 'DROP';
-
-  if (time < 150)
-    return 'BREAK';
-
-  if (time < 175)
-    return 'FINAL DROP';
-
+  if (time < 30) return 'INTRO';
+  if (time < 60) return 'RHYTHM';
+  if (time < 90) return 'BUILD';
+  if (time < 120) return 'DROP';
+  if (time < 150) return 'BREAK';
+  if (time < 175) return 'FINAL DROP';
   return 'FINALE';
-
 }
 
-  function getSpeedForTime(time) {
-  const section = getSection(time);
-
-  switch (section) {
-    case 'INTRO':
-      return NORMAL_SPEED;
-
-    case 'RHYTHM':
-      return NORMAL_SPEED;
-
+function getBaseSpeedForTime(time) {
+  switch (getSection(time)) {
     case 'BUILD':
       return BUILD_SPEED;
 
     case 'DROP':
-      return INTENSE_SPEED;
-
-    case 'BREAK':
-      return NORMAL_SPEED;
-
     case 'FINAL DROP':
-      return INTENSE_SPEED;
-
     case 'FINALE':
       return INTENSE_SPEED;
 
     default:
       return NORMAL_SPEED;
   }
-  }
-  function getWorldXForTime(time) {
-  if (time <= 60) {
-    return time * NORMAL_SPEED;
+}
+
+function smoothStep(t) {
+  t = Math.max(0, Math.min(1, t));
+  return t * t * (3 - 2 * t);
+}
+
+function getSpeedForTime(time) {
+  const boundaries = [30, 60, 90, 120, 150, 175];
+
+  for (const boundary of boundaries) {
+    if (Math.abs(time - boundary) <= SPEED_RAMP_TIME) {
+      const before =
+        getBaseSpeedForTime(boundary - 0.001);
+
+      const after =
+        getBaseSpeedForTime(boundary + 0.001);
+
+      const t =
+        (time - boundary + SPEED_RAMP_TIME) /
+        (SPEED_RAMP_TIME * 2);
+
+      return before +
+        (after - before) *
+        smoothStep(t);
+    }
   }
 
-  if (time <= 90) {
-    return (
-      60 * NORMAL_SPEED +
-      (time - 60) * BUILD_SPEED
+  return getBaseSpeedForTime(time);
+}
+
+const worldDistanceTable = [];
+
+function buildWorldDistanceTable() {
+  worldDistanceTable.length = 0;
+
+  const totalSamples =
+    Math.ceil(
+      LEVEL_DURATION *
+      SPEED_SAMPLE_RATE
     );
+
+  let distance = 0;
+  let previousTime = 0;
+
+  let previousSpeed =
+    getSpeedForTime(0);
+
+  worldDistanceTable.push({
+    time: 0,
+    distance: 0,
+    speed: previousSpeed
+  });
+
+  for (
+    let i = 1;
+    i <= totalSamples;
+    i++
+  ) {
+    const time =
+      Math.min(
+        LEVEL_DURATION,
+        i / SPEED_SAMPLE_RATE
+      );
+
+    const speed =
+      getSpeedForTime(time);
+
+    distance +=
+      ((previousSpeed + speed) * 0.5) *
+      (time - previousTime);
+
+    worldDistanceTable.push({
+      time,
+      distance,
+      speed
+    });
+
+    previousTime = time;
+    previousSpeed = speed;
+  }
+}
+
+function getWorldXForTime(time) {
+  const t =
+    Math.max(
+      0,
+      Math.min(
+        LEVEL_DURATION,
+        time
+      )
+    );
+
+  const scaled =
+    t * SPEED_SAMPLE_RATE;
+
+  const index =
+    Math.floor(scaled);
+
+  if (
+    index >=
+    worldDistanceTable.length - 1
+  ) {
+    return worldDistanceTable[
+      worldDistanceTable.length - 1
+    ].distance;
   }
 
-  if (time <= 120) {
-    return (
-      60 * NORMAL_SPEED +
-      30 * BUILD_SPEED +
-      (time - 90) * INTENSE_SPEED
-    );
-  }
+  const a =
+    worldDistanceTable[index];
 
-  if (time <= 150) {
-    return (
-      60 * NORMAL_SPEED +
-      30 * BUILD_SPEED +
-      30 * INTENSE_SPEED +
-      (time - 120) * NORMAL_SPEED
-    );
-  }
+  const b =
+    worldDistanceTable[index + 1];
 
-  if (time <= 175) {
-    return (
-      60 * NORMAL_SPEED +
-      30 * BUILD_SPEED +
-      30 * INTENSE_SPEED +
-      30 * NORMAL_SPEED +
-      (time - 150) * INTENSE_SPEED
-    );
-  }
+  const mix =
+    scaled - index;
 
   return (
-    60 * NORMAL_SPEED +
-    30 * BUILD_SPEED +
-    30 * INTENSE_SPEED +
-    30 * NORMAL_SPEED +
-    25 * INTENSE_SPEED +
-    (time - 175) * INTENSE_SPEED
+    a.distance +
+    (b.distance - a.distance) *
+    mix
   );
-  }
+}
+
+buildWorldDistanceTable();
 
 // ============================================================
 // RESET
@@ -579,6 +447,7 @@ function reset() {
 
 
   worldX = 0;
+  currentSpeed = NORMAL_SPEED;
 
   currentBeat = -1;
 
@@ -875,7 +744,17 @@ function createJumpParticles() {
 
 }
 
-
+function createLandingParticles() {
+  for (let i = 0; i < 8; i++) {
+    particles.push({
+      x: player.x + player.w / 2,
+      y: player.y + player.h,
+      vx: (Math.random() - 0.5) * 180,
+      vy: -Math.random() * 80,
+      life: 0.25 + Math.random() * 0.15
+    });
+  }
+}
 function createBeatParticles() {
 
   for (
@@ -992,14 +871,19 @@ function update(dt) {
     */
 
     worldX = getWorldXForTime(music.currentTime);
-
+    currentSpeed =
+  getSpeedForTime(music.currentTime);
   }
-
+if (sectionName) {
+  sectionName.textContent =
+    getSection(music.currentTime);
+}
 
   // ==========================================================
 // PLAYER PHYSICS
 // ==========================================================
-
+const wasOnGround =
+  player.onGround;
 if (player.onGround) {
   coyoteTimer = COYOTE_TIME;
 } else {
@@ -1010,6 +894,19 @@ if (player.onGround) {
 jumpBufferTimer =
   Math.max(0, jumpBufferTimer - dt);
 
+  if (
+  !wasOnGround &&
+  player.onGround
+) {
+  createLandingParticles();
+
+  player.rot =
+    Math.round(
+      player.rot /
+      (Math.PI / 2)
+    ) *
+    (Math.PI / 2);
+  }
 
 // Gravity
 player.vy +=
@@ -1099,12 +996,18 @@ else {
   // PLAYER ROTATION
   // ==========================================================
 
-  if (
-    !player.onGround
-  ) {
+  if (!player.onGround) {
 
-    player.rot +=
-      8 * dt;
+  player.rot +=
+    8 * dt;
+
+} else {
+
+  player.rot *=
+    Math.pow(
+      0.02,
+      dt
+    );
 
   }
 
@@ -1403,7 +1306,101 @@ function drawBackground() {
     );
 
   }
+  
+// ==========================================================
+// FUTURISTIC ARCHITECTURE
+// ==========================================================
 
+const architectureOffset =
+  (worldX * 0.12) % 420;
+
+for (let i = -1; i < 6; i++) {
+
+  const x =
+    i * 420 -
+    architectureOffset +
+    80;
+
+  const baseY =
+    gy - 18;
+
+  const height =
+    150 +
+    ((i + 3) % 3) * 55;
+
+  ctx.strokeStyle =
+    'rgba(104,231,255,.11)';
+
+  ctx.lineWidth = 1;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x,
+    baseY
+  );
+
+  ctx.lineTo(
+    x + 90,
+    baseY - height
+  );
+
+  ctx.lineTo(
+    x + 180,
+    baseY
+  );
+
+  ctx.stroke();
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    x + 45,
+    baseY
+  );
+
+  ctx.lineTo(
+    x + 90,
+    baseY - height
+  );
+
+  ctx.lineTo(
+    x + 135,
+    baseY
+  );
+
+  ctx.stroke();
+
+  for (
+    let k = 1;
+    k < 4;
+    k++
+  ) {
+
+    const y =
+      baseY -
+      (height * k / 4);
+
+    ctx.globalAlpha =
+      0.12;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x + 90 - k * 10,
+      y
+    );
+
+    ctx.lineTo(
+      x + 90 + k * 10,
+      y
+    );
+
+    ctx.stroke();
+  }
+
+  ctx.globalAlpha = 1;
+}
 
   // ==========================================================
   // LARGE RHYTHM RINGS
@@ -1861,6 +1858,22 @@ function draw() {
   drawParticles();
 
   drawPlayer();
+
+  ctx.fillStyle =
+  'rgba(255,255,255,.38)';
+
+ctx.font =
+  '600 10px Arial';
+
+ctx.textAlign =
+  'right';
+
+ctx.fillText(
+  Math.round(currentSpeed) +
+  ' PX/S',
+  W - 18,
+  H - 34
+);
 
 }
 
