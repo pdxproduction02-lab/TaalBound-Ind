@@ -90,7 +90,7 @@ const BEAT_TIME =
 const BEAT_DISTANCE = 150;
 
 // 128 BPM × 150 pixels per beat.
-const SPEED =
+const BASE_SPEED =
   BEAT_DISTANCE / BEAT_TIME;
 
 // Approximate PULSE duration.
@@ -100,10 +100,6 @@ const LEVEL_DURATION = 176;
 // ============================================================
 // PHYSICS
 // ============================================================
-
-const GRAVITY = 1850;
-
-const JUMP = -720;
 
 const PLAYER_X = 140;
 
@@ -138,6 +134,24 @@ let sectionPulse = 0;
 
 let particles = [];
 
+  // ============================================================
+// V0.4 MOVEMENT SYSTEM
+// ============================================================
+
+const NORMAL_SPEED = 320;
+const INTENSE_SPEED = 390;
+const BUILD_SPEED = 345;
+
+// Jump physics
+const GRAVITY = 1800;
+const JUMP = -780;
+
+// Jump forgiveness
+const COYOTE_TIME = 0.10;
+const JUMP_BUFFER_TIME = 0.12;
+
+let coyoteTimer = 0;
+let jumpBufferTimer = 0;
 
 // ============================================================
 // PLAYER
@@ -198,7 +212,7 @@ function buildLevel() {
 
       type: 'spike',
 
-      x: beat * BEAT_DISTANCE,
+      x: getWorldXForTime(beat * BEAT_TIME),
 
       w: width,
 
@@ -232,7 +246,7 @@ function buildLevel() {
 
       type: 'barrier',
 
-      x: beat * BEAT_DISTANCE,
+      x: getWorldXForTime(beat * BEAT_TIME),
 
       w: 44,
 
@@ -475,6 +489,83 @@ function getSection(time) {
 
 }
 
+  function getSpeedForTime(time) {
+  const section = getSection(time);
+
+  switch (section) {
+    case 'INTRO':
+      return NORMAL_SPEED;
+
+    case 'RHYTHM':
+      return NORMAL_SPEED;
+
+    case 'BUILD':
+      return BUILD_SPEED;
+
+    case 'DROP':
+      return INTENSE_SPEED;
+
+    case 'BREAK':
+      return NORMAL_SPEED;
+
+    case 'FINAL DROP':
+      return INTENSE_SPEED;
+
+    case 'FINALE':
+      return INTENSE_SPEED;
+
+    default:
+      return NORMAL_SPEED;
+  }
+  }
+  function getWorldXForTime(time) {
+  if (time <= 60) {
+    return time * NORMAL_SPEED;
+  }
+
+  if (time <= 90) {
+    return (
+      60 * NORMAL_SPEED +
+      (time - 60) * BUILD_SPEED
+    );
+  }
+
+  if (time <= 120) {
+    return (
+      60 * NORMAL_SPEED +
+      30 * BUILD_SPEED +
+      (time - 90) * INTENSE_SPEED
+    );
+  }
+
+  if (time <= 150) {
+    return (
+      60 * NORMAL_SPEED +
+      30 * BUILD_SPEED +
+      30 * INTENSE_SPEED +
+      (time - 120) * NORMAL_SPEED
+    );
+  }
+
+  if (time <= 175) {
+    return (
+      60 * NORMAL_SPEED +
+      30 * BUILD_SPEED +
+      30 * INTENSE_SPEED +
+      30 * NORMAL_SPEED +
+      (time - 150) * INTENSE_SPEED
+    );
+  }
+
+  return (
+    60 * NORMAL_SPEED +
+    30 * BUILD_SPEED +
+    30 * INTENSE_SPEED +
+    30 * NORMAL_SPEED +
+    25 * INTENSE_SPEED +
+    (time - 175) * INTENSE_SPEED
+  );
+  }
 
 // ============================================================
 // RESET
@@ -573,33 +664,25 @@ function reset() {
 // ============================================================
 
 function jump() {
+  if (!running || dead || finished) return;
 
-  if (
-    !running ||
-    dead ||
-    finished
-  ) {
+  // Remember the jump input briefly.
+  jumpBufferTimer = JUMP_BUFFER_TIME;
 
-    return;
-
+  // Allow jumping slightly after leaving a platform.
+  if (player.onGround || coyoteTimer > 0) {
+    performJump();
   }
+}
 
+function performJump() {
+  player.vy = JUMP;
+  player.onGround = false;
 
-  if (
-    player.onGround
-  ) {
+  coyoteTimer = 0;
+  jumpBufferTimer = 0;
 
-    player.vy =
-      JUMP;
-
-    player.onGround =
-      false;
-
-
-    createJumpParticles();
-
-  }
-
+  createJumpParticles();
 }
 
 
@@ -908,52 +991,67 @@ function update(dt) {
       for level synchronization.
     */
 
-    worldX =
-      music.currentTime *
-      SPEED;
+    worldX = getWorldXForTime(music.currentTime);
 
   }
 
 
   // ==========================================================
-  // PLAYER PHYSICS
-  // ==========================================================
+// PLAYER PHYSICS
+// ==========================================================
 
-  player.vy +=
-    GRAVITY * dt;
+if (player.onGround) {
+  coyoteTimer = COYOTE_TIME;
+} else {
+  coyoteTimer =
+    Math.max(0, coyoteTimer - dt);
+}
 
-  player.y +=
-    player.vy * dt;
+jumpBufferTimer =
+  Math.max(0, jumpBufferTimer - dt);
 
 
-  const gy =
-    GROUND_Y();
+// Gravity
+player.vy +=
+  GRAVITY * dt;
+
+player.y +=
+  player.vy * dt;
 
 
-  if (
-    player.y +
-    player.h >=
-    gy
-  ) {
+const gy =
+  GROUND_Y();
 
-    player.y =
-      gy -
-      player.h;
 
-    player.vy = 0;
+if (
+  player.y +
+  player.h >=
+  gy
+) {
 
-    player.onGround =
-      true;
+  player.y =
+    gy -
+    player.h;
 
+  player.vy = 0;
+
+  player.onGround =
+    true;
+
+  // If jump was pressed slightly
+  // before landing, jump immediately.
+  if (jumpBufferTimer > 0) {
+    performJump();
   }
 
-  else {
+}
 
-    player.onGround =
-      false;
+else {
 
-  }
+  player.onGround =
+    false;
 
+}
 
   // ==========================================================
   // BEAT CLOCK
@@ -1057,19 +1155,19 @@ function update(dt) {
 
       x:
         playerWorldX +
-        5,
+        6,
 
       y:
         player.y +
-        5,
+        6,
 
       w:
         player.w -
-        10,
+        12,
 
       h:
         player.h -
-        8
+        10
 
     };
 
