@@ -174,7 +174,7 @@ const SPEED_KEYFRAMES = [
 
   { time: 65,  multiplier: 2.00 },
 
-  { time: 90,  multiplier: 0.70 },
+  { time: 90,  multiplier: 1.50 },
 
   { time: 100, multiplier: 1.00 },
 
@@ -182,7 +182,7 @@ const SPEED_KEYFRAMES = [
 
   { time: 124, multiplier: 1.90 },
 
-  { time: 150, multiplier: 0.70 },
+  { time: 150, multiplier: 1.50 },
 
   { time: 160, multiplier: 1.00 }
 
@@ -951,42 +951,58 @@ if (sectionName) {
     getSection(music.currentTime);
 }
 
-  // ==========================================================
-// PLAYER PHYSICS
+  // PLAYER PHYSICS
 // ==========================================================
+
 const wasOnGround =
   player.onGround;
+
+
+// ----------------------------------------------------------
+// COYOTE TIME
+// ----------------------------------------------------------
+
 if (player.onGround) {
-  coyoteTimer = COYOTE_TIME;
-} else {
+
   coyoteTimer =
-    Math.max(0, coyoteTimer - dt);
+    COYOTE_TIME;
+
+} else {
+
+  coyoteTimer =
+    Math.max(
+      0,
+      coyoteTimer - dt
+    );
+
 }
 
+
+// ----------------------------------------------------------
+// JUMP BUFFER
+// ----------------------------------------------------------
+
 jumpBufferTimer =
-  Math.max(0, jumpBufferTimer - dt);
+  Math.max(
+    0,
+    jumpBufferTimer - dt
+  );
 
-  if (
-  !wasOnGround &&
-  player.onGround
-) {
-  createLandingParticles();
 
-  player.rot =
-    Math.round(
-      player.rot /
-      (Math.PI / 2)
-    ) *
-    (Math.PI / 2);
-  }
+// ----------------------------------------------------------
+// GRAVITY
+// ----------------------------------------------------------
 
-// Gravity
 player.vy +=
   GRAVITY * dt;
 
 player.y +=
   player.vy * dt;
 
+
+// ----------------------------------------------------------
+// GROUND COLLISION
+// ----------------------------------------------------------
 
 const gy =
   GROUND_Y();
@@ -1007,10 +1023,31 @@ if (
   player.onGround =
     true;
 
-  // If jump was pressed slightly
-  // before landing, jump immediately.
-  if (jumpBufferTimer > 0) {
+
+  // --------------------------------------------------------
+  // LANDING DETECTED
+  // --------------------------------------------------------
+
+  if (!wasOnGround) {
+
+    createLandingParticles();
+
+    // Instantly restore perfect square alignment.
+    player.rot = 0;
+
+  }
+
+
+  // --------------------------------------------------------
+  // BUFFERED JUMP
+  // --------------------------------------------------------
+
+  if (
+    jumpBufferTimer > 0
+  ) {
+
     performJump();
+
   }
 
 }
@@ -1021,7 +1058,6 @@ else {
     false;
 
 }
-
   // ==========================================================
   // BEAT CLOCK
   // ==========================================================
@@ -1065,23 +1101,19 @@ else {
 
 
   // ==========================================================
-  // PLAYER ROTATION
-  // ==========================================================
+// PLAYER ROTATION
+// ==========================================================
 
-  if (!player.onGround) {
+// Rotate only while airborne.
+// Once the player lands, the physics system above
+// has already snapped rotation to exactly 0°.
+
+if (!player.onGround) {
 
   player.rot +=
     8 * dt;
 
-} else {
-
-  player.rot *=
-    Math.pow(
-      0.02,
-      dt
-    );
-
-  }
+}
 
 
   // ==========================================================
