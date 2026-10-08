@@ -234,91 +234,223 @@ let hazards = [];
 // ============================================================
 
 function buildLevel() {
+
   hazards = [];
 
-  function spike(beat, width = 38, height = 42) {
+
+  function spike(
+    beat,
+    width = 38,
+    height = 42
+  ) {
+
     hazards.push({
       type: 'spike',
-      x: getWorldXForTime(beat * BEAT_TIME),
+      x: getWorldXForTime(
+        beat * BEAT_TIME
+      ),
       w: width,
       h: height
     });
+
   }
+
 
   function doubleSpike(beat) {
-    spike(beat, 38, 42);
-    spike(beat + 2, 38, 42);
+
+    spike(beat);
+    spike(beat + 2);
+
   }
 
-  function tallBarrier(beat) {
+
+  function barrier(beat) {
+
     hazards.push({
       type: 'barrier',
-      x: getWorldXForTime(beat * BEAT_TIME),
+      x: getWorldXForTime(
+        beat * BEAT_TIME
+      ),
       w: 44,
       h: 72
     });
+
   }
 
-  function rhythmPattern(startBeat, pattern) {
-    for (const offset of pattern) {
-      spike(startBeat + offset);
+
+  function pattern(
+    startBeat,
+    offsets
+  ) {
+
+    for (const offset of offsets) {
+
+      spike(
+        startBeat + offset
+      );
+
     }
+
   }
 
-  // INTRO
-  rhythmPattern(16, [0, 4, 8, 12, 16, 20, 24, 28]);
 
-  // RHYTHM
-  rhythmPattern(48, [0, 4, 8, 12]);
-  doubleSpike(64);
-  spike(72);
-  doubleSpike(76);
-  spike(84);
-  doubleSpike(88);
-  spike(96);
+  // ==========================================================
+  // 00:00–00:30 — INTRO
+  // ==========================================================
 
-  // BUILD
-  rhythmPattern(104, [0, 4, 8, 12, 16, 20, 24]);
-  doubleSpike(132);
-  spike(140);
-  doubleSpike(144);
+  pattern(
+    16,
+    [0, 8, 16, 24]
+  );
+
+
+  // ==========================================================
+  // 00:30–00:50 — RHYTHM
+  // ==========================================================
+
+  pattern(
+    64,
+    [0, 8, 16]
+  );
+
+  doubleSpike(96);
+
+
+  // ==========================================================
+  // 00:50–01:00 — BUILD
+  // ==========================================================
+
+  spike(104);
+
+  doubleSpike(108);
+
+  spike(112);
+
+  doubleSpike(116);
+
+  spike(120);
+
+
+  // ==========================================================
+  // 01:00–01:05 — SPEED SURGE
+  // ==========================================================
+
+  doubleSpike(128);
+
+  spike(132);
+
+  doubleSpike(136);
+
+
+  // ==========================================================
+  // 01:05–01:30 — EXTREME DROP
+  // ==========================================================
+
+  doubleSpike(140);
+
+  spike(144);
+
+  doubleSpike(148);
+
   spike(152);
+
   doubleSpike(156);
-  spike(164);
-  tallBarrier(168);
 
-  // FIRST DROP
-  rhythmPattern(176, [0, 4, 8, 12]);
-  doubleSpike(192);
-  spike(200);
-  doubleSpike(204);
-  spike(212);
-  doubleSpike(216);
-  spike(224);
-  doubleSpike(228);
-  spike(236);
-  doubleSpike(240);
-  spike(248);
+  spike(160);
 
-  // BREAK
+  doubleSpike(164);
+
+  spike(168);
+
+  doubleSpike(172);
+
+  spike(176);
+
+  doubleSpike(180);
+
+  spike(184);
+
+
+  // ==========================================================
+  // 01:30–01:40 — BRAKE
+  // ==========================================================
+
+  spike(192);
+
+  spike(208);
+
+
+  // ==========================================================
+  // 01:40–02:00 — NORMAL
+  // ==========================================================
+
+  pattern(
+    216,
+    [0, 8, 16]
+  );
+
+  barrier(240);
+
+
+  // ==========================================================
+  // 02:00–02:04 — SURGE
+  // ==========================================================
+
+  doubleSpike(256);
+
   spike(260);
-  spike(272);
-  tallBarrier(284);
-  spike(296);
 
-  // BUILD 2
-  rhythmPattern(304, [0, 4, 8, 12, 16]);
-  tallBarrier(324);
-  spike(332);
+  doubleSpike(264);
 
-  // FINAL DROP
-  doubleSpike(336);
-  spike(344);
-  doubleSpike(348);
-  spike(356);
+
+  // ==========================================================
+  // 02:04–02:30 — FINAL MAJOR SURGE
+  // ==========================================================
+
+  doubleSpike(272);
+
+  spike(276);
+
+  doubleSpike(280);
+
+  spike(284);
+
+  doubleSpike(288);
+
+  spike(292);
+
+  doubleSpike(296);
+
+  spike(300);
+
+  doubleSpike(304);
+
+  spike(308);
+
+
+  // ==========================================================
+  // 02:30–02:40 — BRAKE
+  // ==========================================================
+
+  spike(320);
+
+  spike(336);
+
+  barrier(348);
+
+
+  // ==========================================================
+  // 02:40–END — FINALE
+  // ==========================================================
+
+  spike(352);
+
   doubleSpike(360);
+
   spike(368);
+
   doubleSpike(372);
+
 }
 
 
@@ -782,7 +914,7 @@ function createJumpParticles() {
 
   for (
     let i = 0;
-    i < 6;
+    i < 8;
     i++
   ) {
 
@@ -798,34 +930,59 @@ function createJumpParticles() {
 
       vx:
         (Math.random() - 0.5) *
-        90,
+        120,
 
       vy:
+        20 +
         Math.random() *
-        70,
+        80,
 
       life:
-        0.35 +
-
+        0.30 +
         Math.random() *
-        0.2
+        0.20
 
     });
 
   }
 
 }
-
 function createLandingParticles() {
-  for (let i = 0; i < 8; i++) {
+
+  for (
+    let i = 0;
+    i < 12;
+    i++
+  ) {
+
     particles.push({
-      x: player.x + player.w / 2,
-      y: player.y + player.h,
-      vx: (Math.random() - 0.5) * 180,
-      vy: -Math.random() * 80,
-      life: 0.25 + Math.random() * 0.15
+
+      x:
+        player.x +
+        player.w / 2,
+
+      y:
+        player.y +
+        player.h,
+
+      vx:
+        (Math.random() - 0.5) *
+        220,
+
+      vy:
+        -20 -
+        Math.random() *
+        100,
+
+      life:
+        0.28 +
+        Math.random() *
+        0.18
+
     });
+
   }
+
 }
 function createBeatParticles() {
 
