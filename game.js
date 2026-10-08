@@ -245,6 +245,10 @@ function buildLevel() {
   hazards = [];
 
 
+  // ==========================================================
+  // BASIC OBSTACLES
+  // ==========================================================
+
   function spike(
     beat,
     width = 38,
@@ -253,9 +257,12 @@ function buildLevel() {
 
     hazards.push({
       type: 'spike',
-      x: getWorldXForTime(
-        beat * BEAT_TIME
-      ),
+
+      x:
+        getWorldXForTime(
+          beat * BEAT_TIME
+        ),
+
       w: width,
       h: height
     });
@@ -271,29 +278,80 @@ function buildLevel() {
   }
 
 
+  function tripleSpike(beat) {
+
+    spike(beat);
+    spike(beat + 2);
+    spike(beat + 4);
+
+  }
+
+
   function barrier(beat) {
 
     hazards.push({
+
       type: 'barrier',
-      x: getWorldXForTime(
-        beat * BEAT_TIME
-      ),
+
+      x:
+        getWorldXForTime(
+          beat * BEAT_TIME
+        ),
+
       w: 44,
       h: 72
+
     });
 
   }
 
 
-  function pattern(
-    startBeat,
-    offsets
+  // ==========================================================
+  // V0.7B — RHYTHM BLOCK
+  // ==========================================================
+
+  function rhythmBlock(
+    beat,
+    width = 48,
+    height = 58
   ) {
 
-    for (const offset of offsets) {
+    hazards.push({
+
+      type: 'rhythmBlock',
+
+      x:
+        getWorldXForTime(
+          beat * BEAT_TIME
+        ),
+
+      w: width,
+      h: height
+
+    });
+
+  }
+
+
+  // ==========================================================
+  // PATTERN HELPERS
+  // ==========================================================
+
+  function rapidSpikes(
+    startBeat,
+    count,
+    spacing = 2
+  ) {
+
+    for (
+      let i = 0;
+      i < count;
+      i++
+    ) {
 
       spike(
-        startBeat + offset
+        startBeat +
+        i * spacing
       );
 
     }
@@ -301,165 +359,358 @@ function buildLevel() {
   }
 
 
+  function alternating(
+    startBeat,
+    count
+  ) {
+
+    for (
+      let i = 0;
+      i < count;
+      i++
+    ) {
+
+      const beat =
+        startBeat +
+        i * 2;
+
+      if (
+        i % 2 === 0
+      ) {
+
+        spike(
+          beat,
+          40,
+          44
+        );
+
+      } else {
+
+        doubleSpike(
+          beat
+        );
+
+      }
+
+    }
+
+  }
+
+
+  function blockSpike(
+    beat
+  ) {
+
+    rhythmBlock(
+      beat
+    );
+
+    spike(
+      beat + 2
+    );
+
+  }
+
+
+  function spikeBlock(
+    beat
+  ) {
+
+    spike(
+      beat
+    );
+
+    rhythmBlock(
+      beat + 2
+    );
+
+  }
+
+
+  function mixedPattern(
+    startBeat,
+    pattern
+  ) {
+
+    for (
+      const item of pattern
+    ) {
+
+      if (
+        item === 'S'
+      ) {
+
+        spike(
+          startBeat
+        );
+
+      }
+
+      if (
+        item === 'D'
+      ) {
+
+        doubleSpike(
+          startBeat
+        );
+
+      }
+
+      if (
+        item === 'T'
+      ) {
+
+        tripleSpike(
+          startBeat
+        );
+
+      }
+
+      if (
+        item === 'B'
+      ) {
+
+        rhythmBlock(
+          startBeat
+        );
+
+      }
+
+      if (
+        item === 'X'
+      ) {
+
+        barrier(
+          startBeat
+        );
+
+      }
+
+      startBeat += 4;
+
+    }
+
+  }
+
+
   // ==========================================================
-  // 00:00–00:30 — INTRO
+  // 00:00–00:30
+  // INTRO
   // ==========================================================
 
-  pattern(
-    16,
-    [0, 8, 16, 24]
+  spike(16);
+
+  spike(24);
+
+  doubleSpike(32);
+
+  spike(40);
+
+  doubleSpike(48);
+
+
+  // ==========================================================
+  // 00:30–00:50
+  // RHYTHM
+  // ==========================================================
+
+  spike(64);
+
+  doubleSpike(68);
+
+  spike(72);
+
+  doubleSpike(76);
+
+  tripleSpike(80);
+
+  spike(86);
+
+
+  // ==========================================================
+  // 00:50–01:00
+  // BUILD
+  // ==========================================================
+
+  mixedPattern(
+    104,
+    [
+      'S',
+      'D',
+      'S',
+      'B'
+    ]
+  );
+
+
+  mixedPattern(
+    120,
+    [
+      'D',
+      'S',
+      'B'
+    ]
   );
 
 
   // ==========================================================
-  // 00:30–00:50 — RHYTHM
-  // ==========================================================
-
-  pattern(
-    64,
-    [0, 8, 16]
-  );
-
-  doubleSpike(96);
-
-
-  // ==========================================================
-  // 00:50–01:00 — BUILD
-  // ==========================================================
-
-  spike(104);
-
-  doubleSpike(108);
-
-  spike(112);
-
-  doubleSpike(116);
-
-  spike(120);
-
-
-  // ==========================================================
-  // 01:00–01:05 — SPEED SURGE
+  // 01:00–01:05
+  // FIRST SPEED PEAK
   // ==========================================================
 
   doubleSpike(128);
 
-  spike(132);
+  tripleSpike(132);
 
-  doubleSpike(136);
-
-
-  // ==========================================================
-  // 01:05–01:30 — EXTREME DROP
-  // ==========================================================
-
-  doubleSpike(140);
-
-  spike(144);
-
-  doubleSpike(148);
-
-  spike(152);
-
-  doubleSpike(156);
-
-  spike(160);
-
-  doubleSpike(164);
-
-  spike(168);
-
-  doubleSpike(172);
-
-  spike(176);
-
-  doubleSpike(180);
-
-  spike(184);
+  rhythmBlock(136);
 
 
   // ==========================================================
-  // 01:30–01:40 — BRAKE
+  // 01:05–01:30
+  // 🔥 EXTREME PEAK
   // ==========================================================
 
-  spike(192);
+  alternating(
+    140,
+    8
+  );
+
+
+  blockSpike(156);
+
+  doubleSpike(160);
+
+  spikeBlock(164);
+
+  tripleSpike(168);
+
+  blockSpike(174);
+
+  alternating(
+    178,
+    6
+  );
+
+
+  mixedPattern(
+    190,
+    [
+      'D',
+      'T',
+      'B',
+      'D',
+      'T'
+    ]
+  );
+
+
+  // ==========================================================
+  // 01:30–01:40
+  // RECOVERY
+  // ==========================================================
 
   spike(208);
 
-
-  // ==========================================================
-  // 01:40–02:00 — NORMAL
-  // ==========================================================
-
-  pattern(
-    216,
-    [0, 8, 16]
-  );
-
-  barrier(240);
+  spike(224);
 
 
   // ==========================================================
-  // 02:00–02:04 — SURGE
+  // 01:40–02:00
+  // NORMAL SECTION
   // ==========================================================
+
+  doubleSpike(232);
+
+  rhythmBlock(240);
+
+  spike(248);
 
   doubleSpike(256);
 
-  spike(260);
 
-  doubleSpike(264);
+  // ==========================================================
+  // 02:00–02:04
+  // SPEED SURGE
+  // ==========================================================
+
+  tripleSpike(264);
+
+  rhythmBlock(268);
 
 
   // ==========================================================
-  // 02:04–02:30 — FINAL MAJOR SURGE
+  // 02:04–02:30
+  // 💀 FINAL MAJOR PEAK
   // ==========================================================
 
-  doubleSpike(272);
+  mixedPattern(
+    272,
+    [
+      'D',
+      'T',
+      'B',
+      'D',
+      'T',
+      'B'
+    ]
+  );
 
-  spike(276);
 
-  doubleSpike(280);
+  alternating(
+    300,
+    8
+  );
 
-  spike(284);
 
-  doubleSpike(288);
+  blockSpike(316);
 
-  spike(292);
+  tripleSpike(320);
 
-  doubleSpike(296);
+  spikeBlock(324);
 
-  spike(300);
+  doubleSpike(328);
 
-  doubleSpike(304);
+  rhythmBlock(332);
 
-  spike(308);
+
+  // FINAL RAPID RUN
+
+  rapidSpikes(
+    336,
+    7,
+    2
+  );
 
 
   // ==========================================================
-  // 02:30–02:40 — BRAKE
-  // ==========================================================
-
-  spike(320);
-
-  spike(336);
-
-  barrier(348);
-
-
-  // ==========================================================
-  // 02:40–END — FINALE
+  // 02:30–02:40
+  // BRAKE
   // ==========================================================
 
   spike(352);
 
-  doubleSpike(360);
-
   spike(368);
 
-  doubleSpike(372);
+  rhythmBlock(376);
+
+
+  // ==========================================================
+  // 02:40–END
+  // FINALE
+  // ==========================================================
+
+  doubleSpike(356);
+
+tripleSpike(360);
+
+blockSpike(364);
+
+alternating(
+  368,
+  3
+);
 
 }
-
 
 // ============================================================
 // SECTION SYSTEM
@@ -2330,6 +2581,7 @@ function drawHazards() {
         h.w,
         h.h
       );
+      
 
 
       // Internal rhythm lines.
@@ -2361,6 +2613,85 @@ function drawHazards() {
         );
 
         ctx.stroke();
+        if (
+  h.type ===
+  'rhythmBlock'
+) {
+
+  ctx.fillStyle =
+    '#68e7ff';
+
+  ctx.shadowColor =
+    '#68e7ff';
+
+  ctx.shadowBlur =
+    14 +
+    beatPulse * 12;
+
+
+  ctx.fillRect(
+    sx,
+    gy - h.h,
+    h.w,
+    h.h
+  );
+
+
+  ctx.shadowBlur =
+    0;
+
+
+  ctx.strokeStyle =
+    '#d8f9ff';
+
+  ctx.lineWidth =
+    2;
+
+
+  ctx.strokeRect(
+    sx,
+    gy - h.h,
+    h.w,
+    h.h
+  );
+
+
+  // Rhythm symbol / internal pattern.
+
+  ctx.strokeStyle =
+    'rgba(7,10,18,.75)';
+
+  ctx.lineWidth =
+    2;
+
+
+  for (
+    let y =
+      gy - h.h + 12;
+
+    y <
+      gy - 8;
+
+    y += 12
+  ) {
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      sx + 7,
+      y
+    );
+
+    ctx.lineTo(
+      sx + h.w - 7,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+      }
 
       }
 
