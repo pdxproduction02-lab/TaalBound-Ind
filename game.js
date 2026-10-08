@@ -139,8 +139,6 @@ let particles = [];
 // ============================================================
 
 let speedVisualPulse = 0;
-let environmentPulse = 0;
-let screenShake = 0;
 let previousSpeed = 320;
 
   // ============================================================
@@ -661,6 +659,8 @@ function reset() {
 
   worldX = 0;
   currentSpeed = NORMAL_SPEED;
+  previousSpeed = NORMAL_SPEED;
+speedVisualPulse = 0;
 
   currentBeat = -1;
 
@@ -1116,56 +1116,60 @@ function update(dt) {
     music.readyState >= 2
   ) {
 
-    /*
-      IMPORTANT:
+    // Audio is the authoritative game clock.
 
-      Audio is now the authoritative clock.
+    worldX =
+      getWorldXForTime(
+        music.currentTime
+      );
 
-      We no longer rely on accumulated dt
-      for level synchronization.
-    */
-
-    worldX = getWorldXForTime(music.currentTime);
     currentSpeed =
-  getSpeedForTime(music.currentTime);
-    // ==========================================================
-// SPEED VISUAL RESPONSE
-// ==========================================================
+      getSpeedForTime(
+        music.currentTime
+      );
 
-const speedRatio =
-  currentSpeed / NORMAL_SPEED;
+  }
 
-const speedChange =
-  Math.abs(
-    currentSpeed -
-    previousSpeed
-  );
 
-if (speedChange > 2) {
+  // ==========================================================
+  // SPEED VISUAL RESPONSE
+  // ==========================================================
 
-  speedVisualPulse =
-    Math.min(
-      1,
-      speedVisualPulse +
-      speedChange / 120
+  const speedChange =
+    Math.abs(
+      currentSpeed -
+      previousSpeed
     );
 
-}
+  if (speedChange > 2) {
 
-previousSpeed =
-  currentSpeed;
+    speedVisualPulse =
+      Math.min(
+        1,
+        speedVisualPulse +
+        speedChange / 120
+      );
 
-speedVisualPulse *=
-  Math.pow(
-    0.025,
-    dt
-  );
   }
-if (sectionName) {
-  sectionName.textContent =
-    getSection(music.currentTime);
-}
 
+  previousSpeed =
+    currentSpeed;
+
+  speedVisualPulse *=
+    Math.pow(
+      0.025,
+      dt
+    );
+
+
+  if (sectionName) {
+
+    sectionName.textContent =
+      getSection(
+        music.currentTime
+      );
+
+  }
   // PLAYER PHYSICS
 // ==========================================================
 
