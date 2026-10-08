@@ -174,7 +174,7 @@ const SPEED_KEYFRAMES = [
 
   { time: 65,  multiplier: 2.00 },
 
-  { time: 90,  multiplier: 0.50 },
+  { time: 90,  multiplier: 0.70 },
 
   { time: 100, multiplier: 1.00 },
 
@@ -182,7 +182,7 @@ const SPEED_KEYFRAMES = [
 
   { time: 124, multiplier: 1.90 },
 
-  { time: 150, multiplier: 0.50 },
+  { time: 150, multiplier: 0.70 },
 
   { time: 160, multiplier: 1.00 }
 
