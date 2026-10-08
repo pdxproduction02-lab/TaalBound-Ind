@@ -286,6 +286,42 @@ function buildLevel() {
 
   }
 
+    // ==========================================================
+  // V0.8 — ASTEROID STORM
+  // ==========================================================
+
+  function asteroid(impactBeat) {
+
+    const impactTime =
+      impactBeat * BEAT_TIME;
+
+    hazards.push({
+
+      type: 'asteroid',
+
+      x:
+        getWorldXForTime(
+          impactTime
+        ),
+
+      w: 56,
+      h: 54,
+
+      debrisX: 76,
+      debrisW: 38,
+      debrisH: 42,
+
+      warningTime: 0.85,
+
+      impactTime,
+
+      impacted: false,
+
+      impactFlash: 0
+
+    });
+
+  }
 
   function barrier(beat) {
 
@@ -590,6 +626,16 @@ function buildLevel() {
     178,
     6
   );
+    // ==========================================================
+  // V0.8 — ASTEROID STORM
+  // 2× SPEED PEAK
+  // ==========================================================
+
+  asteroid(152);
+
+  asteroid(170);
+
+  asteroid(188);
 
 
   mixedPattern(
@@ -1177,6 +1223,37 @@ function finish() {
 
 }
 
+    // ==========================================================
+  // V0.8 — ASTEROID IMPACT SYSTEM
+  // ==========================================================
+
+  for (const h of hazards) {
+
+    if (h.type !== 'asteroid') {
+      continue;
+    }
+
+    if (
+      !h.impacted &&
+      music.currentTime >=
+      h.impactTime
+    ) {
+
+      h.impacted = true;
+
+      h.impactFlash = 1;
+
+      createAsteroidImpactParticles(h);
+
+    }
+
+    h.impactFlash *=
+      Math.pow(
+        0.01,
+        dt
+      );
+
+  }
 
 // ============================================================
 // COLLISION
@@ -1244,6 +1321,44 @@ function createJumpParticles() {
   }
 
 }
+  function createAsteroidImpactParticles(h) {
+
+  const sx =
+    h.x - worldX +
+    h.w / 2;
+
+  const gy =
+    GROUND_Y();
+
+  for (
+    let i = 0;
+    i < 24;
+    i++
+  ) {
+
+    particles.push({
+
+      x: sx,
+
+      y: gy - 4,
+
+      vx:
+        (Math.random() - 0.5) *
+        420,
+
+      vy:
+        -80 -
+        Math.random() * 240,
+
+      life:
+        0.35 +
+        Math.random() * 0.35
+
+    });
+
+  }
+
+  }
 function createLandingParticles() {
 
   for (
@@ -1632,9 +1747,26 @@ if (!player.onGround) {
     player.x;
 
 
-  for (
+    for (
     const h of hazards
   ) {
+
+    // ========================================================
+    // ASTEROID
+    // ========================================================
+
+    if (
+      h.type === 'asteroid' &&
+      !h.impacted
+    ) {
+
+      // Falling asteroid is only a warning
+      // until the actual impact.
+
+      continue;
+
+    }
+
 
     const hx =
       h.x;
@@ -1657,13 +1789,6 @@ if (!player.onGround) {
 
     };
 
-
-    /*
-      Slight collision forgiveness.
-
-      Visual player remains 34px,
-      collision box is slightly smaller.
-    */
 
     const playerBox = {
 
@@ -1696,6 +1821,52 @@ if (!player.onGround) {
       die();
 
       return;
+
+    }
+
+
+    // ========================================================
+    // ASTEROID DEBRIS
+    // ========================================================
+
+    if (
+      h.type === 'asteroid' &&
+      h.impacted
+    ) {
+
+      const debrisBox = {
+
+        x:
+          h.x +
+          h.debrisX,
+
+        y:
+          gy -
+          h.debrisH,
+
+        w:
+          h.debrisW,
+
+        h:
+          h.debrisH
+
+      };
+
+
+      if (
+        rectHit(
+          playerBox,
+          debrisBox
+        )
+      ) {
+
+        die();
+
+        return;
+
+      }
+
+    }
 
     }
 
@@ -2637,7 +2808,323 @@ function drawHazards() {
     }
 
   }
+    // ========================================================
+    // V0.8 — ASTEROID STORM
+    // ========================================================
 
+    if (h.type === 'asteroid') {
+
+      const timeToImpact =
+        h.impactTime -
+        music.currentTime;
+
+
+      // ------------------------------------------------------
+      // WARNING MARKER
+      // ------------------------------------------------------
+
+      if (
+        !h.impacted &&
+        timeToImpact <= h.warningTime &&
+        timeToImpact >= 0
+      ) {
+
+        const warningAlpha =
+          0.35 +
+          Math.sin(
+            music.currentTime * 18
+          ) * 0.25;
+
+        ctx.fillStyle =
+          `rgba(255,90,70,${warningAlpha})`;
+
+        ctx.fillRect(
+          sx,
+          gy - 5,
+          h.w,
+          5
+        );
+
+        ctx.font =
+          '700 10px Arial';
+
+        ctx.textAlign =
+          'center';
+
+        ctx.fillText(
+          '⚠',
+          sx + h.w / 2,
+          gy - 12
+        );
+
+      }
+
+
+      // ------------------------------------------------------
+      // FALLING ASTEROID
+      // ------------------------------------------------------
+
+      if (!h.impacted) {
+
+        const fallProgress =
+          Math.max(
+            0,
+            Math.min(
+              1,
+              1 -
+              (
+                timeToImpact /
+                0.85
+              )
+            )
+          );
+
+        const asteroidY =
+          -90 +
+          (
+            gy -
+            80
+          ) *
+          fallProgress;
+
+
+        ctx.save();
+
+        ctx.translate(
+          sx + h.w / 2,
+          asteroidY
+        );
+
+        ctx.rotate(
+          music.currentTime * 5
+        );
+
+
+        ctx.fillStyle =
+          '#8c7a72';
+
+        ctx.shadowColor =
+          '#ff6a55';
+
+        ctx.shadowBlur =
+          18;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(-27, -8);
+        ctx.lineTo(-12, -27);
+        ctx.lineTo(13, -24);
+        ctx.lineTo(29, -5);
+        ctx.lineTo(20, 19);
+        ctx.lineTo(-4, 27);
+        ctx.lineTo(-25, 15);
+
+        ctx.closePath();
+
+        ctx.fill();
+
+
+        ctx.shadowBlur = 0;
+
+        ctx.strokeStyle =
+          '#ff8b72';
+
+        ctx.lineWidth = 2;
+
+        ctx.stroke();
+
+
+        // Craters
+
+        ctx.fillStyle =
+          'rgba(30,25,25,.55)';
+
+        ctx.beginPath();
+
+        ctx.arc(
+          -10,
+          -7,
+          6,
+          0,
+          Math.PI * 2
+        );
+
+        ctx.fill();
+
+        ctx.beginPath();
+
+        ctx.arc(
+          10,
+          8,
+          5,
+          0,
+          Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        ctx.restore();
+
+      }
+
+
+      // ------------------------------------------------------
+      // IMPACTED ASTEROID
+      // ------------------------------------------------------
+
+      if (h.impacted) {
+
+        ctx.fillStyle =
+          '#75645e';
+
+        ctx.shadowColor =
+          '#ff5b4d';
+
+        ctx.shadowBlur =
+          16 +
+          h.impactFlash * 30;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          sx,
+          gy
+        );
+
+        ctx.lineTo(
+          sx + 12,
+          gy - 28
+        );
+
+        ctx.lineTo(
+          sx + 31,
+          gy - 42
+        );
+
+        ctx.lineTo(
+          sx + 53,
+          gy - 34
+        );
+
+        ctx.lineTo(
+          sx + h.w,
+          gy
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+
+        ctx.shadowBlur = 0;
+
+
+        // Impact flash
+
+        if (
+          h.impactFlash > 0.02
+        ) {
+
+          ctx.fillStyle =
+            `rgba(255,110,70,${h.impactFlash * 0.5})`;
+
+          ctx.fillRect(
+            sx - 20,
+            gy - 100,
+            h.w + 40,
+            100
+          );
+
+        }
+
+
+        // ----------------------------------------------------
+        // FRONT DEBRIS SPIKE
+        // ----------------------------------------------------
+
+        const debrisSX =
+          sx +
+          h.debrisX;
+
+        ctx.fillStyle =
+          '#ff5b4d';
+
+        ctx.shadowColor =
+          '#ff5b4d';
+
+        ctx.shadowBlur = 14;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          debrisSX,
+          gy
+        );
+
+        ctx.lineTo(
+          debrisSX +
+          h.debrisW / 2,
+          gy -
+          h.debrisH
+        );
+
+        ctx.lineTo(
+          debrisSX +
+          h.debrisW,
+          gy
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+
+        ctx.shadowBlur = 0;
+
+
+        // Impact cracks
+
+        ctx.strokeStyle =
+          'rgba(255,180,130,.8)';
+
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          sx + 12,
+          gy
+        );
+
+        ctx.lineTo(
+          sx + 22,
+          gy - 18
+        );
+
+        ctx.lineTo(
+          sx + 34,
+          gy
+        );
+
+        ctx.moveTo(
+          sx + 38,
+          gy
+        );
+
+        ctx.lineTo(
+          sx + 46,
+          gy - 14
+        );
+
+        ctx.stroke();
+
+      }
+
+  }
 }
 
 
