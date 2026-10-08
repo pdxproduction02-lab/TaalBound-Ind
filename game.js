@@ -134,6 +134,15 @@ let sectionPulse = 0;
 
 let particles = [];
 
+// ============================================================
+// V0.6B VISUAL EFFECTS
+// ============================================================
+
+let speedVisualPulse = 0;
+let environmentPulse = 0;
+let screenShake = 0;
+let previousSpeed = NORMAL_SPEED;
+
   // ============================================================
 // V0.4 MOVEMENT SYSTEM
 // ============================================================
@@ -986,40 +995,57 @@ function createLandingParticles() {
 }
 function createBeatParticles() {
 
+  const speedRatio =
+    currentSpeed /
+    NORMAL_SPEED;
+
+  const count =
+    speedRatio > 1.5
+      ? 10
+      : 6;
+
   for (
     let i = 0;
-    i < 5;
+    i < count;
     i++
   ) {
 
     particles.push({
 
       x:
-        W * 0.5,
+        W * 0.5 +
+        (Math.random() - 0.5) *
+        W * 0.35,
 
       y:
         GROUND_Y(),
 
       vx:
         (Math.random() - 0.5) *
-        260,
+        (
+          220 +
+          speedRatio * 100
+        ),
 
       vy:
-        -Math.random() *
-        180,
+        -(
+          80 +
+          Math.random() *
+          (
+            140 +
+            speedRatio * 60
+          )
+        ),
 
       life:
         0.25 +
-
-        Math.random() *
-        0.25
+        Math.random() * 0.25
 
     });
 
   }
 
 }
-
 
 function updateParticles(dt) {
 
@@ -1102,6 +1128,38 @@ function update(dt) {
     worldX = getWorldXForTime(music.currentTime);
     currentSpeed =
   getSpeedForTime(music.currentTime);
+    // ==========================================================
+// SPEED VISUAL RESPONSE
+// ==========================================================
+
+const speedRatio =
+  currentSpeed / NORMAL_SPEED;
+
+const speedChange =
+  Math.abs(
+    currentSpeed -
+    previousSpeed
+  );
+
+if (speedChange > 2) {
+
+  speedVisualPulse =
+    Math.min(
+      1,
+      speedVisualPulse +
+      speedChange / 120
+    );
+
+}
+
+previousSpeed =
+  currentSpeed;
+
+speedVisualPulse *=
+  Math.pow(
+    0.025,
+    dt
+  );
   }
 if (sectionName) {
   sectionName.textContent =
@@ -1500,6 +1558,36 @@ function drawBackground() {
     H
   );
 
+  // ==========================================================
+// SPEED SURGE OVERLAY
+// ==========================================================
+
+const speedRatio =
+  currentSpeed /
+  NORMAL_SPEED;
+
+if (speedRatio > 1.15) {
+
+  const intensity =
+    Math.min(
+      0.16,
+      (speedRatio - 1) *
+      0.08
+    ) +
+    speedVisualPulse *
+    0.08;
+
+  ctx.fillStyle =
+    `rgba(104,231,255,${intensity})`;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+}
 
   // ==========================================================
   // BEAT FLASH
@@ -1573,7 +1661,13 @@ function drawBackground() {
 // ==========================================================
 
 const architectureOffset =
-  (worldX * 0.12) % 420;
+  (
+    worldX *
+    (
+      0.12 +
+      beatPulse * 0.025
+    )
+  ) % 420;
 
 for (let i = -1; i < 6; i++) {
 
@@ -1688,8 +1782,9 @@ for (let i = -1; i < 6; i++) {
 
 
     const radius =
-      45 +
-      (i % 3) * 15;
+  45 +
+  (i % 3) * 15 +
+  beatPulse * 18;
 
 
     ctx.strokeStyle =
@@ -1755,7 +1850,77 @@ for (let i = -1; i < 6; i++) {
 
   }
 
+// ==========================================================
+// V0.6B — SPEED LINES
+// ==========================================================
 
+const speedRatio =
+  currentSpeed /
+  NORMAL_SPEED;
+
+if (speedRatio > 1.25) {
+
+  const lineCount =
+    Math.floor(
+      8 +
+      speedRatio * 8
+    );
+
+  const lineSpeed =
+    worldX * 0.35;
+
+  ctx.lineWidth = 1;
+
+  for (
+    let i = 0;
+    i < lineCount;
+    i++
+  ) {
+
+    const x =
+      (
+        i * 170 -
+        lineSpeed %
+        170
+      );
+
+    const y =
+      90 +
+      (
+        i * 67
+      ) %
+      Math.max(
+        120,
+        gy - 140
+      );
+
+    const length =
+      25 +
+      speedRatio * 25;
+
+    ctx.strokeStyle =
+      `rgba(104,231,255,${
+        0.025 +
+        speedVisualPulse * 0.05
+      })`;
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      x,
+      y
+    );
+
+    ctx.lineTo(
+      x - length,
+      y
+    );
+
+    ctx.stroke();
+
+  }
+
+}
   // ==========================================================
   // FLOOR
   // ==========================================================
@@ -1849,6 +2014,55 @@ for (let i = -1; i < 6; i++) {
   ctx.globalAlpha =
     1;
 
+  // ==========================================================
+// SPEED VIGNETTE
+// ==========================================================
+
+const speedRatio =
+  currentSpeed /
+  NORMAL_SPEED;
+
+if (speedRatio > 1.4) {
+
+  const vignette =
+    Math.min(
+      0.32,
+      (speedRatio - 1.4) *
+      0.22
+    );
+
+  const gradient =
+    ctx.createRadialGradient(
+      W / 2,
+      H / 2,
+      H * 0.20,
+      W / 2,
+      H / 2,
+      H * 0.75
+    );
+
+  gradient.addColorStop(
+    0,
+    'rgba(0,0,0,0)'
+  );
+
+  gradient.addColorStop(
+    1,
+    `rgba(0,0,0,${vignette})`
+  );
+
+  ctx.fillStyle =
+    gradient;
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+}
+
 }
 
 
@@ -1885,8 +2099,17 @@ function drawPlayer() {
     '#68e7ff';
 
 
-  ctx.shadowBlur =
-    18;
+  const speedRatio =
+  currentSpeed /
+  NORMAL_SPEED;
+
+ctx.shadowBlur =
+  18 +
+  Math.max(
+    0,
+    speedRatio - 1
+  ) * 12 +
+  beatPulse * 5;
 
 
   ctx.fillRect(
@@ -1981,8 +2204,8 @@ function drawHazards() {
 
 
       ctx.shadowBlur =
-        12;
-
+  12 +
+  beatPulse * 10;
 
       ctx.beginPath();
 
@@ -2034,7 +2257,8 @@ function drawHazards() {
 
 
       ctx.shadowBlur =
-        15;
+  15 +
+  beatPulse * 12;
 
 
       ctx.fillRect(
