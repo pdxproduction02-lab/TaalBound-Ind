@@ -807,25 +807,45 @@ canvas.addEventListener(
 );
 
 
-startButton.addEventListener(
-  'pointerdown',
-  function (e) {
+function startGameFromButton(e) {
+  if (e) {
     e.preventDefault();
     e.stopPropagation();
+  }
 
-    console.log('START BUTTON PRESSED');
+  startButton.textContent = 'STARTING...';
 
-    reset();
+  reset();
+}
+
+function restartGameFromButton(e) {
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  reset();
+}
+
+startButton.onclick =
+  startGameFromButton;
+
+restartButton.onclick =
+  restartGameFromButton;
+
+startButton.addEventListener(
+  'pointerup',
+  startGameFromButton,
+  {
+    passive: false
   }
 );
 
 restartButton.addEventListener(
-  'pointerdown',
-  function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    reset();
+  'pointerup',
+  restartGameFromButton,
+  {
+    passive: false
   }
 );
 
