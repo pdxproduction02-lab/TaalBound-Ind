@@ -652,6 +652,7 @@ buildLevel();
 
 function reset() {
 
+  console.log('RESET CALLED');
   music.pause();
 
   music.currentTime = 0;
@@ -806,11 +807,27 @@ canvas.addEventListener(
 );
 
 
-startButton.onclick =
-  reset;
+startButton.addEventListener(
+  'pointerdown',
+  function (e) {
+    e.preventDefault();
+    e.stopPropagation();
 
-restartButton.onclick =
-  reset;
+    console.log('START BUTTON PRESSED');
+
+    reset();
+  }
+);
+
+restartButton.addEventListener(
+  'pointerdown',
+  function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    reset();
+  }
+);
 
 
 // ============================================================
