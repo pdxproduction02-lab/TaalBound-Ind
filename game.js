@@ -139,12 +139,54 @@ let particles = [];
 // ============================================================
 
 const NORMAL_SPEED = 320;
-const INTENSE_SPEED = 390;
-const BUILD_SPEED = 345;
-const SPEED_RAMP_TIME = 1.35;
+
 const SPEED_SAMPLE_RATE = 120;
 
 let currentSpeed = NORMAL_SPEED;
+
+
+// ============================================================
+// PULSE — SPEED TIMELINE
+// ============================================================
+//
+// Percentage is relative to NORMAL_SPEED.
+//
+// +20%  = 1.20 × normal
+// +50%  = 1.50 × normal
+// +90%  = 1.90 × normal
+// +100% = 2.00 × normal
+// -50%  = 0.50 × normal
+//
+// Speed changes are smoothly interpolated between timestamps.
+// ============================================================
+
+const SPEED_KEYFRAMES = [
+
+  { time: 0,   multiplier: 1.00 },
+
+  { time: 15,  multiplier: 1.20 },
+
+  { time: 34,  multiplier: 1.30 },
+
+  { time: 50,  multiplier: 1.50 },
+
+  { time: 60,  multiplier: 1.90 },
+
+  { time: 65,  multiplier: 2.00 },
+
+  { time: 90,  multiplier: 0.50 },
+
+  { time: 100, multiplier: 1.00 },
+
+  { time: 120, multiplier: 1.50 },
+
+  { time: 124, multiplier: 1.90 },
+
+  { time: 150, multiplier: 0.50 },
+
+  { time: 160, multiplier: 1.00 }
+
+];
   
 // Jump physics
 const GRAVITY = 1800;
@@ -294,48 +336,79 @@ function getSection(time) {
   return 'FINALE';
 }
 
-function getBaseSpeedForTime(time) {
-  switch (getSection(time)) {
-    case 'BUILD':
-      return BUILD_SPEED;
-
-    case 'DROP':
-    case 'FINAL DROP':
-    case 'FINALE':
-      return INTENSE_SPEED;
-
-    default:
-      return NORMAL_SPEED;
-  }
-}
-
 function smoothStep(t) {
-  t = Math.max(0, Math.min(1, t));
-  return t * t * (3 - 2 * t);
+
+  t = Math.max(
+    0,
+    Math.min(1, t)
+  );
+
+  return (
+    t * t *
+    (3 - 2 * t)
+  );
+
 }
+
 
 function getSpeedForTime(time) {
-  const boundaries = [30, 60, 90, 120, 150, 175];
 
-  for (const boundary of boundaries) {
-    if (Math.abs(time - boundary) <= SPEED_RAMP_TIME) {
-      const before =
-        getBaseSpeedForTime(boundary - 0.001);
+  const points =
+    SPEED_KEYFRAMES;
 
-      const after =
-        getBaseSpeedForTime(boundary + 0.001);
-
-      const t =
-        (time - boundary + SPEED_RAMP_TIME) /
-        (SPEED_RAMP_TIME * 2);
-
-      return before +
-        (after - before) *
-        smoothStep(t);
-    }
+  if (time <= points[0].time) {
+    return (
+      NORMAL_SPEED *
+      points[0].multiplier
+    );
   }
 
-  return getBaseSpeedForTime(time);
+
+  for (
+    let i = 0;
+    i < points.length - 1;
+    i++
+  ) {
+
+    const a = points[i];
+    const b = points[i + 1];
+
+
+    if (
+      time >= a.time &&
+      time <= b.time
+    ) {
+
+      const rawT =
+        (time - a.time) /
+        (b.time - a.time);
+
+      const t =
+        smoothStep(rawT);
+
+      const multiplier =
+        a.multiplier +
+        (
+          b.multiplier -
+          a.multiplier
+        ) * t;
+
+      return (
+        NORMAL_SPEED *
+        multiplier
+      );
+
+    }
+
+  }
+
+
+  return (
+    NORMAL_SPEED *
+    points[points.length - 1]
+      .multiplier
+  );
+
 }
 
 const worldDistanceTable = [];
