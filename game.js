@@ -1895,16 +1895,16 @@ for (let i = -1; i < 6; i++) {
 // V0.6B — SPEED LINES
 // ==========================================================
 
-const speedRatio =
+const speedLineRatio =
   currentSpeed /
   NORMAL_SPEED;
 
-if (speedRatio > 1.25) {
+if (speedLineRatio > 1.25) {
 
   const lineCount =
     Math.floor(
       8 +
-      speedRatio * 8
+      speedLineRatio * 8
     );
 
   const lineSpeed =
@@ -1937,7 +1937,7 @@ if (speedRatio > 1.25) {
 
     const length =
       25 +
-      speedRatio * 25;
+      speedLineRatio * 25;
 
     ctx.strokeStyle =
       `rgba(104,231,255,${
@@ -2059,16 +2059,16 @@ if (speedRatio > 1.25) {
 // SPEED VIGNETTE
 // ==========================================================
 
-const speedRatio =
+const vignetteSpeedRatio =
   currentSpeed /
   NORMAL_SPEED;
 
-if (speedRatio > 1.4) {
+if (vignetteSpeedRatio > 1.4) {
 
   const vignette =
     Math.min(
       0.32,
-      (speedRatio - 1.4) *
+      (vignetteSpeedRatio - 1.4) *
       0.22
     );
 
