@@ -141,7 +141,7 @@ let particles = [];
 let speedVisualPulse = 0;
 let environmentPulse = 0;
 let screenShake = 0;
-let previousSpeed = NORMAL_SPEED;
+let previousSpeed = 320;
 
   // ============================================================
 // V0.4 MOVEMENT SYSTEM
