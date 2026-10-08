@@ -2457,146 +2457,102 @@ ctx.shadowBlur =
 
 function drawHazards() {
 
-  const gy =
-    GROUND_Y();
+  const gy = GROUND_Y();
 
-
-  for (
-    const h of hazards
-  ) {
+  for (const h of hazards) {
 
     const sx =
       h.x -
       worldX;
 
-
     if (
-      sx <
-      -100 ||
-      sx >
-      W + 100
+      sx < -100 ||
+      sx > W + 100
     ) {
-
       continue;
-
     }
 
+    // ========================================================
+    // SPIKE
+    // ========================================================
 
-    if (
-      h.type ===
-      'spike'
-    ) {
+    if (h.type === 'spike') {
 
-      ctx.fillStyle =
-        '#ff5b4d';
+      ctx.fillStyle = '#ff5b4d';
 
-
-      ctx.shadowColor =
-        '#ff5b4d';
-
+      ctx.shadowColor = '#ff5b4d';
 
       ctx.shadowBlur =
-  12 +
-  beatPulse * 10;
+        12 +
+        beatPulse * 10;
 
       ctx.beginPath();
-
 
       ctx.moveTo(
         sx,
         gy
       );
 
-
       ctx.lineTo(
-        sx +
-        h.w / 2,
-
-        gy -
-        h.h
+        sx + h.w / 2,
+        gy - h.h
       );
 
-
       ctx.lineTo(
-        sx +
-        h.w,
-
+        sx + h.w,
         gy
       );
 
-
-            ctx.closePath();
+      ctx.closePath();
 
       ctx.fill();
 
-      ctx.shadowBlur =
-        0;
-
+      ctx.shadowBlur = 0;
     }
 
 
-    if (
-      h.type ===
-      'barrier'
-    ) {
+    // ========================================================
+    // BARRIER
+    // ========================================================
 
-      ctx.fillStyle =
-        '#ffb347';
+    if (h.type === 'barrier') {
 
+      ctx.fillStyle = '#ffb347';
 
-      ctx.shadowColor =
-        '#ffb347';
-
+      ctx.shadowColor = '#ffb347';
 
       ctx.shadowBlur =
-  15 +
-  beatPulse * 12;
-
+        15 +
+        beatPulse * 12;
 
       ctx.fillRect(
         sx,
         gy - h.h,
-
         h.w,
         h.h
       );
 
+      ctx.shadowBlur = 0;
 
-      ctx.shadowBlur =
-        0;
+      ctx.strokeStyle = '#ffe0a3';
 
-
-      ctx.strokeStyle =
-        '#ffe0a3';
-
-
-      ctx.lineWidth =
-        2;
-
+      ctx.lineWidth = 2;
 
       ctx.strokeRect(
         sx,
         gy - h.h,
-
         h.w,
         h.h
       );
-      
 
-
-      // Internal rhythm lines.
+      // Internal rhythm lines
 
       ctx.strokeStyle =
         'rgba(10,17,27,.7)';
 
-
       for (
-        let y =
-          gy - h.h + 12;
-
-        y <
-          gy - 5;
-
+        let y = gy - h.h + 12;
+        y < gy - 5;
         y += 12
       ) {
 
@@ -2613,88 +2569,71 @@ function drawHazards() {
         );
 
         ctx.stroke();
-        if (
-  h.type ===
-  'rhythmBlock'
-) {
-
-  ctx.fillStyle =
-    '#68e7ff';
-
-  ctx.shadowColor =
-    '#68e7ff';
-
-  ctx.shadowBlur =
-    14 +
-    beatPulse * 12;
-
-
-  ctx.fillRect(
-    sx,
-    gy - h.h,
-    h.w,
-    h.h
-  );
-
-
-  ctx.shadowBlur =
-    0;
-
-
-  ctx.strokeStyle =
-    '#d8f9ff';
-
-  ctx.lineWidth =
-    2;
-
-
-  ctx.strokeRect(
-    sx,
-    gy - h.h,
-    h.w,
-    h.h
-  );
-
-
-  // Rhythm symbol / internal pattern.
-
-  ctx.strokeStyle =
-    'rgba(7,10,18,.75)';
-
-  ctx.lineWidth =
-    2;
-
-
-  for (
-    let y =
-      gy - h.h + 12;
-
-    y <
-      gy - 8;
-
-    y += 12
-  ) {
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      sx + 7,
-      y
-    );
-
-    ctx.lineTo(
-      sx + h.w - 7,
-      y
-    );
-
-    ctx.stroke();
-
-  }
-
       }
+    }
 
+
+    // ========================================================
+    // RHYTHM BLOCK
+    // ========================================================
+
+    if (h.type === 'rhythmBlock') {
+
+      ctx.fillStyle = '#68e7ff';
+
+      ctx.shadowColor = '#68e7ff';
+
+      ctx.shadowBlur =
+        14 +
+        beatPulse * 12;
+
+      ctx.fillRect(
+        sx,
+        gy - h.h,
+        h.w,
+        h.h
+      );
+
+      ctx.shadowBlur = 0;
+
+      ctx.strokeStyle = '#d8f9ff';
+
+      ctx.lineWidth = 2;
+
+      ctx.strokeRect(
+        sx,
+        gy - h.h,
+        h.w,
+        h.h
+      );
+
+      // Rhythm lines
+
+      ctx.strokeStyle =
+        'rgba(7,10,18,.75)';
+
+      ctx.lineWidth = 2;
+
+      for (
+        let y = gy - h.h + 12;
+        y < gy - 8;
+        y += 12
+      ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+          sx + 7,
+          y
+        );
+
+        ctx.lineTo(
+          sx + h.w - 7,
+          y
+        );
+
+        ctx.stroke();
       }
-
     }
 
   }
