@@ -2891,16 +2891,21 @@ function drawPlayer() {
     0,
     Math.min(1, speedRatio - 1)
   );
+  const size = player.w;
+const half = size / 2;
 
   ctx.translate(cx, cy);
   ctx.rotate(player.rot);
   
   // V1.0 — SPEED-DRIVEN ENERGY TRAIL
 
-  const trailLength = Math.min(
+  const trailLength = Math.max(
+  12,
+  Math.min(
     100,
     28 + (speedRatio - 1) * 55
-  );
+  )
+);
 
   ctx.save();
 
@@ -2926,9 +2931,6 @@ function drawPlayer() {
 
   ctx.restore();
   
-
-  const size = player.w;
-  const half = size / 2;
 
   // Outer energy halo.
   ctx.save();
