@@ -1781,18 +1781,7 @@ if (player.y > H + 80) {
   
 
 
-  // --------------------------------------------------------
-  // LANDING DETECTED
-  // --------------------------------------------------------
-
-  if (!wasOnGround) {
-
-    createLandingParticles();
-
-    // Instantly restore perfect square alignment.
-    player.rot = 0;
-
-  }
+  
 
 
   // --------------------------------------------------------
@@ -1885,6 +1874,9 @@ if (!player.onGround) {
     for (
     const h of hazards
   ) {
+      if (h.type === 'thunderVoid') {
+  continue;
+      }
 
     // ========================================================
     // ASTEROID
@@ -2004,9 +1996,6 @@ if (!player.onGround) {
     }
 
   }
-if (h.type === 'thunderVoid') {
-  continue;
-}
 
   // ==========================================================
   // PROGRESS
