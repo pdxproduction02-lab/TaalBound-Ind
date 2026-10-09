@@ -1514,33 +1514,43 @@ function updateParticles(dt) {
 }
 
 
+
 function drawParticles() {
+  ctx.save();
 
-  for (
-    const p of particles
-  ) {
+  for (const p of particles) {
+    const alpha = Math.max(0, Math.min(1, p.life * 2.5));
 
-    ctx.globalAlpha =
-      Math.max(
-        0,
-        p.life * 2
-      );
+    ctx.globalAlpha = alpha;
 
-    ctx.fillStyle =
-      '#68e7ff';
+    // Neon particle halo.
+    ctx.shadowColor = '#47edff';
+    ctx.shadowBlur = 7;
+
+    ctx.fillStyle = '#d8fbff';
+
+    ctx.fillRect(
+      p.x - 1,
+      p.y - 1,
+      4,
+      4
+    );
+
+    // Bright particle core.
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
 
     ctx.fillRect(
       p.x,
       p.y,
-      3,
-      3
+      2,
+      2
     );
-
   }
 
-  ctx.globalAlpha = 1;
-
+  ctx.restore();
 }
+  
 
 
 // ============================================================
@@ -2179,11 +2189,13 @@ if (speedRatio > 1.15) {
   // BEAT FLASH
   // ==========================================================
 
-  ctx.fillStyle =
-    `rgba(104,231,255,${
-      0.025 +
-      beatPulse * 0.10
-    })`;
+  
+ctx.fillStyle = `rgba(104,231,255,${
+  0.018 +
+  beatPulse * 0.07 +
+  Math.min(0.045, Math.max(0, currentSpeed / NORMAL_SPEED - 1) * 0.025)
+})`;
+  
 
 
   ctx.fillRect(
@@ -2882,6 +2894,38 @@ function drawPlayer() {
 
   ctx.translate(cx, cy);
   ctx.rotate(player.rot);
+  
+  // V1.0 — SPEED-DRIVEN ENERGY TRAIL
+
+  const trailLength = Math.min(
+    100,
+    28 + (speedRatio - 1) * 55
+  );
+
+  ctx.save();
+
+  const trail = ctx.createLinearGradient(
+    -half - trailLength,
+    0,
+    -half,
+    0
+  );
+
+  trail.addColorStop(0, 'rgba(50, 225, 255, 0)');
+  trail.addColorStop(0.65, 'rgba(50, 225, 255, 0.22)');
+  trail.addColorStop(1, 'rgba(220, 255, 255, 0.85)');
+
+  ctx.fillStyle = trail;
+
+  ctx.fillRect(
+    -half - trailLength,
+    -5,
+    trailLength,
+    10
+  );
+
+  ctx.restore();
+  
 
   const size = player.w;
   const half = size / 2;
