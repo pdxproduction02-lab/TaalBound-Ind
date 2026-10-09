@@ -134,6 +134,10 @@ let sectionPulse = 0;
 
 let particles = [];
 
+// V1.0 — ROTATION-INDEPENDENT ENERGY TRAIL
+let playerTrail = [];
+let trailTimer = 0;
+
 // ============================================================
 // V0.9 — THUNDERSTORM EFFECTS
 // ============================================================
@@ -1028,6 +1032,11 @@ speedVisualPulse = 0;
 
   particles = [];
 
+  
+playerTrail = [];
+trailTimer = 0;
+  
+
 
   dead = false;
 
@@ -1811,6 +1820,32 @@ if (player.y > H + 80) {
   die();
   return;
 
+}
+  // Record a short-lived trail in world space.
+trailTimer -= dt;
+
+const trailSpeedRatio = currentSpeed / NORMAL_SPEED;
+
+if (running && !dead && trailTimer <= 0) {
+  playerTrail.push({
+    x: player.x + player.w / 2,
+    y: player.y + player.h / 2,
+    life: 0.22
+  });
+
+  trailTimer = trailSpeedRatio > 1.4 ? 0.025 : 0.045;
+}
+
+for (const point of playerTrail) {
+  point.life -= dt;
+}
+
+playerTrail = playerTrail.filter(
+  point => point.life > 0
+);
+
+if (playerTrail.length > 16) {
+  playerTrail.shift();
 }
   
   // ==========================================================
@@ -2880,6 +2915,35 @@ if (vignetteSpeedRatio > 1.4) {
 // ============================================================
 
 
+function drawPlayerTrail() {
+  if (playerTrail.length < 2) return;
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  for (let i = 1; i < playerTrail.length; i++) {
+    const a = playerTrail[i - 1];
+    const b = playerTrail[i];
+
+    const alpha = Math.max(
+      0,
+      Math.min(1, b.life / 0.22)
+    );
+
+    ctx.globalAlpha = alpha * 0.42;
+    ctx.strokeStyle = '#43eaff';
+    ctx.lineWidth = 2 + alpha * 3;
+
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+  
 function drawPlayer() {
   ctx.save();
 
@@ -2897,39 +2961,7 @@ const half = size / 2;
   ctx.translate(cx, cy);
   ctx.rotate(player.rot);
   
-  // V1.0 — SPEED-DRIVEN ENERGY TRAIL
 
-  const trailLength = Math.max(
-  12,
-  Math.min(
-    100,
-    28 + (speedRatio - 1) * 55
-  )
-);
-
-  ctx.save();
-
-  const trail = ctx.createLinearGradient(
-    -half - trailLength,
-    0,
-    -half,
-    0
-  );
-
-  trail.addColorStop(0, 'rgba(50, 225, 255, 0)');
-  trail.addColorStop(0.65, 'rgba(50, 225, 255, 0.22)');
-  trail.addColorStop(1, 'rgba(220, 255, 255, 0.85)');
-
-  ctx.fillStyle = trail;
-
-  ctx.fillRect(
-    -half - trailLength,
-    -5,
-    trailLength,
-    10
-  );
-
-  ctx.restore();
   
 
   // Outer energy halo.
@@ -3746,6 +3778,7 @@ function draw() {
   drawStormEffects();
   drawHazards();
   drawParticles();
+  drawPlayerTrail();
   drawPlayer();
 
   ctx.restore();
