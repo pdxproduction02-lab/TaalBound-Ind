@@ -1214,37 +1214,7 @@ function finish() {
 
 }
 
-    // ==========================================================
-  // V0.8 — ASTEROID IMPACT SYSTEM
-  // ==========================================================
-
-  for (const h of hazards) {
-
-    if (h.type !== 'asteroid') {
-      continue;
-    }
-
-    if (
-      !h.impacted &&
-      music.currentTime >=
-      h.impactTime
-    ) {
-
-      h.impacted = true;
-
-      h.impactFlash = 1;
-
-      createAsteroidImpactParticles(h);
-
-    }
-
-    h.impactFlash *=
-      Math.pow(
-        0.01,
-        dt
-      );
-
-  }
+    
 
 // ============================================================
 // COLLISION
@@ -1564,6 +1534,29 @@ function update(dt) {
       );
 
   }
+  
+  // ==========================================================
+  // V0.8 — ASTEROID IMPACT SYSTEM
+  // ==========================================================
+
+  for (const h of hazards) {
+
+    if (h.type !== 'asteroid') {
+      continue;
+    }
+
+    if (
+      !h.impacted &&
+      music.currentTime >= h.impactTime
+    ) {
+      h.impacted = true;
+      h.impactFlash = 1;
+      createAsteroidImpactParticles(h);
+    }
+
+    h.impactFlash *= Math.pow(0.01, dt);
+  }
+  
   // PLAYER PHYSICS
 // ==========================================================
 
