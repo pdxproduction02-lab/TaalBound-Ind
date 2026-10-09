@@ -69,3 +69,65 @@ button:active {
   background: #132b3c;
   box-shadow: 0 0 22px rgba(104, 231, 255, 0.3);
 }
+
+/* V1.0 — PREMIUM TAALBOUND HUD */
+
+#hud {
+  pointer-events: none;
+}
+
+.brand {
+  color: #eafcff;
+  text-shadow:
+    0 0 6px rgba(104, 231, 255, 0.85),
+    0 0 18px rgba(104, 231, 255, 0.3);
+}
+
+.progress {
+  height: 5px;
+  background: rgba(150, 200, 255, 0.13);
+  border: 1px solid rgba(140, 225, 255, 0.16);
+  box-shadow: 0 0 10px rgba(50, 210, 255, 0.08);
+}
+
+.progress > div {
+  background: linear-gradient(
+    90deg,
+    #398bff,
+    #55efff,
+    #ffffff
+  );
+  box-shadow:
+    0 0 7px #42dfff,
+    0 0 16px rgba(66, 223, 255, 0.55);
+  transition: width 0.12s linear;
+}
+
+#percent {
+  color: #e8fcff;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px rgba(104, 231, 255, 0.45);
+}
+
+#sectionName {
+  color: #83edff;
+  text-shadow: 0 0 12px rgba(104, 231, 255, 0.6);
+  transition: color 0.2s ease;
+}
+
+@media (max-width: 600px) {
+  .brand {
+    font-size: 12px;
+  }
+
+  .progress {
+    top: 38px;
+    right: 58px;
+  }
+
+  #percent {
+    top: 32px;
+    font-size: 12px;
+  }
+}
