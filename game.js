@@ -1011,6 +1011,7 @@ buildLevel();
 // ============================================================
 
 function reset() {
+    canvas.classList.remove('death-shake');
 
   console.log('RESET CALLED');
   music.pause();
@@ -1226,6 +1227,11 @@ function die() {
   dead = true;
 
   running = false;
+
+    // V1.0 — Death impact shake.
+  canvas.classList.remove('death-shake');
+  void canvas.offsetWidth;
+  canvas.classList.add('death-shake');
 
 
   music.pause();
@@ -3783,16 +3789,36 @@ function draw() {
 
   ctx.restore();
 
-  // Keep the speed HUD fixed and readable.
-  ctx.fillStyle = 'rgba(255,255,255,.38)';
-  ctx.font = '600 10px Arial';
+  
+  // V1.0 — Dynamic speed HUD.
+  const hudSpeedRatio = currentSpeed / NORMAL_SPEED;
+  const hudIntensity = Math.max(
+    0,
+    Math.min(1, (hudSpeedRatio - 1) / 1)
+  );
+
+  ctx.save();
   ctx.textAlign = 'right';
+  ctx.font = '800 11px Arial';
+
+  ctx.fillStyle = hudIntensity > 0.65
+    ? '#ff9ee8'
+    : '#baf8ff';
+
+  ctx.shadowColor = hudIntensity > 0.65
+    ? '#ff42c8'
+    : '#38dfff';
+
+  ctx.shadowBlur = 4 + hudIntensity * 12;
 
   ctx.fillText(
-    Math.round(currentSpeed) + ' PX/S',
+    Math.round(hudSpeedRatio * 100) + '% SPEED',
     W - 18,
     H - 34
   );
+
+  ctx.restore();
+  
 
 }
 
