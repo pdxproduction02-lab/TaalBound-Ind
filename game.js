@@ -1104,14 +1104,16 @@ canvas.addEventListener(
 );
 
 
+
 function startGameFromButton(e) {
   if (e) {
     e.preventDefault();
     e.stopPropagation();
   }
 
-  startButton.textContent = 'STARTING...';
+  if (running && !dead && !finished) return;
 
+  startButton.textContent = 'START';
   reset();
 }
 
@@ -1124,27 +1126,16 @@ function restartGameFromButton(e) {
   reset();
 }
 
-startButton.onclick =
-  startGameFromButton;
-
-restartButton.onclick =
-  restartGameFromButton;
-
 startButton.addEventListener(
-  'pointerup',
-  startGameFromButton,
-  {
-    passive: false
-  }
+  'click',
+  startGameFromButton
 );
 
 restartButton.addEventListener(
-  'pointerup',
-  restartGameFromButton,
-  {
-    passive: false
-  }
+  'click',
+  restartGameFromButton
 );
+  
 
 
 // ============================================================
