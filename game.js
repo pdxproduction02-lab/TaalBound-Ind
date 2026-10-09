@@ -302,7 +302,7 @@ function buildLevel() {
       x:
 getWorldXForTime(
 impactTime
-) + PLAYER_X + player.w + 200,
+) + PLAYER_X + player.w + 260,
 
       w: 56,
       h: 54,
@@ -311,7 +311,7 @@ impactTime
       debrisW: 38,
       debrisH: 42,
 
-      warningTime: 0.85,
+      warningTime: 1.25,
 
       impactTime,
 
@@ -2800,8 +2800,9 @@ function drawHazards() {
         music.currentTime;
 
 
+      
       // ------------------------------------------------------
-      // WARNING MARKER
+      // V0.8 — EARLY ASTEROID WARNING
       // ------------------------------------------------------
 
       if (
@@ -2809,36 +2810,49 @@ function drawHazards() {
         timeToImpact <= h.warningTime &&
         timeToImpact >= 0
       ) {
+        // Keep the warning visible even when the asteroid
+        // itself has not entered the screen yet.
+        const warningX = Math.max(
+          PLAYER_X + player.w + 24,
+          Math.min(W - 64, sx)
+        );
 
-        const warningAlpha =
-          0.35 +
-          Math.sin(
-            music.currentTime * 18
-          ) * 0.25;
+        const pulse =
+          0.5 +
+          Math.sin(music.currentTime * 16) * 0.35;
 
+        // Ground danger marker
         ctx.fillStyle =
-          `rgba(255,90,70,${warningAlpha})`;
+          `rgba(255,65,55,${pulse})`;
 
         ctx.fillRect(
-          sx,
+          warningX - 12,
           gy - 5,
-          h.w,
+          80,
           5
         );
 
-        ctx.font =
-          '700 10px Arial';
+        // Warning triangle
+        ctx.fillStyle = '#ff5548';
+        ctx.beginPath();
+        ctx.moveTo(warningX + 28, gy - 18);
+        ctx.lineTo(warningX + 17, gy - 6);
+        ctx.lineTo(warningX + 39, gy - 6);
+        ctx.closePath();
+        ctx.fill();
 
-        ctx.textAlign =
-          'center';
+        // Countdown
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
 
         ctx.fillText(
-          '⚠',
-          sx + h.w / 2,
-          gy - 12
+          `IMPACT ${timeToImpact.toFixed(1)}s`,
+          warningX + 28,
+          gy - 27
         );
-
       }
+      
 
 
       // ------------------------------------------------------
@@ -2847,26 +2861,28 @@ function drawHazards() {
 
       if (!h.impacted) {
 
+        
         const fallProgress =
           Math.max(
             0,
             Math.min(
               1,
               1 -
-              (
                 timeToImpact /
-                0.85
-              )
+                h.warningTime
             )
           );
 
+        // Slow approach, then a faster final descent.
+        const fallEase =
+          fallProgress * fallProgress;
+        
+
+        
         const asteroidY =
           -90 +
-          (
-            gy -
-            80
-          ) *
-          fallProgress;
+          (gy - 80 + 90) * fallEase;
+        
 
 
         ctx.save();
