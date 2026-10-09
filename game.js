@@ -2564,6 +2564,78 @@ if (speedLineRatio > 1.25) {
 
   ctx.globalAlpha =
     1;
+  
+  // V1.0 — LAYERED NEON FLOOR
+
+  const gyFloor = GROUND_Y();
+
+  // Subtle floor gradient.
+  const floorGradient = ctx.createLinearGradient(
+    0,
+    gyFloor,
+    0,
+    H
+  );
+
+  floorGradient.addColorStop(
+    0,
+    'rgba(16, 35, 70, 0.55)'
+  );
+
+  floorGradient.addColorStop(
+    1,
+    'rgba(3, 7, 20, 0.96)'
+  );
+
+  ctx.fillStyle = floorGradient;
+
+  ctx.fillRect(
+    0,
+    gyFloor + 2,
+    W,
+    H - gyFloor - 2
+  );
+
+  // Bright ground edge with a restrained glow.
+  ctx.save();
+
+  ctx.shadowColor = '#51eaff';
+  ctx.shadowBlur = 12 + beatPulse * 12;
+
+  ctx.fillStyle = '#83f4ff';
+
+  ctx.fillRect(
+    0,
+    gyFloor,
+    W,
+    2
+  );
+
+  ctx.restore();
+
+  // Repeating luminous floor markers.
+  const markerSpacing = 75;
+  const markerOffset =
+    worldX % markerSpacing;
+
+  for (
+    let x = -markerSpacing;
+    x < W + markerSpacing;
+    x += markerSpacing
+  ) {
+    const markerX = x - markerOffset;
+
+    ctx.fillStyle =
+      `rgba(85, 220, 255, ${0.10 + beatPulse * 0.08})`;
+
+    ctx.fillRect(
+      markerX,
+      gyFloor + 10,
+      2,
+      Math.min(20, H - gyFloor - 10)
+    );
+  }
+  
 
 
   // ==========================================================
@@ -2650,6 +2722,146 @@ if (vignetteSpeedRatio > 1.4) {
 }
 
 }
+  
+  // ==========================================================
+  // V1.0 — NEON GEOMETRIC ATMOSPHERE
+  // ==========================================================
+
+  const visualIntensity = Math.max(
+    0,
+    Math.min(
+      1,
+      (currentSpeed / NORMAL_SPEED - 1)
+    )
+  );
+
+  // Soft atmospheric glow behind the playfield.
+  const atmosphere = ctx.createRadialGradient(
+    W * 0.52,
+    H * 0.43,
+    20,
+    W * 0.52,
+    H * 0.43,
+    Math.max(W, H) * 0.72
+  );
+
+  atmosphere.addColorStop(
+    0,
+    `rgba(70, 35, 190, ${0.13 + visualIntensity * 0.10})`
+  );
+
+  atmosphere.addColorStop(
+    0.55,
+    `rgba(0, 190, 255, ${0.035 + beatPulse * 0.025})`
+  );
+
+  atmosphere.addColorStop(
+    1,
+    'rgba(0, 0, 0, 0)'
+  );
+
+  ctx.fillStyle = atmosphere;
+  ctx.fillRect(0, 0, W, H);
+
+  // Moving geometric panel architecture.
+  const panelSpacing = 250;
+  const panelOffset =
+    (worldX * 0.10) % panelSpacing;
+
+  ctx.save();
+
+  for (let i = -1; i < Math.ceil(W / panelSpacing) + 2; i++) {
+    const x =
+      i * panelSpacing - panelOffset;
+
+    const panelHeight =
+      100 + ((i + 20) % 4) * 48;
+
+    const panelY =
+      45 + ((i + 20) % 3) * 28;
+
+    const panelWidth =
+      150 + ((i + 20) % 2) * 42;
+
+    ctx.fillStyle =
+      `rgba(35, 50, 115, ${0.055 + visualIntensity * 0.025})`;
+
+    ctx.fillRect(
+      x,
+      panelY,
+      panelWidth,
+      Math.min(panelHeight, H * 0.48)
+    );
+
+    ctx.strokeStyle =
+      `rgba(110, 105, 255, ${0.12 + beatPulse * 0.07 + visualIntensity * 0.08})`;
+
+    ctx.lineWidth = 1.5;
+
+    ctx.strokeRect(
+      x,
+      panelY,
+      panelWidth,
+      Math.min(panelHeight, H * 0.48)
+    );
+
+    // Small illuminated corner accents.
+    const cornerLength = 22;
+
+    ctx.strokeStyle =
+      `rgba(80, 225, 255, ${0.22 + visualIntensity * 0.22})`;
+
+    ctx.lineWidth = 2;
+
+    ctx.beginPath();
+
+    ctx.moveTo(x, panelY + cornerLength);
+    ctx.lineTo(x, panelY);
+    ctx.lineTo(x + cornerLength, panelY);
+
+    ctx.moveTo(
+      x + panelWidth - cornerLength,
+      panelY + Math.min(panelHeight, H * 0.48)
+    );
+
+    ctx.lineTo(
+      x + panelWidth,
+      panelY + Math.min(panelHeight, H * 0.48)
+    );
+
+    ctx.lineTo(
+      x + panelWidth,
+      panelY + Math.min(panelHeight, H * 0.48) - cornerLength
+    );
+
+    ctx.stroke();
+  }
+
+  ctx.restore();
+
+  // Fine horizontal scan lines for depth.
+  ctx.save();
+
+  ctx.strokeStyle =
+    `rgba(130, 155, 255, ${0.025 + visualIntensity * 0.025})`;
+
+  ctx.lineWidth = 1;
+
+  const scanSpacing = 36;
+
+  for (
+    let y = 18;
+    y < GROUND_Y() - 18;
+    y += scanSpacing
+  ) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(W, y);
+    ctx.stroke();
+  }
+
+  ctx.restore();
+  
 
 
 // ============================================================
