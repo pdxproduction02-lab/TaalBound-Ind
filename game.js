@@ -1008,8 +1008,7 @@ function reset() {
 
 
   worldX = 0;
-  buildLevel();
-stormFlash = 0;
+  stormFlash = 0;
   currentSpeed = NORMAL_SPEED;
   previousSpeed = NORMAL_SPEED;
 speedVisualPulse = 0;
