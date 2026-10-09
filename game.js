@@ -135,6 +135,12 @@ let sectionPulse = 0;
 let particles = [];
 
 // ============================================================
+// V0.9 — THUNDERSTORM EFFECTS
+// ============================================================
+
+let stormFlash = 0;
+
+// ============================================================
 // V0.6B VISUAL EFFECTS
 // ============================================================
 
@@ -323,6 +329,46 @@ impactTime
 
   }
 
+  // ==========================================================
+  // V0.9 — THUNDER VOID
+  // ==========================================================
+
+  function thunderVoid(beat, width = 176) {
+
+    const strikeTime =
+      beat * BEAT_TIME;
+
+    // The gap reaches the player's position
+    // approximately 0.75 seconds after the strike.
+    const gapArrivalTime =
+      Math.min(
+        LEVEL_DURATION,
+        strikeTime + 0.75
+      );
+
+    hazards.push({
+
+      type: 'thunderVoid',
+
+      x:
+        getWorldXForTime(
+          gapArrivalTime
+        ) + PLAYER_X,
+
+      w: width,
+
+      strikeTime,
+
+      warningTime: 1.25,
+
+      struck: false,
+
+      flash: 0
+
+    });
+
+  }
+  
   function barrier(beat) {
 
     hazards.push({
@@ -544,6 +590,8 @@ impactTime
 
   doubleSpike(48);
 
+  thunderVoid(56);
+
 
   // ==========================================================
   // 00:30–00:50
@@ -561,6 +609,8 @@ impactTime
   tripleSpike(80);
 
   spike(86);
+
+  thunderVoid(96);
 
 
   // ==========================================================
@@ -658,6 +708,8 @@ impactTime
   spike(208);
 
   spike(224);
+
+  thunderVoid(216);
 
 
   // ==========================================================
@@ -956,6 +1008,8 @@ function reset() {
 
 
   worldX = 0;
+  buildLevel();
+stormFlash = 0;
   currentSpeed = NORMAL_SPEED;
   previousSpeed = NORMAL_SPEED;
 speedVisualPulse = 0;
@@ -1239,6 +1293,20 @@ function rectHit(a, b) {
   );
 
 }
+  
+function isPlayerOverThunderVoid(worldCenterX) {
+
+  return hazards.some(h =>
+
+    h.type === 'thunderVoid' &&
+    h.struck &&
+    worldCenterX >= h.x &&
+    worldCenterX <= h.x + h.w
+
+  );
+
+}
+  
 
 
 // ============================================================
@@ -1557,6 +1625,60 @@ function update(dt) {
     h.impactFlash *= Math.pow(0.01, dt);
   }
   
+  // ==========================================================
+  // V0.9 — THUNDER VOID IMPACT SYSTEM
+  // ==========================================================
+
+  stormFlash *= Math.pow(0.001, dt);
+
+  for (const h of hazards) {
+
+    if (h.type !== 'thunderVoid') {
+      continue;
+    }
+
+    if (
+      !h.struck &&
+      music.currentTime >= h.strikeTime
+    ) {
+
+      h.struck = true;
+      h.flash = 1;
+      stormFlash = 1;
+
+      const sx =
+        h.x - worldX + h.w / 2;
+
+      const gy = GROUND_Y();
+
+      for (let i = 0; i < 32; i++) {
+
+        particles.push({
+
+          x: sx,
+
+          y: gy - 3,
+
+          vx:
+            (Math.random() - 0.5) * 520,
+
+          vy:
+            -100 - Math.random() * 320,
+
+          life:
+            0.35 + Math.random() * 0.45
+
+        });
+
+      }
+
+    }
+
+    h.flash *= Math.pow(0.002, dt);
+
+  }
+  
+  
   // PLAYER PHYSICS
 // ==========================================================
 
@@ -1610,24 +1732,54 @@ player.y +=
 // GROUND COLLISION
 // ----------------------------------------------------------
 
-const gy =
-  GROUND_Y();
 
+const gy = GROUND_Y();
+
+const playerCenterWorldX =
+  worldX +
+  player.x +
+  player.w / 2;
+
+const overThunderVoid =
+  isPlayerOverThunderVoid(
+    playerCenterWorldX
+  );
 
 if (
-  player.y +
-  player.h >=
-  gy
+  player.y + player.h >= gy &&
+  !overThunderVoid &&
+  player.y < gy
 ) {
 
-  player.y =
-    gy -
-    player.h;
-
+  player.y = gy - player.h;
   player.vy = 0;
+  player.onGround = true;
 
-  player.onGround =
-    true;
+  if (!wasOnGround) {
+
+    createLandingParticles();
+    player.rot = 0;
+
+  }
+
+  if (jumpBufferTimer > 0) {
+    performJump();
+  }
+
+} else {
+
+  player.onGround = false;
+
+}
+
+// Falling into a void is fatal.
+if (player.y > H + 80) {
+
+  die();
+  return;
+
+}
+  
 
 
   // --------------------------------------------------------
@@ -1853,7 +2005,9 @@ if (!player.onGround) {
     }
 
   }
-
+if (h.type === 'thunderVoid') {
+  continue;
+}
 
   // ==========================================================
   // PROGRESS
@@ -2614,16 +2768,164 @@ function drawHazards() {
 
   for (const h of hazards) {
 
-    const sx =
-      h.x -
-      worldX;
+    
+const sx =
+  h.x - worldX;
 
-    if (
-      sx < -100 ||
-      sx > W + 100
-    ) {
+const timeToStrike =
+  h.type === 'thunderVoid'
+    ? h.strikeTime - music.currentTime
+    : Infinity;
+
+const showVoidWarning =
+  h.type === 'thunderVoid' &&
+  !h.struck &&
+  timeToStrike <= h.warningTime &&
+  timeToStrike >= 0;
+
+const showVoidFlash =
+  h.type === 'thunderVoid' &&
+  h.flash > 0.01;
+
+if (
+  (sx < -100 || sx > W + 100) &&
+  !showVoidWarning &&
+  !showVoidFlash
+) {
+  continue;
+}
+    
+    // ========================================================
+    // V0.9 — THUNDER VOID
+    // ========================================================
+
+    if (h.type === 'thunderVoid') {
+
+      const warningX = Math.max(
+        PLAYER_X + player.w + 24,
+        Math.min(W - 100, sx)
+      );
+
+      // Warning marker before the strike.
+      if (showVoidWarning) {
+
+        const pulse =
+          0.55 +
+          Math.sin(music.currentTime * 16) * 0.35;
+
+        ctx.fillStyle =
+          `rgba(70,205,255,${pulse})`;
+
+        ctx.fillRect(
+          warningX,
+          gy - 5,
+          h.w,
+          5
+        );
+
+        // Electric warning symbol.
+        ctx.fillStyle = '#c9f6ff';
+        ctx.font = 'bold 12px Arial';
+        ctx.textAlign = 'center';
+
+        ctx.fillText(
+          '⚡ VOID AHEAD',
+          warningX + 45,
+          gy - 25
+        );
+
+        ctx.strokeStyle = '#68e7ff';
+        ctx.lineWidth = 2;
+
+        ctx.beginPath();
+        ctx.moveTo(warningX + 45, gy - 20);
+        ctx.lineTo(warningX + 38, gy - 10);
+        ctx.lineTo(warningX + 48, gy - 10);
+        ctx.lineTo(warningX + 42, gy - 2);
+        ctx.stroke();
+
+      }
+
+      // Before the strike, the ground remains solid.
+      if (!h.struck) {
+        continue;
+      }
+
+      // The ground is now genuinely visually broken.
+      const holeGradient =
+        ctx.createLinearGradient(0, gy, 0, H);
+
+      holeGradient.addColorStop(0, '#020713');
+      holeGradient.addColorStop(0.45, '#061a36');
+      holeGradient.addColorStop(1, '#010309');
+
+      ctx.fillStyle = holeGradient;
+
+      ctx.fillRect(
+        sx,
+        gy - 3,
+        h.w,
+        H - gy + 3
+      );
+
+      // Glowing edges of the void.
+      ctx.save();
+
+      ctx.shadowColor = '#28bfff';
+      ctx.shadowBlur = 18;
+
+      ctx.strokeStyle = '#68e7ff';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.moveTo(sx, gy);
+      ctx.lineTo(sx + 12, gy + 18);
+      ctx.lineTo(sx + 5, gy + 38);
+
+      ctx.moveTo(sx + h.w, gy);
+      ctx.lineTo(sx + h.w - 13, gy + 16);
+      ctx.lineTo(sx + h.w - 4, gy + 35);
+
+      ctx.stroke();
+
+      // Lightning bolt during the impact flash.
+      if (h.flash > 0.01) {
+
+        const cx = sx + h.w / 2;
+
+        ctx.strokeStyle =
+          `rgba(180,240,255,${h.flash})`;
+
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 28;
+
+        ctx.beginPath();
+        ctx.moveTo(cx, 0);
+        ctx.lineTo(cx - 22, gy * 0.20);
+        ctx.lineTo(cx + 13, gy * 0.34);
+        ctx.lineTo(cx - 27, gy * 0.51);
+        ctx.lineTo(cx + 8, gy * 0.70);
+        ctx.lineTo(cx, gy);
+
+        ctx.stroke();
+
+        // Bright core of the lightning.
+        ctx.strokeStyle =
+          `rgba(255,255,255,${h.flash})`;
+
+        ctx.lineWidth = 1.5;
+        ctx.shadowBlur = 8;
+
+        ctx.stroke();
+
+      }
+
+      ctx.restore();
+
       continue;
+
     }
+    
 
     // ========================================================
     // SPIKE
@@ -3129,9 +3431,62 @@ function drawHazards() {
 // DRAW
 // ============================================================
 
+function drawStormEffects() {
+
+  // Full-screen flash on lightning impact.
+  if (stormFlash > 0.01) {
+
+    ctx.fillStyle =
+      `rgba(180,225,255,${stormFlash * 0.30})`;
+
+    ctx.fillRect(0, 0, W, H);
+
+  }
+
+  // Animated diagonal rain.
+  ctx.save();
+
+  ctx.strokeStyle =
+    'rgba(125,190,255,0.24)';
+
+  ctx.lineWidth = 1;
+
+  const rainCount =
+    Math.min(110, Math.ceil(W / 8));
+
+  for (let i = 0; i < rainCount; i++) {
+
+    const x =
+      (
+        i * 83 -
+        music.currentTime * 520 +
+        W * 4
+      ) % (W + 40) - 20;
+
+    const y =
+      (
+        i * 137 +
+        music.currentTime * 850
+      ) % Math.max(1, H);
+
+    ctx.beginPath();
+
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 10, y + 24);
+
+    ctx.stroke();
+
+  }
+
+  ctx.restore();
+
+}
+
 function draw() {
 
   drawBackground();
+
+  drawStormEffects();
 
   drawHazards();
 
