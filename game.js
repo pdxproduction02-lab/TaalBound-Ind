@@ -300,9 +300,9 @@ function buildLevel() {
       type: 'asteroid',
 
       x:
-        getWorldXForTime(
-          impactTime
-        ),
+getWorldXForTime(
+impactTime
+) + PLAYER_X + player.w + 200,
 
       w: 56,
       h: 54,
