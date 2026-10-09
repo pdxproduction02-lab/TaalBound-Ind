@@ -146,6 +146,13 @@ let stormFlash = 0;
 
 let speedVisualPulse = 0;
 let previousSpeed = 320;
+  
+  // ============================================================
+// V1.0 — CINEMATIC CAMERA
+// ============================================================
+
+let cameraZoom = 1;
+let cameraTargetZoom = 1;
 
   // ============================================================
 // V0.4 MOVEMENT SYSTEM
@@ -1591,6 +1598,23 @@ function update(dt) {
       0.025,
       dt
     );
+  // V1.0 — MUSIC-RESPONSIVE CAMERA ZOOM
+
+const speedIntensity = Math.max(
+  0,
+  Math.min(
+    1,
+    (currentSpeed / NORMAL_SPEED - 1)
+  )
+);
+
+cameraTargetZoom = running
+  ? 1 - speedIntensity * 0.18
+  : 1;
+
+cameraZoom += (
+  cameraTargetZoom - cameraZoom
+) * (1 - Math.exp(-3 * dt));
 
 
   if (sectionName) {
@@ -3447,31 +3471,36 @@ function drawStormEffects() {
 
 function draw() {
 
+  // Keep the background filling the screen.
   drawBackground();
 
+  // Apply cinematic zoom to the gameplay layers.
+  ctx.save();
+
+  const cameraX = player.x + player.w / 2;
+  const cameraY = player.y + player.h / 2;
+
+  ctx.translate(cameraX, cameraY);
+  ctx.scale(cameraZoom, cameraZoom);
+  ctx.translate(-cameraX, -cameraY);
+
   drawStormEffects();
-
   drawHazards();
-
   drawParticles();
-
   drawPlayer();
 
-  ctx.fillStyle =
-  'rgba(255,255,255,.38)';
+  ctx.restore();
 
-ctx.font =
-  '600 10px Arial';
+  // Keep the speed HUD fixed and readable.
+  ctx.fillStyle = 'rgba(255,255,255,.38)';
+  ctx.font = '600 10px Arial';
+  ctx.textAlign = 'right';
 
-ctx.textAlign =
-  'right';
-
-ctx.fillText(
-  Math.round(currentSpeed) +
-  ' PX/S',
-  W - 18,
-  H - 34
-);
+  ctx.fillText(
+    Math.round(currentSpeed) + ' PX/S',
+    W - 18,
+    H - 34
+  );
 
 }
 
