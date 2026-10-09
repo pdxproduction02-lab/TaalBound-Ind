@@ -2720,8 +2720,6 @@ if (vignetteSpeedRatio > 1.4) {
   );
 
 }
-
-}
   
   // ==========================================================
   // V1.0 — NEON GEOMETRIC ATMOSPHERE
@@ -2861,6 +2859,7 @@ if (vignetteSpeedRatio > 1.4) {
   }
 
   ctx.restore();
+}
   
 
 
@@ -2868,94 +2867,76 @@ if (vignetteSpeedRatio > 1.4) {
 // PLAYER
 // ============================================================
 
-function drawPlayer() {
 
+function drawPlayer() {
   ctx.save();
 
+  const cx = player.x + player.w / 2;
+  const cy = player.y + player.h / 2;
 
-  ctx.translate(
-    player.x +
-    player.w / 2,
-
-    player.y +
-    player.h / 2
-  );
-
-
-  ctx.rotate(
-    player.rot
-  );
-
-
-  // Outer glow.
-
-  ctx.fillStyle =
-    '#f2f6f8';
-
-
-  ctx.shadowColor =
-    '#68e7ff';
-
-
-  const speedRatio =
-  currentSpeed /
-  NORMAL_SPEED;
-
-ctx.shadowBlur =
-  18 +
-  Math.max(
+  const speedRatio = currentSpeed / NORMAL_SPEED;
+  const intensity = Math.max(
     0,
-    speedRatio - 1
-  ) * 12 +
-  beatPulse * 5;
-
-
-  ctx.fillRect(
-    -player.w / 2,
-    -player.h / 2,
-    player.w,
-    player.h
+    Math.min(1, speedRatio - 1)
   );
 
+  ctx.translate(cx, cy);
+  ctx.rotate(player.rot);
 
-  ctx.shadowBlur =
-    0;
+  const size = player.w;
+  const half = size / 2;
 
-
-  ctx.strokeStyle =
-    '#68e7ff';
-
-
-  ctx.lineWidth =
-    2;
-
-
-  ctx.strokeRect(
-    -player.w / 2,
-    -player.h / 2,
-    player.w,
-    player.h
-  );
-
-
-  // Core.
-
-  ctx.fillStyle =
-    '#0b111a';
-
-
-  ctx.fillRect(
-    -7,
-    -7,
-    14,
-    14
-  );
-
-
+  // Outer energy halo.
+  ctx.save();
+  ctx.shadowColor = '#36eaff';
+  ctx.shadowBlur = 15 + beatPulse * 9 + intensity * 12;
+  ctx.fillStyle = 'rgba(54, 234, 255, 0.16)';
+  ctx.fillRect(-half - 3, -half - 3, size + 6, size + 6);
   ctx.restore();
 
-}
+  // Main shell.
+  const shell = ctx.createLinearGradient(
+    -half, -half, half, half
+  );
 
+  shell.addColorStop(0, '#ffffff');
+  shell.addColorStop(0.45, '#d8faff');
+  shell.addColorStop(1, '#73cfff');
+
+  ctx.fillStyle = shell;
+  ctx.fillRect(-half, -half, size, size);
+
+  // Crisp outer outline.
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-half, -half, size, size);
+
+  // Inner inset panel.
+  ctx.fillStyle = '#101b36';
+  ctx.fillRect(-half + 5, -half + 5, size - 10, size - 10);
+
+  // Cyan core.
+  ctx.save();
+  ctx.shadowColor = '#45f3ff';
+  ctx.shadowBlur = 8 + beatPulse * 5;
+  ctx.fillStyle = '#45f3ff';
+  ctx.fillRect(-6, -6, 12, 12);
+  ctx.restore();
+
+  // Four small corner indicators.
+  ctx.fillStyle = '#ffffff';
+
+  const corner = 4;
+  const inset = half - 7;
+
+  ctx.fillRect(-inset, -inset, corner, corner);
+  ctx.fillRect(inset - corner, -inset, corner, corner);
+  ctx.fillRect(-inset, inset - corner, corner, corner);
+  ctx.fillRect(inset - corner, inset - corner, corner, corner);
+
+  ctx.restore();
+}
+  
 
 // ============================================================
 // HAZARDS
@@ -3130,39 +3111,57 @@ if (
     // SPIKE
     // ========================================================
 
-    if (h.type === 'spike') {
+    
+if (h.type === 'spike') {
+  const tipX = sx + h.w / 2;
+  const tipY = gy - h.h;
 
-      ctx.fillStyle = '#ff5b4d';
+  ctx.save();
 
-      ctx.shadowColor = '#ff5b4d';
+  // Soft red-magenta aura.
+  ctx.shadowColor = '#ff426f';
+  ctx.shadowBlur = 10 + beatPulse * 9;
 
-      ctx.shadowBlur =
-        12 +
-        beatPulse * 10;
+  ctx.fillStyle = '#ff426f';
+  ctx.beginPath();
+  ctx.moveTo(sx, gy);
+  ctx.lineTo(tipX, tipY);
+  ctx.lineTo(sx + h.w, gy);
+  ctx.closePath();
+  ctx.fill();
 
-      ctx.beginPath();
+  // Dark inner face creates depth.
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#40102e';
 
-      ctx.moveTo(
-        sx,
-        gy
-      );
+  ctx.beginPath();
+  ctx.moveTo(sx + 5, gy - 2);
+  ctx.lineTo(tipX, tipY + 10);
+  ctx.lineTo(sx + h.w - 5, gy - 2);
+  ctx.closePath();
+  ctx.fill();
 
-      ctx.lineTo(
-        sx + h.w / 2,
-        gy - h.h
-      );
+  // Bright outline.
+  ctx.strokeStyle = '#ffb4e2';
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.moveTo(sx, gy);
+  ctx.lineTo(tipX, tipY);
+  ctx.lineTo(sx + h.w, gy);
+  ctx.stroke();
 
-      ctx.lineTo(
-        sx + h.w,
-        gy
-      );
+  // Luminous tip.
+  ctx.fillStyle = '#ffffff';
+  ctx.shadowColor = '#ff72d2';
+  ctx.shadowBlur = 8;
 
-      ctx.closePath();
+  ctx.beginPath();
+  ctx.arc(tipX, tipY + 1, 2, 0, Math.PI * 2);
+  ctx.fill();
 
-      ctx.fill();
-
-      ctx.shadowBlur = 0;
-    }
+  ctx.restore();
+}
+    
 
 
     // ========================================================
@@ -3231,64 +3230,66 @@ if (
     // RHYTHM BLOCK
     // ========================================================
 
-    if (h.type === 'rhythmBlock') {
+    
+if (h.type === 'rhythmBlock') {
+  const blockY = gy - h.h;
 
-      ctx.fillStyle = '#68e7ff';
+  ctx.save();
 
-      ctx.shadowColor = '#68e7ff';
+  // Outer cyan glow.
+  ctx.shadowColor = '#35eaff';
+  ctx.shadowBlur = 12 + beatPulse * 10;
 
-      ctx.shadowBlur =
-        14 +
-        beatPulse * 12;
+  ctx.fillStyle = '#24bfe9';
+  ctx.fillRect(sx, blockY, h.w, h.h);
 
-      ctx.fillRect(
-        sx,
-        gy - h.h,
-        h.w,
-        h.h
-      );
+  ctx.shadowBlur = 0;
 
-      ctx.shadowBlur = 0;
+  // Dark inset face.
+  ctx.fillStyle = '#101b39';
+  ctx.fillRect(
+    sx + 4,
+    blockY + 4,
+    h.w - 8,
+    h.h - 8
+  );
 
-      ctx.strokeStyle = '#d8f9ff';
+  // Neon border.
+  ctx.strokeStyle = '#8ff6ff';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(
+    sx + 1,
+    blockY + 1,
+    h.w - 2,
+    h.h - 2
+  );
 
-      ctx.lineWidth = 2;
+  // Internal luminous bands.
+  ctx.strokeStyle = 'rgba(85, 229, 255, 0.65)';
+  ctx.lineWidth = 2;
 
-      ctx.strokeRect(
-        sx,
-        gy - h.h,
-        h.w,
-        h.h
-      );
+  for (
+    let y = blockY + 13;
+    y < gy - 7;
+    y += 13
+  ) {
+    ctx.beginPath();
+    ctx.moveTo(sx + 7, y);
+    ctx.lineTo(sx + h.w - 7, y);
+    ctx.stroke();
+  }
 
-      // Rhythm lines
+  // Bright top edge.
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(sx + 3, blockY + 2);
+  ctx.lineTo(sx + h.w - 3, blockY + 2);
+  ctx.stroke();
 
-      ctx.strokeStyle =
-        'rgba(7,10,18,.75)';
-
-      ctx.lineWidth = 2;
-
-      for (
-        let y = gy - h.h + 12;
-        y < gy - 8;
-        y += 12
-      ) {
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-          sx + 7,
-          y
-        );
-
-        ctx.lineTo(
-          sx + h.w - 7,
-          y
-        );
-
-        ctx.stroke();
-      }
-    }
+  ctx.restore();
+}
+    
 
     // ========================================================
     // V0.8 — ASTEROID STORM
