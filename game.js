@@ -1166,17 +1166,13 @@ function startGameFromButton(e) {
 
   if (running && !dead && !finished) return;
 
-  startButton.textContent = 'START';
-  reset();
-}
-
-function restartGameFromButton(e) {
-  if (e) {
-    e.preventDefault();
-    e.stopPropagation();
+  try {
+    reset();
+  } catch (error) {
+    running = false;
+    console.error('TAALBOUND START ERROR:', error);
+    alert('Game start failed: ' + error.message);
   }
-
-  reset();
 }
 
 startButton.addEventListener(
@@ -1184,9 +1180,13 @@ startButton.addEventListener(
   startGameFromButton
 );
 
-restartButton.addEventListener(
-  'click',
-  restartGameFromButton
+startButton.addEventListener(
+  'pointerup',
+  function(e) {
+    if (e.pointerType === 'touch') {
+      startGameFromButton(e);
+    }
+  }
 );
   
 
