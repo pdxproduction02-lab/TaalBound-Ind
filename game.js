@@ -1859,8 +1859,6 @@ if (!player.onGround) {
 
     }
 
-    }
-
   }
 
 
@@ -3113,7 +3111,7 @@ function drawHazards() {
         ctx.stroke();
 
       }
-
+    }
   }
 }
 
