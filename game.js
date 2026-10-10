@@ -293,6 +293,32 @@ const player = {
   rot: 0
 
 };
+  
+ // Fix player position when switching portrait/landscape.
+let lastGameWidth = innerWidth;
+let lastGameHeight = innerHeight;
+
+addEventListener('resize', function () {
+  const nowLandscape = innerWidth > innerHeight;
+  const wasLandscape = lastGameWidth > lastGameHeight;
+
+  lastGameWidth = innerWidth;
+  lastGameHeight = innerHeight;
+
+  // Only intervene when orientation actually changes.
+  if (nowLandscape === wasLandscape) return;
+  if (!running || dead || finished) return;
+
+  // Place the player safely on the new ground.
+  player.y = GROUND_Y() - player.h;
+  player.vy = 0;
+  player.onGround = true;
+  player.rot = 0;
+
+  coyoteTimer = COYOTE_TIME;
+  jumpBufferTimer = 0;
+});
+  
 
 
 // ============================================================
