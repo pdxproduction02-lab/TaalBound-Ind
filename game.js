@@ -1205,6 +1205,20 @@ startButton.addEventListener(
     }
   }
 );
+restartButton.addEventListener(
+  'click',
+  startGameFromButton
+);
+
+restartButton.addEventListener(
+  'pointerup',
+  function(e) {
+    if (e.pointerType === 'touch') {
+      startGameFromButton(e);
+    }
+  }
+);
+  
   
 
 
