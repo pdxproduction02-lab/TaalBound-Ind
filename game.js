@@ -3664,50 +3664,96 @@ if (h.type === 'spike') {
 
   ctx.save();
 
-  // Soft red-magenta aura.
-  ctx.shadowColor = '#ff426f';
-  ctx.shadowBlur = 10 + beatPulse * 9;
+  if (selectedLevel === 'cloudburst') {
+    // V0.2: Smooth sandstone spikes.
+    const stone = ctx.createLinearGradient(
+      sx, tipY, sx + h.w, gy
+    );
 
-  ctx.fillStyle = '#ff426f';
-  ctx.beginPath();
-  ctx.moveTo(sx, gy);
-  ctx.lineTo(tipX, tipY);
-  ctx.lineTo(sx + h.w, gy);
-  ctx.closePath();
-  ctx.fill();
+    stone.addColorStop(0, '#d8b27c');
+    stone.addColorStop(0.42, '#a77a4c');
+    stone.addColorStop(1, '#60432f');
 
-  // Dark inner face creates depth.
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = '#40102e';
+    ctx.fillStyle = stone;
+    ctx.beginPath();
+    ctx.moveTo(sx, gy);
+    ctx.lineTo(tipX, tipY);
+    ctx.lineTo(sx + h.w, gy);
+    ctx.closePath();
+    ctx.fill();
 
-  ctx.beginPath();
-  ctx.moveTo(sx + 5, gy - 2);
-  ctx.lineTo(tipX, tipY + 10);
-  ctx.lineTo(sx + h.w - 5, gy - 2);
-  ctx.closePath();
-  ctx.fill();
+    // Natural stone shading.
+    const shade = ctx.createLinearGradient(
+      sx, tipY, sx + h.w, gy
+    );
 
-  // Bright outline.
-  ctx.strokeStyle = '#ffb4e2';
-  ctx.lineWidth = 1.8;
-  ctx.beginPath();
-  ctx.moveTo(sx, gy);
-  ctx.lineTo(tipX, tipY);
-  ctx.lineTo(sx + h.w, gy);
-  ctx.stroke();
+    shade.addColorStop(0, '#8c6746');
+    shade.addColorStop(1, '#493528');
 
-  // Luminous tip.
-  ctx.fillStyle = '#ffffff';
-  ctx.shadowColor = '#ff72d2';
-  ctx.shadowBlur = 8;
+    ctx.fillStyle = shade;
+    ctx.beginPath();
+    ctx.moveTo(sx + 5, gy - 2);
+    ctx.lineTo(tipX, tipY + 10);
+    ctx.lineTo(sx + h.w - 5, gy - 2);
+    ctx.closePath();
+    ctx.fill();
 
-  ctx.beginPath();
-  ctx.arc(tipX, tipY + 1, 2, 0, Math.PI * 2);
-  ctx.fill();
+    // Subtle sandstone edge; no neon or glow.
+    ctx.strokeStyle = '#e5c99b';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(sx, gy);
+    ctx.lineTo(tipX, tipY);
+    ctx.lineTo(sx + h.w, gy);
+    ctx.stroke();
+
+    ctx.fillStyle = '#f0d8ae';
+    ctx.beginPath();
+    ctx.arc(tipX, tipY + 1, 1.2, 0, Math.PI * 2);
+    ctx.fill();
+
+  } else {
+    // Original neon spikes: preserve PULSE unchanged.
+    ctx.shadowColor = '#ff426f';
+    ctx.shadowBlur = 10 + beatPulse * 9;
+
+    ctx.fillStyle = '#ff426f';
+    ctx.beginPath();
+    ctx.moveTo(sx, gy);
+    ctx.lineTo(tipX, tipY);
+    ctx.lineTo(sx + h.w, gy);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#40102e';
+    ctx.beginPath();
+    ctx.moveTo(sx + 5, gy - 2);
+    ctx.lineTo(tipX, tipY + 10);
+    ctx.lineTo(sx + h.w - 5, gy - 2);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = '#ffb4e2';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(sx, gy);
+    ctx.lineTo(tipX, tipY);
+    ctx.lineTo(sx + h.w, gy);
+    ctx.stroke();
+
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowColor = '#ff72d2';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(tipX, tipY + 1, 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   ctx.restore();
 }
     
+
 
 
     // ========================================================
