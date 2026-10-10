@@ -8,7 +8,11 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="game" aria-label="TAALBOUND game"></canvas><audio id="music" preload="auto">
+  <canvas id="game" aria-label="TAALBOUND game"></canvas>
+<audio id="music" preload="auto">
+  <source src="audio/PULSE.mp3" type="audio/mpeg">
+</audio>
+  
   <source src="audio/PULSE.mp3" type="audio/mpeg">
   </audio>
   <div id="hud">
@@ -17,13 +21,20 @@
     <div id="percent">0%</div>
     <div id="sectionName">INTRO</div>
   </div>
-  <div id="startScreen" class="overlay">
-    <div class="panel">
-      <div class="title">TAALBOUND</div>
-      <div class="tagline">RUN THE RHYTHM.</div>
-      <button id="startButton" type="button">START</button>
-      <div class="hint">Tap / Space to jump</div>
-    </div>
+   <div class="level-heading">SELECT YOUR LEVEL</div>
+
+  <button id="pulseLevelButton" class="level-button pulse-level" type="button">
+    <span>PULSE</span>
+    <small>LEVEL 01 · NEON RUN</small>
+  </button>
+
+  <button id="cloudburstLevelButton" class="level-button cloudburst-level" type="button">
+    <span>CLOUDBURST ⛈</span>
+    <small>LEVEL 02 · TEMPLE OF STORMS</small>
+  </button>
+
+  <div class="hint">Tap / Space to jump</div>
+</div>
   </div>
   <div id="deathScreen" class="overlay hidden">
     <div class="panel">
