@@ -131,3 +131,233 @@ button:active {
     font-size: 12px;
   }
 }
+
+/* TAALBOUND — PREMIUM RESULTS INTERFACE */
+
+#deathScreen {
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      rgba(72, 32, 100, 0.40),
+      rgba(3, 6, 15, 0.94) 72%
+    );
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+}
+
+#deathScreen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0px,
+      transparent 5px,
+      rgba(255,255,255,0.018) 6px
+    );
+}
+
+#deathScreen .panel {
+  position: relative;
+  width: min(88vw, 440px);
+  padding: 34px 26px 30px;
+  border: 1px solid rgba(120, 210, 255, 0.28);
+  border-radius: 22px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(19, 26, 48, 0.96),
+      rgba(8, 11, 24, 0.97)
+    );
+  box-shadow:
+    0 0 45px rgba(35, 150, 255, 0.12),
+    inset 0 0 28px rgba(80, 140, 255, 0.05);
+  overflow: hidden;
+}
+
+#deathScreen .panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 12%;
+  width: 76%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #62eaff,
+    #ffffff,
+    #ff57bb,
+    transparent
+  );
+  box-shadow: 0 0 18px #62eaff;
+}
+
+.result-kicker {
+  margin-bottom: 15px;
+  color: #ff78ba;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.32em;
+}
+
+#resultTitle {
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(255, 90, 170, 0.5),
+    0 0 28px rgba(255, 50, 130, 0.2);
+  letter-spacing: 0.06em;
+}
+
+.result-progress {
+  margin: 28px auto 4px;
+  max-width: 310px;
+}
+
+#resultPercent {
+  color: #ff8bc9;
+  font-size: clamp(58px, 15vw, 88px);
+  font-weight: 900;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  text-shadow:
+    0 0 12px rgba(255, 95, 190, 0.7),
+    0 0 38px rgba(255, 55, 150, 0.28);
+  animation: resultPercentIn 0.65s cubic-bezier(.2,.8,.2,1);
+}
+
+.result-progress-track {
+  height: 7px;
+  margin-top: 18px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.09);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+#resultProgressFill {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    #8b5cff,
+    #ff55b7,
+    #ffc4e8
+  );
+  box-shadow: 0 0 14px #ff55b7;
+  transition: width 0.65s cubic-bezier(.2,.8,.2,1);
+}
+
+#resultCaption {
+  margin-top: 13px;
+  color: #b8c6e6;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+}
+
+#deathScreen button {
+  min-width: 190px;
+  border: 1px solid #ff78c7;
+  border-radius: 10px;
+  background: linear-gradient(
+    110deg,
+    #3a1744,
+    #17152d
+  );
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  box-shadow:
+    0 0 18px rgba(255, 80, 190, 0.15),
+    inset 0 0 12px rgba(255, 80, 190, 0.06);
+}
+
+#deathScreen button:hover {
+  background: linear-gradient(
+    110deg,
+    #64245f,
+    #202347
+  );
+  box-shadow: 0 0 28px rgba(255, 80, 190, 0.32);
+}
+
+@keyframes resultPercentIn {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.82);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-3px) scale(1.04);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Completion state */
+#deathScreen.complete {
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      rgba(0, 180, 220, 0.27),
+      rgba(2, 7, 16, 0.95) 72%
+    );
+}
+
+#deathScreen.complete .panel {
+  border-color: rgba(90, 245, 255, 0.48);
+  box-shadow:
+    0 0 55px rgba(0, 225, 255, 0.16),
+    inset 0 0 32px rgba(0, 225, 255, 0.06);
+}
+
+#deathScreen.complete .result-kicker,
+#deathScreen.complete #resultPercent {
+  color: #75f8ff;
+}
+
+#deathScreen.complete #resultTitle {
+  text-shadow:
+    0 0 12px rgba(90, 245, 255, 0.65),
+    0 0 32px rgba(0, 190, 255, 0.28);
+}
+
+#deathScreen.complete #resultProgressFill {
+  background: linear-gradient(
+    90deg,
+    #20bfff,
+    #71ffff,
+    #ffffff
+  );
+  box-shadow: 0 0 16px #4cf5ff;
+}
+
+#deathScreen.complete #restartButton {
+  border-color: #70f8ff;
+  background: linear-gradient(
+    110deg,
+    #103b50,
+    #111e36
+  );
+}
+
+@media (max-width: 600px) {
+  #deathScreen .panel {
+    padding: 30px 20px 26px;
+  }
+
+  .result-kicker {
+    font-size: 9px;
+  }
+
+  #resultCaption {
+    font-size: 9px;
+    letter-spacing: 0.12em;
+  }
+}
