@@ -27,8 +27,25 @@
   </div>
   <div id="deathScreen" class="overlay hidden">
     <div class="panel">
-      <div id="resultTitle" class="title small">PULSE FAILED</div>
-      <button id="restartButton" type="button">RESTART</button>
+      
+<div class="result-kicker">LEVEL TERMINATED</div>
+
+<div id="resultTitle" class="title small">
+  PULSE FAILED
+</div>
+
+<div class="result-progress">
+  <div id="resultPercent">0%</div>
+  <div class="result-progress-track">
+    <div id="resultProgressFill"></div>
+  </div>
+  <div id="resultCaption">PROGRESS ACHIEVED</div>
+</div>
+
+<button id="restartButton" type="button">
+  TRY AGAIN
+</button>
+      
     </div>
   </div>
   <script src="game.js"></script>
