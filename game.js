@@ -16,7 +16,7 @@ const deathScreen = document.getElementById('deathScreen');
 
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
-
+const backToLevelsButton = document.getElementById('backToLevelsButton');
 const pulseLevelButton =
   document.getElementById('pulseLevelButton');
 
@@ -1404,7 +1404,15 @@ restartButton.addEventListener(
     }
   }
 );
-  
+backToLevelsButton.addEventListener('click', () => {
+  running = false;
+  dead = false;
+  finished = false;
+
+  music.pause();
+  deathScreen.classList.add('hidden');
+  startScreen.classList.remove('hidden');
+});  
   
 
 
