@@ -1281,7 +1281,7 @@ resultCaption.textContent =
       ? 'NICE RUN — KEEP PUSHING'
       : 'PROGRESS ACHIEVED';
 
-
+  deathScreen.classList.remove('complete');
   deathScreen.classList.remove(
     'hidden'
   );
