@@ -23,6 +23,14 @@ const sectionName = document.getElementById('sectionName');
 const music = document.getElementById('music');
 
 const resultTitle = document.getElementById('resultTitle');
+const resultPercent =
+  document.getElementById('resultPercent');
+
+const resultProgressFill =
+  document.getElementById('resultProgressFill');
+
+const resultCaption =
+  document.getElementById('resultCaption');
 
 
 // ============================================================
@@ -1251,8 +1259,27 @@ function die() {
   music.pause();
 
 
-  resultTitle.textContent =
-    'PULSE FAILED';
+  const achieved = Math.max(
+  0,
+  Math.min(
+    99,
+    Math.floor(
+      (music.currentTime / LEVEL_DURATION) * 100
+    )
+  )
+);
+
+resultTitle.textContent = 'PULSE FAILED';
+
+resultPercent.textContent = achieved + '%';
+resultProgressFill.style.width = achieved + '%';
+
+resultCaption.textContent =
+  achieved >= 75
+    ? 'SO CLOSE — ONE MORE RUN'
+    : achieved >= 40
+      ? 'NICE RUN — KEEP PUSHING'
+      : 'PROGRESS ACHIEVED';
 
 
   deathScreen.classList.remove(
@@ -1295,6 +1322,9 @@ function finish() {
 
   resultTitle.textContent =
     'PULSE COMPLETE';
+  resultPercent.textContent = '100%';
+resultProgressFill.style.width = '100%';
+resultCaption.textContent = 'LEVEL CLEARED — PERFECT FINISH';
 
 
   deathScreen.classList.remove(
