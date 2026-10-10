@@ -361,3 +361,66 @@ button:active {
     letter-spacing: 0.12em;
   }
 }
+
+/* CLOUDBURST v0.1 — LEVEL SELECTOR */
+
+.level-panel {
+  width: min(92vw, 460px);
+}
+
+.level-heading {
+  margin-top: 34px;
+  margin-bottom: 14px;
+  color: rgba(230, 245, 255, 0.65);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+}
+
+.level-button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  margin: 12px 0 0 !important;
+  padding: 19px 20px !important;
+  border-radius: 12px !important;
+  text-align: left;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.level-button span {
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.level-button small {
+  margin-top: 8px;
+  font-size: 10px;
+  letter-spacing: .16em;
+  opacity: .65;
+}
+
+.pulse-level {
+  border-color: #52eaff !important;
+  background: linear-gradient(110deg, #10283b, #101321) !important;
+}
+
+.cloudburst-level {
+  border-color: #b7a17b !important;
+  background: linear-gradient(110deg, #3c3024, #111923) !important;
+}
+
+.level-button.selected {
+  box-shadow: 0 0 24px rgba(105, 224, 255, .2);
+  transform: scale(1.02);
+}
+
+.cloudburst-level.selected {
+  box-shadow: 0 0 24px rgba(190, 169, 128, .28);
+}
+
+.level-button:active {
+  transform: scale(.98);
+}
