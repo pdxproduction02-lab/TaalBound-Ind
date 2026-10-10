@@ -17,6 +17,13 @@ const deathScreen = document.getElementById('deathScreen');
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 
+const pulseLevelButton =
+  document.getElementById('pulseLevelButton');
+
+const cloudburstLevelButton =
+  document.getElementById('cloudburstLevelButton');
+
+let selectedLevel = 'pulse';
 const progressFill = document.getElementById('progressFill');
 const percent = document.getElementById('percent');
 const sectionName = document.getElementById('sectionName');
@@ -102,7 +109,21 @@ const BASE_SPEED =
   BEAT_DISTANCE / BEAT_TIME;
 
 // Approximate PULSE duration.
-const LEVEL_DURATION = 176;
+let LEVEL_DURATION = 176;
+
+const LEVELS = {
+  pulse: {
+    name: 'PULSE',
+    duration: 176,
+    audio: 'audio/PULSE.mp3'
+  },
+
+  cloudburst: {
+    name: 'CLOUDBURST',
+    duration: 158.3543,
+    audio: 'audio/cloudburst.mp3'
+  }
+};
 
 
 // ============================================================
@@ -219,6 +240,26 @@ const SPEED_KEYFRAMES = [
   { time: 160, multiplier: 1.00 }
 
 ];
+  
+const CLOUDBURST_SPEED_KEYFRAMES = [
+  { time: 0,   multiplier: 1.00 },
+  { time: 15,  multiplier: 1.50 },
+  { time: 20,  multiplier: 1.75 },
+  { time: 26,  multiplier: 2.00 },
+  { time: 31,  multiplier: 2.50 },
+  { time: 54,  multiplier: 1.85 },
+  { time: 60,  multiplier: 2.00 },
+  { time: 70,  multiplier: 2.50 },
+  { time: 83,  multiplier: 1.85 },
+  { time: 97,  multiplier: 1.90 },
+  { time: 103, multiplier: 2.00 },
+  { time: 110, multiplier: 1.75 },
+  { time: 120, multiplier: 2.00 },
+  { time: 130, multiplier: 2.50 },
+  { time: 139, multiplier: 1.75 },
+  { time: 155, multiplier: 1.25 }
+];
+  
   
 // Jump physics
 const GRAVITY = 1800;
@@ -861,7 +902,9 @@ function smoothStep(t) {
 function getSpeedForTime(time) {
 
   const points =
-    SPEED_KEYFRAMES;
+  selectedLevel === 'cloudburst'
+    ? CLOUDBURST_SPEED_KEYFRAMES
+    : SPEED_KEYFRAMES;
 
   if (time <= points[0].time) {
     return (
@@ -1069,7 +1112,11 @@ trailTimer = 0;
 
 
   resultTitle.textContent =
-    'PULSE FAILED';
+  LEVELS[selectedLevel].name + ' FAILED';
+
+resultPercent.textContent = '0%';
+resultProgressFill.style.width = '0%';
+resultCaption.textContent = 'PROGRESS ACHIEVED';
 
 
   deathScreen.classList.add(
@@ -1182,6 +1229,42 @@ canvas.addEventListener(
 );
 
 
+function selectLevel(level) {
+  if (running) return;
+
+  selectedLevel = level;
+
+  const config = LEVELS[level];
+
+  LEVEL_DURATION = config.duration;
+
+  music.pause();
+  music.src = config.audio;
+  music.load();
+
+  resultTitle.textContent = config.name + ' FAILED';
+
+  pulseLevelButton.classList.toggle(
+    'selected',
+    level === 'pulse'
+  );
+
+  cloudburstLevelButton.classList.toggle(
+    'selected',
+    level === 'cloudburst'
+  );
+
+  startScreen.classList.remove('hidden');
+}
+
+pulseLevelButton.addEventListener('click', () => {
+  selectLevel('pulse');
+});
+
+cloudburstLevelButton.addEventListener('click', () => {
+  selectLevel('cloudburst');
+});
+  
 
 function startGameFromButton(e) {
   if (e) {
@@ -1269,7 +1352,8 @@ function die() {
   )
 );
 
-resultTitle.textContent = 'PULSE FAILED';
+resultTitle.textContent =
+  LEVELS[selectedLevel].name + ' FAILED';
 
 resultPercent.textContent = achieved + '%';
 resultProgressFill.style.width = achieved + '%';
@@ -1321,7 +1405,7 @@ function finish() {
 
 
   resultTitle.textContent =
-    'PULSE COMPLETE';
+  LEVELS[selectedLevel].name + ' COMPLETE';
   resultPercent.textContent = '100%';
 resultProgressFill.style.width = '100%';
 resultCaption.textContent = 'LEVEL CLEARED — PERFECT FINISH';
