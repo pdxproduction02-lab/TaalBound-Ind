@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -9,56 +10,62 @@
 </head>
 <body>
   <canvas id="game" aria-label="TAALBOUND game"></canvas>
-<audio id="music" preload="auto">
-  <source src="audio/PULSE.mp3" type="audio/mpeg">
-</audio>
-  
-  <source src="audio/PULSE.mp3" type="audio/mpeg">
+
+  <audio id="music" preload="auto">
+    <source src="audio/PULSE.mp3" type="audio/mpeg">
   </audio>
+
   <div id="hud">
     <div class="brand">TAALBOUND</div>
-    <div class="progress"><div id="progressFill"></div></div>
+    <div class="progress">
+      <div id="progressFill"></div>
+    </div>
     <div id="percent">0%</div>
     <div id="sectionName">INTRO</div>
   </div>
-   <div class="level-heading">SELECT YOUR LEVEL</div>
 
-  <button id="pulseLevelButton" class="level-button pulse-level" type="button">
-    <span>PULSE</span>
-    <small>LEVEL 01 · NEON RUN</small>
-  </button>
+  <div id="startScreen" class="overlay">
+    <div class="panel level-panel">
+      <div class="title">TAALBOUND</div>
+      <div class="tagline">RUN THE RHYTHM.</div>
 
-  <button id="cloudburstLevelButton" class="level-button cloudburst-level" type="button">
-    <span>CLOUDBURST ⛈</span>
-    <small>LEVEL 02 · TEMPLE OF STORMS</small>
-  </button>
+      <div class="level-heading">SELECT YOUR LEVEL</div>
 
-  <div class="hint">Tap / Space to jump</div>
-</div>
-  </div>
-  <div id="deathScreen" class="overlay hidden">
-    <div class="panel">
-      
-<div class="result-kicker">LEVEL TERMINATED</div>
+      <button id="pulseLevelButton" class="level-button pulse-level selected" type="button">
+        <span>PULSE</span>
+        <small>LEVEL 01 · NEON RUN</small>
+      </button>
 
-<div id="resultTitle" class="title small">
-  PULSE FAILED
-</div>
+      <button id="cloudburstLevelButton" class="level-button cloudburst-level" type="button">
+        <span>CLOUDBURST ⛈</span>
+        <small>LEVEL 02 · TEMPLE OF STORMS</small>
+      </button>
 
-<div class="result-progress">
-  <div id="resultPercent">0%</div>
-  <div class="result-progress-track">
-    <div id="resultProgressFill"></div>
-  </div>
-  <div id="resultCaption">PROGRESS ACHIEVED</div>
-</div>
-
-<button id="restartButton" type="button">
-  TRY AGAIN
-</button>
-      
+      <button id="startButton" type="button">START LEVEL</button>
+      <div class="hint">Tap / Space to jump</div>
     </div>
   </div>
+
+  <div id="deathScreen" class="overlay hidden">
+    <div class="panel">
+      <div class="result-kicker">LEVEL TERMINATED</div>
+
+      <div id="resultTitle" class="title small">
+        PULSE FAILED
+      </div>
+
+      <div class="result-progress">
+        <div id="resultPercent">0%</div>
+        <div class="result-progress-track">
+          <div id="resultProgressFill"></div>
+        </div>
+        <div id="resultCaption">PROGRESS ACHIEVED</div>
+      </div>
+
+      <button id="restartButton" type="button">TRY AGAIN</button>
+    </div>
+  </div>
+
   <script src="game.js"></script>
 </body>
 </html>
