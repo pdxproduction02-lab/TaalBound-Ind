@@ -4335,9 +4335,10 @@ if (h.type === 'rhythmBlock') {
 
         ctx.stroke();
 
-      }
+       }
     }
   }
+}
 
 
 
