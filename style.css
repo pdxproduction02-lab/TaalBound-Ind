@@ -424,3 +424,40 @@ button:active {
 .level-button:active {
   transform: scale(.98);
 }
+
+/* CLOUDBURST — ANCIENT STORM TEMPLE HUD */
+
+body.cloudburst-theme {
+  background: #10171b;
+}
+
+body.cloudburst-theme .brand {
+  color: #d6d4c3;
+  text-shadow: 0 0 10px rgba(190, 198, 185, 0.3);
+}
+
+body.cloudburst-theme .progress {
+  background: rgba(190, 199, 190, 0.12);
+  border-color: rgba(196, 205, 194, 0.45);
+  box-shadow: 0 0 8px rgba(180, 195, 190, 0.08);
+}
+
+body.cloudburst-theme .progress > div {
+  background: linear-gradient(
+    90deg,
+    #777d70,
+    #d2d1bd,
+    #ffffff
+  );
+  box-shadow: 0 0 8px rgba(211, 221, 211, 0.4);
+}
+
+body.cloudburst-theme #percent {
+  color: #f0f0e9;
+  text-shadow: 0 0 8px rgba(220, 225, 215, 0.28);
+}
+
+body.cloudburst-theme #sectionName {
+  color: #b7b9a5;
+  text-shadow: 0 0 8px rgba(175, 185, 158, 0.3);
+}
