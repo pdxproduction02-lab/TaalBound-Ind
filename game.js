@@ -2417,6 +2417,24 @@ function drawCloudburstBackground() {
       ctx.fillRect(px - 4, base - 104, 20, 7);
       ctx.fillRect(px - 3, base - 5, 18, 5);
 
+      
+    // Moss growth on ancient temple masonry.
+    ctx.fillStyle = 'rgba(72, 103, 65, 0.52)';
+    ctx.fillRect(x + 25, base - 48, 12, 29);
+    ctx.fillRect(x + 85, base - 30, 9, 18);
+    ctx.fillRect(x + 185, base - 57, 13, 36);
+
+    // Subtle wet highlights on stone edges.
+    ctx.strokeStyle = 'rgba(190, 205, 199, 0.24)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x + 25, base - 99);
+    ctx.lineTo(x + 25, base - 18);
+    ctx.moveTo(x + 85, base - 99);
+    ctx.lineTo(x + 85, base - 18);
+    ctx.stroke();
+      
+
       // Simple carved bands.
       ctx.fillStyle = 'rgba(191, 169, 126, 0.35)';
       for (let band = 0; band < 4; band++) {
@@ -2477,9 +2495,12 @@ function drawCloudburstBackground() {
 
   // Ground and rain-darkened stone.
   const stone = ctx.createLinearGradient(0, gy, 0, H);
-  stone.addColorStop(0, '#51564a');
-  stone.addColorStop(0.18, '#343a35');
-  stone.addColorStop(1, '#151d20');
+  
+  stone.addColorStop(0, '#656b5c');
+  stone.addColorStop(0.12, '#3b443d');
+  stone.addColorStop(0.42, '#252e2c');
+  stone.addColorStop(1, '#10171b');
+  
 
   ctx.fillStyle = stone;
   ctx.fillRect(0, gy, W, H - gy);
@@ -2567,10 +2588,15 @@ function drawCloudburstBackground() {
 }
   
 function drawBackground() {
-    if (selectedLevel === 'cloudburst') {
+  document.body.classList.toggle(
+    'cloudburst-theme',
+    selectedLevel === 'cloudburst'
+  );
+
+  if (selectedLevel === 'cloudburst') {
     drawCloudburstBackground();
     return;
-    }
+  }
 
   const gy =
     GROUND_Y();
@@ -3408,7 +3434,9 @@ function drawPlayerTrail() {
     );
 
     ctx.globalAlpha = alpha * 0.42;
-    ctx.strokeStyle = '#43eaff';
+    ctx.strokeStyle = selectedLevel === 'cloudburst'
+  ? '#ff9b42'
+  : '#43eaff';
     ctx.lineWidth = 2 + alpha * 3;
 
     ctx.beginPath();
@@ -3442,9 +3470,13 @@ const half = size / 2;
 
   // Outer energy halo.
   ctx.save();
-  ctx.shadowColor = '#36eaff';
+  ctx.shadowColor = selectedLevel === 'cloudburst'
+  ? '#ffad45'
+  : '#36eaff';
   ctx.shadowBlur = 15 + beatPulse * 9 + intensity * 12;
-  ctx.fillStyle = 'rgba(54, 234, 255, 0.16)';
+  ctx.fillStyle = selectedLevel === 'cloudburst'
+  ? 'rgba(255, 164, 55, 0.20)'
+  : 'rgba(54, 234, 255, 0.16)';
   ctx.fillRect(-half - 3, -half - 3, size + 6, size + 6);
   ctx.restore();
 
@@ -3453,9 +3485,15 @@ const half = size / 2;
     -half, -half, half, half
   );
 
+  if (selectedLevel === 'cloudburst') {
+  shell.addColorStop(0, '#fff0b4');
+  shell.addColorStop(0.45, '#e9a83d');
+  shell.addColorStop(1, '#8d4a16');
+} else {
   shell.addColorStop(0, '#ffffff');
   shell.addColorStop(0.45, '#d8faff');
   shell.addColorStop(1, '#73cfff');
+  }
 
   ctx.fillStyle = shell;
   ctx.fillRect(-half, -half, size, size);
@@ -3471,9 +3509,15 @@ const half = size / 2;
 
   // Cyan core.
   ctx.save();
-  ctx.shadowColor = '#45f3ff';
-  ctx.shadowBlur = 8 + beatPulse * 5;
-  ctx.fillStyle = '#45f3ff';
+  ctx.shadowColor = selectedLevel === 'cloudburst'
+  ? '#ffb52e'
+  : '#45f3ff';
+
+ctx.shadowBlur = 8 + beatPulse * 5;
+
+ctx.fillStyle = selectedLevel === 'cloudburst'
+  ? '#fff0a6'
+  : '#45f3ff';
   ctx.fillRect(-6, -6, 12, 12);
   ctx.restore();
 
@@ -3757,6 +3801,29 @@ if (h.type === 'spike') {
     ctx.arc(tipX, tipY + 1, 2, 0, Math.PI * 2);
     ctx.fill();
   }
+  
+    // Moss at the base of the ancient stone spike.
+    ctx.fillStyle = 'rgba(74, 100, 61, 0.72)';
+    ctx.beginPath();
+    ctx.ellipse(
+      sx + h.w * 0.28,
+      gy - 2,
+      h.w * 0.18,
+      2.5,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    // Fine rain-wet highlight on the left face.
+    ctx.strokeStyle = 'rgba(232, 239, 224, 0.48)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(sx + h.w * 0.12, gy - 5);
+    ctx.lineTo(tipX - h.w * 0.08, tipY + h.h * 0.38);
+    ctx.stroke();
+  
 
   ctx.restore();
 }
@@ -3768,61 +3835,77 @@ if (h.type === 'spike') {
     // BARRIER
     // ========================================================
 
-    if (h.type === 'barrier') {
+    
+if (h.type === 'barrier') {
+  const blockY = gy - h.h;
 
-      ctx.fillStyle = '#ffb347';
+  if (selectedLevel === 'cloudburst') {
+    const stone = ctx.createLinearGradient(
+      sx, blockY, sx + h.w, gy
+    );
 
-      ctx.shadowColor = '#ffb347';
+    stone.addColorStop(0, '#a8a18a');
+    stone.addColorStop(0.45, '#66695b');
+    stone.addColorStop(1, '#292f2c');
 
-      ctx.shadowBlur =
-        15 +
-        beatPulse * 12;
+    ctx.fillStyle = stone;
+    ctx.fillRect(sx, blockY, h.w, h.h);
 
-      ctx.fillRect(
-        sx,
-        gy - h.h,
-        h.w,
-        h.h
-      );
+    // Deep carved inset.
+    ctx.fillStyle = 'rgba(15, 21, 19, 0.4)';
+    ctx.fillRect(
+      sx + 5, blockY + 5,
+      Math.max(1, h.w - 10),
+      Math.max(1, h.h - 10)
+    );
 
-      ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#a6a58e';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx + 1, blockY + 1, h.w - 2, h.h - 2);
 
-      ctx.strokeStyle = '#ffe0a3';
+    // Ancient carved bands.
+    ctx.strokeStyle = 'rgba(198, 202, 183, 0.42)';
+    ctx.lineWidth = 1;
 
-      ctx.lineWidth = 2;
+    for (let y = blockY + 14; y < gy - 5; y += 17) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 7, y);
+      ctx.lineTo(sx + h.w - 7, y);
+      ctx.stroke();
+    }
 
-      ctx.strokeRect(
-        sx,
-        gy - h.h,
-        h.w,
-        h.h
-      );
+    // Central temple emblem.
+    ctx.beginPath();
+    ctx.moveTo(sx + h.w / 2, blockY + 8);
+    ctx.lineTo(sx + h.w / 2 + 7, blockY + 17);
+    ctx.lineTo(sx + h.w / 2, blockY + 26);
+    ctx.lineTo(sx + h.w / 2 - 7, blockY + 17);
+    ctx.closePath();
+    ctx.stroke();
 
-      // Internal rhythm lines
+  } else {
+    // Original appearance for Pulse and other levels.
+    ctx.fillStyle = '#ffb347';
+    ctx.shadowColor = '#ffb347';
+    ctx.shadowBlur = 15 + beatPulse * 12;
+    ctx.fillRect(sx, blockY, h.w, h.h);
+    ctx.shadowBlur = 0;
 
-      ctx.strokeStyle =
-        'rgba(10,17,27,.7)';
+    ctx.strokeStyle = '#ffe0a3';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(sx, blockY, h.w, h.h);
 
-      for (
-        let y = gy - h.h + 12;
-        y < gy - 5;
-        y += 12
-      ) {
+    ctx.strokeStyle = 'rgba(10,17,27,.7)';
 
-        ctx.beginPath();
-
-        ctx.moveTo(
-          sx + 5,
-          y
-        );
-
-        ctx.lineTo(
-          sx + h.w - 5,
-          y
-        );
-
-        ctx.stroke();
-      }
+    for (let y = blockY + 12; y < gy - 5; y += 12) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 5, y);
+      ctx.lineTo(sx + h.w - 5, y);
+      ctx.stroke();
+    }
+  }
+}
+    
     }
 
 
@@ -3831,64 +3914,95 @@ if (h.type === 'spike') {
     // ========================================================
 
     
+
 if (h.type === 'rhythmBlock') {
   const blockY = gy - h.h;
 
   ctx.save();
 
-  // Outer cyan glow.
-  ctx.shadowColor = '#35eaff';
-  ctx.shadowBlur = 12 + beatPulse * 10;
+  if (selectedLevel === 'cloudburst') {
+    const stone = ctx.createLinearGradient(
+      sx, blockY, sx + h.w, gy
+    );
 
-  ctx.fillStyle = '#24bfe9';
-  ctx.fillRect(sx, blockY, h.w, h.h);
+    stone.addColorStop(0, '#a9a18a');
+    stone.addColorStop(0.5, '#65695b');
+    stone.addColorStop(1, '#282f2c');
 
-  ctx.shadowBlur = 0;
+    ctx.fillStyle = stone;
+    ctx.fillRect(sx, blockY, h.w, h.h);
 
-  // Dark inset face.
-  ctx.fillStyle = '#101b39';
-  ctx.fillRect(
-    sx + 4,
-    blockY + 4,
-    h.w - 8,
-    h.h - 8
-  );
+    ctx.fillStyle = 'rgba(12, 19, 17, 0.36)';
+    ctx.fillRect(
+      sx + 4, blockY + 4,
+      Math.max(1, h.w - 8),
+      Math.max(1, h.h - 8)
+    );
 
-  // Neon border.
-  ctx.strokeStyle = '#8ff6ff';
-  ctx.lineWidth = 2;
-  ctx.strokeRect(
-    sx + 1,
-    blockY + 1,
-    h.w - 2,
-    h.h - 2
-  );
+    ctx.strokeStyle = '#b4b39c';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(sx + 2, blockY + 2, h.w - 4, h.h - 4);
 
-  // Internal luminous bands.
-  ctx.strokeStyle = 'rgba(85, 229, 255, 0.65)';
-  ctx.lineWidth = 2;
+    // Worn stone bands.
+    ctx.strokeStyle = 'rgba(207, 210, 190, 0.42)';
+    ctx.lineWidth = 1;
 
-  for (
-    let y = blockY + 13;
-    y < gy - 7;
-    y += 13
-  ) {
+    for (let y = blockY + 13; y < gy - 7; y += 15) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 7, y);
+      ctx.lineTo(sx + h.w - 7, y);
+      ctx.stroke();
+    }
+
+    // Carved central diamond.
     ctx.beginPath();
-    ctx.moveTo(sx + 7, y);
-    ctx.lineTo(sx + h.w - 7, y);
+    ctx.moveTo(sx + h.w / 2, blockY + 8);
+    ctx.lineTo(sx + h.w / 2 + 7, blockY + 17);
+    ctx.lineTo(sx + h.w / 2, blockY + 26);
+    ctx.lineTo(sx + h.w / 2 - 7, blockY + 17);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Moss along the upper edge.
+    ctx.fillStyle = 'rgba(77, 105, 63, 0.7)';
+    ctx.fillRect(sx + 4, blockY + 2, h.w * 0.35, 3);
+
+  } else {
+    // Preserve the original neon rhythm blocks.
+    ctx.shadowColor = '#35eaff';
+    ctx.shadowBlur = 12 + beatPulse * 10;
+    ctx.fillStyle = '#24bfe9';
+    ctx.fillRect(sx, blockY, h.w, h.h);
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#101b39';
+    ctx.fillRect(sx + 4, blockY + 4, h.w - 8, h.h - 8);
+
+    ctx.strokeStyle = '#8ff6ff';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(sx + 1, blockY + 1, h.w - 2, h.h - 2);
+
+    ctx.strokeStyle = 'rgba(85,229,255,0.65)';
+    ctx.lineWidth = 2;
+
+    for (let y = blockY + 13; y < gy - 7; y += 13) {
+      ctx.beginPath();
+      ctx.moveTo(sx + 7, y);
+      ctx.lineTo(sx + h.w - 7, y);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(sx + 3, blockY + 2);
+    ctx.lineTo(sx + h.w - 3, blockY + 2);
     ctx.stroke();
   }
 
-  // Bright top edge.
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.moveTo(sx + 3, blockY + 2);
-  ctx.lineTo(sx + h.w - 3, blockY + 2);
-  ctx.stroke();
-
   ctx.restore();
 }
+  
     
 
     // ========================================================
