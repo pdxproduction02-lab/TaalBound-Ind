@@ -2337,136 +2337,108 @@ const cloudburstTempleImage = new Image();
 cloudburstTempleImage.src =
   'assets/cloudburst-temple.png';
   
+
 function drawCloudburstBackground() {
   const gy = GROUND_Y();
   const time = music.currentTime;
+  const img = cloudburstTempleImage;
 
-  // 1. Draw the temple artwork, preserving its aspect ratio.
-  if (
-    cloudburstTempleImage.complete &&
-    cloudburstTempleImage.naturalWidth > 0
-  ) {
-    const imgW = cloudburstTempleImage.naturalWidth;
-    const imgH = cloudburstTempleImage.naturalHeight;
+  // The source artwork's stone ledge is approximately here.
+  // Adjust this value slightly after checking the live game.
+  const sourceGroundY = 690;
 
-    const scale = Math.max(W / imgW, H / imgH);
+  if (img.complete && img.naturalWidth > 0) {
+    const imgW = img.naturalWidth;
+    const imgH = img.naturalHeight;
+
+    // Align the artwork's stone ledge with the collision ground.
+    const scale = Math.max(
+      W / imgW,
+      (H - gy) / (imgH - sourceGroundY)
+    );
+
     const drawW = imgW * scale;
     const drawH = imgH * scale;
+    const drawY = gy - sourceGroundY * scale;
+
+    // Parallax: move the scenery as the player advances.
+    // Keep the image covering the screen; do not expose empty space.
+    const maxTravel = Math.max(0, drawW - W);
+    const initialX = (W - drawW) / 2;
+    const travel = Math.min(
+      maxTravel,
+      worldX * 0.045
+    );
+
+    const drawX = Math.max(
+      W - drawW,
+      Math.min(0, initialX - travel)
+    );
 
     ctx.drawImage(
-      cloudburstTempleImage,
-      (W - drawW) / 2,
-      (H - drawH) / 2,
+      img,
+      drawX,
+      drawY,
       drawW,
       drawH
     );
   } else {
-    // Fallback while the image loads.
-    const sky = ctx.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, '#101923');
-    sky.addColorStop(1, '#171d20');
-
-    ctx.fillStyle = sky;
+    ctx.fillStyle = '#172027';
     ctx.fillRect(0, 0, W, H);
   }
 
-  // 2. Darken the lower gameplay floor.
-  const stone = ctx.createLinearGradient(0, gy, 0, H);
+  // IMPORTANT:
+  // Do not draw the old artificial stone-gradient floor.
+  // The image's own stone ledge should remain visible.
+  // Physics still uses GROUND_Y().
 
-  stone.addColorStop(0, 'rgba(75, 79, 69, 0.94)');
-  stone.addColorStop(0.20, 'rgba(43, 49, 43, 0.98)');
-  stone.addColorStop(1, '#10171b');
-
-  ctx.fillStyle = stone;
-  ctx.fillRect(0, gy, W, H - gy);
-
-  // 3. Wet stone reflections.
+  // Rain overlay adds movement while the scenery scrolls.
   ctx.save();
+
   ctx.beginPath();
-  ctx.rect(0, gy, W, H - gy);
+  ctx.rect(0, 0, W, H);
   ctx.clip();
 
-  for (let i = 0; i < 18; i++) {
+  ctx.strokeStyle = 'rgba(202, 220, 222, 0.18)';
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i < 100; i++) {
     const x =
-      ((i * 113 - worldX * 0.55) % (W + 120)
-      + W + 120) % (W + 120);
+      ((i * 97 + time * (180 + (i % 4) * 25))
+      % (W + 20) + W + 20) % (W + 20);
 
-    const y = gy + 12 + (i % 7) * 14;
+    const y =
+      (i * 61 + time * 330) % H;
 
-    ctx.fillStyle = i % 3 === 0
-      ? 'rgba(177, 190, 180, 0.12)'
-      : 'rgba(8, 17, 18, 0.20)';
-
-    ctx.fillRect(x, y, 35 + (i % 4) * 18, 2);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 5, y + 16);
+    ctx.stroke();
   }
 
   ctx.restore();
 
-  // 4. Stone platform edge.
-  ctx.fillStyle = '#8a8878';
-  ctx.fillRect(0, gy, W, 3);
-
-  ctx.fillStyle = 'rgba(9, 14, 16, 0.45)';
-  ctx.fillRect(0, gy + 4, W, 7);
-
-  // 5. Rain overlay.
-  const rainStrength = Math.min(1, 0.30 + time / 35);
-
-  ctx.strokeStyle =
-    `rgba(202, 220, 222, ${0.12 * rainStrength})`;
-
-  ctx.lineWidth = 1;
-
-  for (let i = 0; i < 105; i++) {
-    const x =
-      (i * 97 + time * (180 + (i % 4) * 25))
-      % (W + 20);
-
-    const y =
-      (i * 61 + time * 330)
-      % Math.max(1, gy);
-
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x - 5, y + 13 + (i % 4) * 3);
-    ctx.stroke();
-  }
-
-  // 6. Timed storm flashes.
+  // Subtle lightning flash.
   const phase = time % 11;
   let flash = 0;
 
   if (phase > 7.5 && phase < 7.72) {
-    flash = 0.22 * (1 - (phase - 7.5) / 0.22);
+    flash = 0.20 * (1 - (phase - 7.5) / 0.22);
   } else if (phase > 8.0 && phase < 8.07) {
     flash = 0.12 * (1 - (phase - 8.0) / 0.07);
   }
 
   if (flash > 0) {
-    ctx.fillStyle =
-      `rgba(220, 231, 226, ${flash})`;
-
+    ctx.fillStyle = `rgba(220, 231, 226, ${flash})`;
     ctx.fillRect(0, 0, W, H);
   }
 
-  // 7. Subtle atmosphere during high-speed sections.
-  const speedRatio = currentSpeed / NORMAL_SPEED;
-
-  if (speedRatio > 1.8) {
-    ctx.fillStyle =
-      `rgba(175, 196, 201, ${
-        Math.min(0.07, (speedRatio - 1.8) * 0.04)
-      })`;
-
-    ctx.fillRect(0, 0, W, H);
-  }
-
-  // 8. Section label.
-  ctx.fillStyle = 'rgba(220, 224, 207, 0.86)';
+  ctx.fillStyle = 'rgba(235, 235, 220, 0.9)';
   ctx.font = '700 11px Arial';
   ctx.textAlign = 'right';
   ctx.fillText(getSection(time), W - 18, H - 18);
 }
+  
   
   
 function drawBackground() {
