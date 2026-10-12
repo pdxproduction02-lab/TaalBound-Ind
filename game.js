@@ -2345,7 +2345,7 @@ function drawCloudburstBackground() {
 
   // The source artwork's stone ledge is approximately here.
   // Adjust this value slightly after checking the live game.
-  const sourceGroundY = 690;
+  const sourceGroundY = 710;
 
   if (img.complete && img.naturalWidth > 0) {
     const imgW = img.naturalWidth;
