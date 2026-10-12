@@ -2331,188 +2331,66 @@ if (!player.onGround) {
 // BACKGROUND
 // ============================================================
 
+// CLOUD BURST — TEMPLE BACKGROUND IMAGE
+const cloudburstTempleImage = new Image();
+
+cloudburstTempleImage.src =
+  'assets/cloudburst-temple.png';
+  
 function drawCloudburstBackground() {
   const gy = GROUND_Y();
   const time = music.currentTime;
 
-  // Storm-dark sky.
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#101923');
-  sky.addColorStop(0.48, '#35414a');
-  sky.addColorStop(1, '#171d20');
+  // 1. Draw the temple artwork, preserving its aspect ratio.
+  if (
+    cloudburstTempleImage.complete &&
+    cloudburstTempleImage.naturalWidth > 0
+  ) {
+    const imgW = cloudburstTempleImage.naturalWidth;
+    const imgH = cloudburstTempleImage.naturalHeight;
 
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
+    const scale = Math.max(W / imgW, H / imgH);
+    const drawW = imgW * scale;
+    const drawH = imgH * scale;
 
-  // Distant monsoon clouds.
-  for (let i = 0; i < 9; i++) {
-    const x =
-      ((i * 190 - time * 12) % (W + 240) + W + 240)
-      % (W + 240) - 120;
+    ctx.drawImage(
+      cloudburstTempleImage,
+      (W - drawW) / 2,
+      (H - drawH) / 2,
+      drawW,
+      drawH
+    );
+  } else {
+    // Fallback while the image loads.
+    const sky = ctx.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#101923');
+    sky.addColorStop(1, '#171d20');
 
-    const y = 45 + (i % 3) * 48;
-
-    ctx.fillStyle = 'rgba(8, 15, 21, 0.20)';
-    ctx.beginPath();
-    ctx.ellipse(x, y, 120, 35, 0, 0, Math.PI * 2);
-    ctx.ellipse(x + 55, y + 5, 85, 28, 0, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, W, H);
   }
 
-  // Ancient temple silhouettes in the distance.
-  const drift = (worldX * 0.09) % 360;
-
-  for (let i = -1; i < Math.ceil(W / 360) + 2; i++) {
-    const x = i * 360 - drift;
-    const base = gy - 16;
-    const templeW = 250;
-    const templeH = 150 + (i % 3 + 3) % 3 * 22;
-
-    ctx.fillStyle = '#202b2d';
-
-    // Main sanctum.
-    ctx.fillRect(
-      x + 50,
-      base - templeH * 0.55,
-      150,
-      templeH * 0.55
-    );
-
-    // Tiered temple roof.
-    for (let tier = 0; tier < 5; tier++) {
-      const width = 150 - tier * 23;
-      const y = base - templeH * 0.55 - tier * 15;
-
-      ctx.beginPath();
-      ctx.moveTo(x + 125 - width / 2, y);
-      ctx.lineTo(x + 125, y - 22);
-      ctx.lineTo(x + 125 + width / 2, y);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Entrance and carved-looking vertical divisions.
-    ctx.fillStyle = '#111a1d';
-    ctx.fillRect(x + 103, base - 72, 44, 72);
-
-    ctx.strokeStyle = 'rgba(184, 163, 124, 0.20)';
-    ctx.lineWidth = 2;
-
-    for (let c = 0; c < 5; c++) {
-      const cx = x + 57 + c * 32;
-      ctx.beginPath();
-      ctx.moveTo(cx, base - 82);
-      ctx.lineTo(cx, base - 15);
-      ctx.stroke();
-    }
-
-    // Pillars in front of the sanctum.
-    for (let p = 0; p < 4; p++) {
-      const px = x + 25 + p * 60;
-
-      ctx.fillStyle = '#39403b';
-      ctx.fillRect(px, base - 100, 12, 100);
-
-      ctx.fillStyle = '#596052';
-      ctx.fillRect(px - 4, base - 104, 20, 7);
-      ctx.fillRect(px - 3, base - 5, 18, 5);
-
-      
-    // Moss growth on ancient temple masonry.
-    ctx.fillStyle = 'rgba(72, 103, 65, 0.52)';
-    ctx.fillRect(x + 25, base - 48, 12, 29);
-    ctx.fillRect(x + 85, base - 30, 9, 18);
-    ctx.fillRect(x + 185, base - 57, 13, 36);
-
-    // Subtle wet highlights on stone edges.
-    ctx.strokeStyle = 'rgba(190, 205, 199, 0.24)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x + 25, base - 99);
-    ctx.lineTo(x + 25, base - 18);
-    ctx.moveTo(x + 85, base - 99);
-    ctx.lineTo(x + 85, base - 18);
-    ctx.stroke();
-      
-
-      // Simple carved bands.
-      ctx.fillStyle = 'rgba(191, 169, 126, 0.35)';
-      for (let band = 0; band < 4; band++) {
-        ctx.fillRect(
-          px,
-          base - 88 + band * 22,
-          12,
-          2
-        );
-      }
-    }
-
-    // Monumental gateway arch.
-    ctx.strokeStyle = '#3e4740';
-    ctx.lineWidth = 13;
-    ctx.beginPath();
-    ctx.moveTo(x + 5, base);
-    ctx.lineTo(x + 5, base - 130);
-    ctx.quadraticCurveTo(
-      x + 125,
-      base - 220,
-      x + 245,
-      base - 130
-    );
-    ctx.lineTo(x + 245, base);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(194, 174, 137, 0.22)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x + 18, base - 8);
-    ctx.lineTo(x + 18, base - 127);
-    ctx.quadraticCurveTo(
-      x + 125,
-      base - 201,
-      x + 232,
-      base - 127
-    );
-    ctx.lineTo(x + 232, base - 8);
-    ctx.stroke();
-
-    // Stone joints along the lower walls.
-    ctx.strokeStyle = 'rgba(12, 17, 16, 0.45)';
-    ctx.lineWidth = 1;
-
-    for (let row = 0; row < 5; row++) {
-      ctx.beginPath();
-      ctx.moveTo(x + 20, base - 15 - row * 18);
-      ctx.lineTo(x + 230, base - 15 - row * 18);
-      ctx.stroke();
-    }
-
-    // Weather stains.
-    ctx.fillStyle = 'rgba(12, 25, 21, 0.24)';
-    ctx.fillRect(x + 52, base - 65, 8, 40);
-    ctx.fillRect(x + 190, base - 91, 7, 56);
-  }
-
-  // Ground and rain-darkened stone.
+  // 2. Darken the lower gameplay floor.
   const stone = ctx.createLinearGradient(0, gy, 0, H);
-  
-  stone.addColorStop(0, '#656b5c');
-  stone.addColorStop(0.12, '#3b443d');
-  stone.addColorStop(0.42, '#252e2c');
+
+  stone.addColorStop(0, 'rgba(75, 79, 69, 0.94)');
+  stone.addColorStop(0.20, 'rgba(43, 49, 43, 0.98)');
   stone.addColorStop(1, '#10171b');
-  
 
   ctx.fillStyle = stone;
   ctx.fillRect(0, gy, W, H - gy);
 
-  // Wet-stone reflections.
+  // 3. Wet stone reflections.
   ctx.save();
   ctx.beginPath();
   ctx.rect(0, gy, W, H - gy);
   ctx.clip();
 
   for (let i = 0; i < 18; i++) {
-    const x = ((i * 113 - worldX * 0.55) % (W + 120) + W + 120) % (W + 120);
+    const x =
+      ((i * 113 - worldX * 0.55) % (W + 120)
+      + W + 120) % (W + 120);
+
     const y = gy + 12 + (i % 7) * 14;
 
     ctx.fillStyle = i % 3 === 0
@@ -2524,22 +2402,29 @@ function drawCloudburstBackground() {
 
   ctx.restore();
 
-  // Stone platform edge.
-  ctx.fillStyle = '#93876d';
+  // 4. Stone platform edge.
+  ctx.fillStyle = '#8a8878';
   ctx.fillRect(0, gy, W, 3);
 
   ctx.fillStyle = 'rgba(9, 14, 16, 0.45)';
   ctx.fillRect(0, gy + 4, W, 7);
 
-  // Rain streaks.
+  // 5. Rain overlay.
   const rainStrength = Math.min(1, 0.30 + time / 35);
 
-  ctx.strokeStyle = `rgba(202, 220, 222, ${0.12 * rainStrength})`;
+  ctx.strokeStyle =
+    `rgba(202, 220, 222, ${0.12 * rainStrength})`;
+
   ctx.lineWidth = 1;
 
   for (let i = 0; i < 105; i++) {
-    const x = (i * 97 + time * (180 + (i % 4) * 25)) % (W + 20);
-    const y = (i * 61 + time * 330) % Math.max(1, gy);
+    const x =
+      (i * 97 + time * (180 + (i % 4) * 25))
+      % (W + 20);
+
+    const y =
+      (i * 61 + time * 330)
+      % Math.max(1, gy);
 
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -2547,45 +2432,42 @@ function drawCloudburstBackground() {
     ctx.stroke();
   }
 
-  // Occasional timed lightning flashes.
+  // 6. Timed storm flashes.
   const phase = time % 11;
   let flash = 0;
 
   if (phase > 7.5 && phase < 7.72) {
-    flash = 0.30 * (1 - (phase - 7.5) / 0.22);
+    flash = 0.22 * (1 - (phase - 7.5) / 0.22);
   } else if (phase > 8.0 && phase < 8.07) {
-    flash = 0.16 * (1 - (phase - 8.0) / 0.07);
+    flash = 0.12 * (1 - (phase - 8.0) / 0.07);
   }
 
   if (flash > 0) {
-    ctx.fillStyle = `rgba(220, 231, 226, ${flash})`;
-    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle =
+      `rgba(220, 231, 226, ${flash})`;
 
-    // Jagged lightning bolt in the sky.
-    ctx.strokeStyle = `rgba(236, 246, 238, ${flash + 0.25})`;
-    ctx.lineWidth = 3;
-    ctx.beginPath();
-    ctx.moveTo(W * 0.76, 0);
-    ctx.lineTo(W * 0.72, H * 0.13);
-    ctx.lineTo(W * 0.77, H * 0.17);
-    ctx.lineTo(W * 0.68, H * 0.31);
-    ctx.stroke();
+    ctx.fillRect(0, 0, W, H);
   }
 
-  // Speed intensity: restrained storm haze rather than neon.
+  // 7. Subtle atmosphere during high-speed sections.
   const speedRatio = currentSpeed / NORMAL_SPEED;
 
   if (speedRatio > 1.8) {
-    ctx.fillStyle = `rgba(175, 196, 201, ${Math.min(0.07, (speedRatio - 1.8) * 0.04)})`;
+    ctx.fillStyle =
+      `rgba(175, 196, 201, ${
+        Math.min(0.07, (speedRatio - 1.8) * 0.04)
+      })`;
+
     ctx.fillRect(0, 0, W, H);
   }
 
-  // Temple-storm section label.
+  // 8. Section label.
   ctx.fillStyle = 'rgba(220, 224, 207, 0.86)';
   ctx.font = '700 11px Arial';
   ctx.textAlign = 'right';
   ctx.fillText(getSection(time), W - 18, H - 18);
 }
+  
   
 function drawBackground() {
   document.body.classList.toggle(
