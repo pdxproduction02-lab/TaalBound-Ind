@@ -10,6 +10,12 @@
 
 const canvas = document.getElementById('game');
 const ctx = canvas.getContext('2d');
+// CLOUDBURST — TRANSPARENT SPRITE ASSETS
+const cloudburstSpikeImage = new Image();
+cloudburstSpikeImage.src = 'assets/cloudburst-spike.png';
+
+const cloudburstGuardianImage = new Image();
+cloudburstGuardianImage.src = 'assets/cloudburst-guardian.png';
 
 const startScreen = document.getElementById('startScreen');
 const deathScreen = document.getElementById('deathScreen');
@@ -466,8 +472,8 @@ impactTime
           beat * BEAT_TIME
         ),
 
-      w: 44,
-      h: 72
+      w: 64,
+      h: 88
 
     });
 
@@ -3570,54 +3576,30 @@ if (h.type === 'spike') {
 
   ctx.save();
 
-  if (selectedLevel === 'cloudburst') {
-    // V0.2: Smooth sandstone spikes.
-    const stone = ctx.createLinearGradient(
-      sx, tipY, sx + h.w, gy
-    );
+  if (
+  cloudburstSpikeImage.complete &&
+  cloudburstSpikeImage.naturalWidth > 0
+) {
+  ctx.drawImage(
+    cloudburstSpikeImage,
+    sx,
+    gy - h.h,
+    h.w,
+    h.h
+  );
+} else {
+  // Temporary fallback while PNG loads.
+  const tipX = sx + h.w / 2;
+  const tipY = gy - h.h;
 
-    stone.addColorStop(0, '#d8b27c');
-    stone.addColorStop(0.42, '#a77a4c');
-    stone.addColorStop(1, '#60432f');
-
-    ctx.fillStyle = stone;
-    ctx.beginPath();
-    ctx.moveTo(sx, gy);
-    ctx.lineTo(tipX, tipY);
-    ctx.lineTo(sx + h.w, gy);
-    ctx.closePath();
-    ctx.fill();
-
-    // Natural stone shading.
-    const shade = ctx.createLinearGradient(
-      sx, tipY, sx + h.w, gy
-    );
-
-    shade.addColorStop(0, '#8c6746');
-    shade.addColorStop(1, '#493528');
-
-    ctx.fillStyle = shade;
-    ctx.beginPath();
-    ctx.moveTo(sx + 5, gy - 2);
-    ctx.lineTo(tipX, tipY + 10);
-    ctx.lineTo(sx + h.w - 5, gy - 2);
-    ctx.closePath();
-    ctx.fill();
-
-    // Subtle sandstone edge; no neon or glow.
-    ctx.strokeStyle = '#e5c99b';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(sx, gy);
-    ctx.lineTo(tipX, tipY);
-    ctx.lineTo(sx + h.w, gy);
-    ctx.stroke();
-
-    ctx.fillStyle = '#f0d8ae';
-    ctx.beginPath();
-    ctx.arc(tipX, tipY + 1, 1.2, 0, Math.PI * 2);
-    ctx.fill();
-
+  ctx.fillStyle = '#9b7953';
+  ctx.beginPath();
+  ctx.moveTo(sx, gy);
+  ctx.lineTo(tipX, tipY);
+  ctx.lineTo(sx + h.w, gy);
+  ctx.closePath();
+  ctx.fill();
+  
   } else {
     // Original neon spikes: preserve PULSE unchanged.
     ctx.shadowColor = '#ff426f';
@@ -3693,49 +3675,27 @@ if (h.type === 'spike') {
 if (h.type === 'barrier') {
   const blockY = gy - h.h;
 
-  if (selectedLevel === 'cloudburst') {
-    const stone = ctx.createLinearGradient(
-      sx, blockY, sx + h.w, gy
-    );
-
-    stone.addColorStop(0, '#a8a18a');
-    stone.addColorStop(0.45, '#66695b');
-    stone.addColorStop(1, '#292f2c');
-
-    ctx.fillStyle = stone;
-    ctx.fillRect(sx, blockY, h.w, h.h);
-
-    // Deep carved inset.
-    ctx.fillStyle = 'rgba(15, 21, 19, 0.4)';
-    ctx.fillRect(
-      sx + 5, blockY + 5,
-      Math.max(1, h.w - 10),
-      Math.max(1, h.h - 10)
-    );
-
-    ctx.strokeStyle = '#a6a58e';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(sx + 1, blockY + 1, h.w - 2, h.h - 2);
-
-    // Ancient carved bands.
-    ctx.strokeStyle = 'rgba(198, 202, 183, 0.42)';
-    ctx.lineWidth = 1;
-
-    for (let y = blockY + 14; y < gy - 5; y += 17) {
-      ctx.beginPath();
-      ctx.moveTo(sx + 7, y);
-      ctx.lineTo(sx + h.w - 7, y);
-      ctx.stroke();
-    }
-
-    // Central temple emblem.
-    ctx.beginPath();
-    ctx.moveTo(sx + h.w / 2, blockY + 8);
-    ctx.lineTo(sx + h.w / 2 + 7, blockY + 17);
-    ctx.lineTo(sx + h.w / 2, blockY + 26);
-    ctx.lineTo(sx + h.w / 2 - 7, blockY + 17);
-    ctx.closePath();
-    ctx.stroke();
+  if (
+  cloudburstGuardianImage.complete &&
+  cloudburstGuardianImage.naturalWidth > 0
+) {
+  ctx.drawImage(
+    cloudburstGuardianImage,
+    sx,
+    gy - h.h,
+    h.w,
+    h.h
+  );
+} else {
+  // Temporary fallback if the PNG is not loaded.
+  ctx.fillStyle = '#77705d';
+  ctx.fillRect(
+    sx,
+    gy - h.h,
+    h.w,
+    h.h
+  );
+  }
 
   } else {
     // Original appearance for Pulse and other levels.
