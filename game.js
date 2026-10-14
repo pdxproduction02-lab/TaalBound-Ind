@@ -3576,32 +3576,57 @@ if (h.type === 'spike') {
 
   ctx.save();
 
-  if (
-  cloudburstSpikeImage.complete &&
-  cloudburstSpikeImage.naturalWidth > 0
-) {
-  ctx.drawImage(
-    cloudburstSpikeImage,
-    sx,
-    gy - h.h,
-    h.w,
-    h.h
-  );
-} else {
-  // Temporary fallback while PNG loads.
-  const tipX = sx + h.w / 2;
-  const tipY = gy - h.h;
+  if (selectedLevel === 'cloudburst') {
+    // Cloudburst: ancient sandstone spike PNG.
+    if (
+      cloudburstSpikeImage.complete &&
+      cloudburstSpikeImage.naturalWidth > 0
+    ) {
+      ctx.drawImage(
+        cloudburstSpikeImage,
+        sx,
+        gy - h.h,
+        h.w,
+        h.h
+      );
+    } else {
+      // Fallback while the PNG loads.
+      ctx.fillStyle = '#9b7953';
+      ctx.beginPath();
+      ctx.moveTo(sx, gy);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(sx + h.w, gy);
+      ctx.closePath();
+      ctx.fill();
+    }
 
-  ctx.fillStyle = '#9b7953';
-  ctx.beginPath();
-  ctx.moveTo(sx, gy);
-  ctx.lineTo(tipX, tipY);
-  ctx.lineTo(sx + h.w, gy);
-  ctx.closePath();
-  ctx.fill();
-  
+    // Moss at the base of the stone spike.
+    ctx.fillStyle = 'rgba(74, 100, 61, 0.72)';
+    ctx.beginPath();
+    ctx.ellipse(
+      sx + h.w * 0.28,
+      gy - 2,
+      h.w * 0.18,
+      2.5,
+      0,
+      0,
+      Math.PI * 2
+    );
+    ctx.fill();
+
+    // Rain-wet highlight.
+    ctx.strokeStyle = 'rgba(232, 239, 224, 0.48)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(sx + h.w * 0.12, gy - 5);
+    ctx.lineTo(
+      tipX - h.w * 0.08,
+      tipY + h.h * 0.38
+    );
+    ctx.stroke();
+
   } else {
-    // Original neon spikes: preserve PULSE unchanged.
+    // Pulse: preserve the original neon spikes.
     ctx.shadowColor = '#ff426f';
     ctx.shadowBlur = 10 + beatPulse * 9;
 
@@ -3637,35 +3662,10 @@ if (h.type === 'spike') {
     ctx.arc(tipX, tipY + 1, 2, 0, Math.PI * 2);
     ctx.fill();
   }
-  
-    // Moss at the base of the ancient stone spike.
-    ctx.fillStyle = 'rgba(74, 100, 61, 0.72)';
-    ctx.beginPath();
-    ctx.ellipse(
-      sx + h.w * 0.28,
-      gy - 2,
-      h.w * 0.18,
-      2.5,
-      0,
-      0,
-      Math.PI * 2
-    );
-    ctx.fill();
-
-    // Fine rain-wet highlight on the left face.
-    ctx.strokeStyle = 'rgba(232, 239, 224, 0.48)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(sx + h.w * 0.12, gy - 5);
-    ctx.lineTo(tipX - h.w * 0.08, tipY + h.h * 0.38);
-    ctx.stroke();
-  
 
   ctx.restore();
 }
     
-
-
 
     // ========================================================
     // BARRIER
@@ -3675,30 +3675,32 @@ if (h.type === 'spike') {
 if (h.type === 'barrier') {
   const blockY = gy - h.h;
 
-  if (
-  cloudburstGuardianImage.complete &&
-  cloudburstGuardianImage.naturalWidth > 0
-) {
-  ctx.drawImage(
-    cloudburstGuardianImage,
-    sx,
-    gy - h.h,
-    h.w,
-    h.h
-  );
-} else {
-  // Temporary fallback if the PNG is not loaded.
-  ctx.fillStyle = '#77705d';
-  ctx.fillRect(
-    sx,
-    gy - h.h,
-    h.w,
-    h.h
-  );
-  }
+  if (selectedLevel === 'cloudburst') {
+    // Cloudburst: ancient guardian statue.
+    if (
+      cloudburstGuardianImage.complete &&
+      cloudburstGuardianImage.naturalWidth > 0
+    ) {
+      ctx.drawImage(
+        cloudburstGuardianImage,
+        sx,
+        blockY,
+        h.w,
+        h.h
+      );
+    } else {
+      // Fallback while the PNG loads.
+      ctx.fillStyle = '#77705d';
+      ctx.fillRect(
+        sx,
+        blockY,
+        h.w,
+        h.h
+      );
+    }
 
   } else {
-    // Original appearance for Pulse and other levels.
+    // Pulse: preserve the original glowing barrier.
     ctx.fillStyle = '#ffb347';
     ctx.shadowColor = '#ffb347';
     ctx.shadowBlur = 15 + beatPulse * 12;
@@ -3711,7 +3713,11 @@ if (h.type === 'barrier') {
 
     ctx.strokeStyle = 'rgba(10,17,27,.7)';
 
-    for (let y = blockY + 12; y < gy - 5; y += 12) {
+    for (
+      let y = blockY + 12;
+      y < gy - 5;
+      y += 12
+    ) {
       ctx.beginPath();
       ctx.moveTo(sx + 5, y);
       ctx.lineTo(sx + h.w - 5, y);
@@ -3719,6 +3725,8 @@ if (h.type === 'barrier') {
     }
   }
 }
+    
+
 
 
     // ========================================================
