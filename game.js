@@ -347,25 +347,25 @@ function buildLevel() {
   // BASIC OBSTACLES
   // ==========================================================
 
-  function spike(
-    beat,
-    width = 38,
-    height = 42
-  ) {
+  
+function spike(beat, width, height) {
+  const cloudburst = selectedLevel === 'cloudburst';
+  const scale = cloudburst ? 1.25 : 1;
 
-    hazards.push({
-      type: 'spike',
+  const spikeWidth =
+    (width ?? 38) * scale;
 
-      x:
-        getWorldXForTime(
-          beat * BEAT_TIME
-        ),
+  const spikeHeight =
+    (height ?? 42) * scale;
 
-      w: width,
-      h: height
-    });
-
-  }
+  hazards.push({
+    type: 'spike',
+    x: getWorldXForTime(beat * BEAT_TIME),
+    w: spikeWidth,
+    h: spikeHeight
+  });
+}
+  
 
 
   function doubleSpike(beat) {
@@ -461,23 +461,18 @@ impactTime
 
   }
   
-  function barrier(beat) {
+  
+function barrier(beat) {
+  const cloudburst = selectedLevel === 'cloudburst';
 
-    hazards.push({
-
-      type: 'barrier',
-
-      x:
-        getWorldXForTime(
-          beat * BEAT_TIME
-        ),
-
-      w: 64,
-      h: 88
-
-    });
-
-  }
+  hazards.push({
+    type: 'barrier',
+    x: getWorldXForTime(beat * BEAT_TIME),
+    w: cloudburst ? 58 : 64,
+    h: cloudburst ? 112 : 88
+  });
+}
+  
 
 
   // ==========================================================
@@ -3681,13 +3676,21 @@ if (h.type === 'barrier') {
       cloudburstGuardianImage.complete &&
       cloudburstGuardianImage.naturalWidth > 0
     ) {
-      ctx.drawImage(
-        cloudburstGuardianImage,
-        sx,
-        blockY,
-        h.w,
-        h.h
-      );
+      
+const statueHeight = h.h;
+const statueWidth =
+  statueHeight *
+  cloudburstGuardianImage.naturalWidth /
+  cloudburstGuardianImage.naturalHeight;
+
+ctx.drawImage(
+  cloudburstGuardianImage,
+  sx + (h.w - statueWidth) / 2,
+  gy - statueHeight,
+  statueWidth,
+  statueHeight
+);
+      
     } else {
       // Fallback while the PNG loads.
       ctx.fillStyle = '#77705d';
