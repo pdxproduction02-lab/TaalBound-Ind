@@ -3498,7 +3498,10 @@ const showVoidFlash =
   h.flash > 0.01;
 
 if (
-  (sx < -100 || sx > W + 100) &&
+  (
+    sx + h.w < -40 ||
+    sx > W + 40
+  ) &&
   !showVoidWarning &&
   !showVoidFlash
 ) {
@@ -3563,12 +3566,12 @@ if (
 
       // The ground is now genuinely visually broken.
       const holeGradient =
-        ctx.createLinearGradient(0, gy, 0, H);
+  ctx.createLinearGradient(0, gy, 0, H);
 
-      holeGradient.addColorStop(0, '#020713');
-      holeGradient.addColorStop(0.45, '#061a36');
-      holeGradient.addColorStop(1, '#010309');
-
+holeGradient.addColorStop(0, '#252923');
+holeGradient.addColorStop(0.22, '#171d1b');
+holeGradient.addColorStop(0.58, '#0b1111');
+holeGradient.addColorStop(1, '#050908');
       ctx.fillStyle = holeGradient;
 
       ctx.fillRect(
@@ -3581,11 +3584,11 @@ if (
       // Glowing edges of the void.
       ctx.save();
 
-      ctx.shadowColor = '#28bfff';
-      ctx.shadowBlur = 18;
+      ctx.shadowColor = 'rgba(190, 198, 174, 0.45)';
+ctx.shadowBlur = 10;
 
-      ctx.strokeStyle = '#68e7ff';
-      ctx.lineWidth = 2;
+ctx.strokeStyle = 'rgba(177, 184, 157, 0.72)';
+ctx.lineWidth = 1.5;
 
       ctx.beginPath();
       ctx.moveTo(sx, gy);
@@ -3604,10 +3607,10 @@ if (
         const cx = sx + h.w / 2;
 
         ctx.strokeStyle =
-          `rgba(180,240,255,${h.flash})`;
+  `rgba(220, 224, 204, ${h.flash * 0.75})`;
 
-        ctx.lineWidth = 4;
-        ctx.shadowBlur = 28;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 16;
 
         ctx.beginPath();
         ctx.moveTo(cx, 0);
@@ -3621,7 +3624,7 @@ if (
 
         // Bright core of the lightning.
         ctx.strokeStyle =
-          `rgba(255,255,255,${h.flash})`;
+  `rgba(220, 224, 204, ${h.flash * 0.75})`;
 
         ctx.lineWidth = 1.5;
         ctx.shadowBlur = 8;
