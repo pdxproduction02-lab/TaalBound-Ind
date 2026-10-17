@@ -20,6 +20,14 @@ cloudburstGuardianImage.src = 'assets/cloudburst-guardian.png';
 const startScreen = document.getElementById('startScreen');
 const deathScreen = document.getElementById('deathScreen');
 
+const pauseControls = document.getElementById('pauseControls');
+const pauseButton = document.getElementById('pauseButton');
+const pauseScreen = document.getElementById('pauseScreen');
+const resumeButton = document.getElementById('resumeButton');
+const pauseRestartButton = document.getElementById('pauseRestartButton');
+const pauseExitButton = document.getElementById('pauseExitButton');
+  
+
 const startButton = document.getElementById('startButton');
 const restartButton = document.getElementById('restartButton');
 const backToLevelsButton = document.getElementById('backToLevelsButton');
@@ -150,6 +158,10 @@ function GROUND_Y() {
 // ============================================================
 
 let running = false;
+
+
+let paused = false;
+  
 
 let dead = false;
 
@@ -1190,6 +1202,12 @@ trailTimer = 0;
 
   finished = false;
 
+  
+paused = false;
+pauseScreen.classList.add('hidden');
+pauseControls.classList.remove('hidden');
+  
+
   running = true;
 
 
@@ -1415,6 +1433,62 @@ backToLevelsButton.addEventListener('click', () => {
   startScreen.classList.remove('hidden');
 });  
   
+function pauseGame() {
+  if (!running || dead || finished || paused) return;
+
+  paused = true;
+  running = false;
+  music.pause();
+
+  pauseScreen.classList.remove('hidden');
+}
+
+function resumeGame() {
+  if (!paused || dead || finished) return;
+
+  paused = false;
+  pauseScreen.classList.add('hidden');
+
+  last = performance.now();
+  running = true;
+
+  const playPromise = music.play();
+
+  if (playPromise && typeof playPromise.catch === 'function') {
+    playPromise.catch(error => {
+      running = false;
+      paused = true;
+      pauseScreen.classList.remove('hidden');
+      console.error('Resume audio failed:', error);
+    });
+  }
+
+  requestAnimationFrame(loop);
+}
+
+function exitPausedGame() {
+  if (!paused) return;
+
+  paused = false;
+  running = false;
+  dead = false;
+  finished = false;
+
+  music.pause();
+  music.currentTime = 0;
+
+  pauseScreen.classList.add('hidden');
+  pauseControls.classList.add('hidden');
+  deathScreen.classList.add('hidden');
+  startScreen.classList.remove('hidden');
+}
+
+pauseButton.addEventListener('click', pauseGame);
+resumeButton.addEventListener('click', resumeGame);
+pauseRestartButton.addEventListener('click', startGameFromButton);
+pauseExitButton.addEventListener('click', exitPausedGame);
+  
+  
 
 
 // ============================================================
@@ -1436,6 +1510,9 @@ function die() {
   dead = true;
 
   running = false;
+  paused = false;
+pauseControls.classList.add('hidden');
+pauseScreen.classList.add('hidden');
 
     // V1.0 — Death impact shake.
   canvas.classList.remove('death-shake');
