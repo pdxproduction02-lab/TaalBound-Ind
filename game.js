@@ -2414,6 +2414,47 @@ const cloudburstTempleImage = new Image();
 
 cloudburstTempleImage.src =
   'assets/cloudburst-temple.png';
+  // CLOUDBURST — THREE PARALLAX LAYERS
+const cloudburstFarImage = new Image();
+cloudburstFarImage.src = 'assets/cloudburst-bg-far.png';
+
+const cloudburstMidImage = new Image();
+cloudburstMidImage.src = 'assets/cloudburst-bg-mid.png';
+
+const cloudburstNearImage = new Image();
+cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
+  function drawCloudburstLayer(img, speed) {
+  if (!img.complete || img.naturalWidth === 0) {
+    return false;
+  }
+
+  const gy = GROUND_Y();
+  const imgW = img.naturalWidth;
+  const imgH = img.naturalHeight;
+
+  // Keep the layers aligned to the same source-ground proportion.
+  const sourceGroundY = imgH * (710 / 864);
+
+  const scale = Math.max(
+    W / imgW,
+    (H - gy) / (imgH - sourceGroundY)
+  );
+
+  const drawW = imgW * scale;
+  const drawH = imgH * scale;
+  const drawY = gy - sourceGroundY * scale;
+
+  const maxTravel = Math.max(0, drawW - W);
+  const travel = Math.min(maxTravel, worldX * speed);
+
+  const drawX = Math.max(
+    W - drawW,
+    Math.min(0, (W - drawW) / 2 - travel)
+  );
+
+  ctx.drawImage(img, drawX, drawY, drawW, drawH);
+  return true;
+  }
   
 
 function drawCloudburstBackground() {
@@ -2425,45 +2466,82 @@ function drawCloudburstBackground() {
   // Adjust this value slightly after checking the live game.
   const sourceGroundY = 710;
 
+  const layersReady =
+  cloudburstFarImage.complete &&
+  cloudburstFarImage.naturalWidth > 0 &&
+  cloudburstMidImage.complete &&
+  cloudburstMidImage.naturalWidth > 0 &&
+  cloudburstNearImage.complete &&
+  cloudburstNearImage.naturalWidth > 0;
+
+if (layersReady) {
+  // Layer 1: distant scenery — slowest movement.
+  drawCloudburstLayer(cloudburstFarImage, 0.012);
+
+  // Layer 2: temple silhouettes — medium movement.
+  drawCloudburstLayer(cloudburstMidImage, 0.028);
+
+  // Preserve the original temple artwork's stone ledge.
   if (img.complete && img.naturalWidth > 0) {
     const imgW = img.naturalWidth;
     const imgH = img.naturalHeight;
+    const sourceGroundY = 710;
 
-    // Align the artwork's stone ledge with the collision ground.
     const scale = Math.max(
       W / imgW,
       (H - gy) / (imgH - sourceGroundY)
     );
 
     const drawW = imgW * scale;
-    const drawH = imgH * scale;
     const drawY = gy - sourceGroundY * scale;
-
-    // Parallax: move the scenery as the player advances.
-    // Keep the image covering the screen; do not expose empty space.
     const maxTravel = Math.max(0, drawW - W);
-    const initialX = (W - drawW) / 2;
-    const travel = Math.min(
-      maxTravel,
-      worldX * 0.045
-    );
+    const travel = Math.min(maxTravel, worldX * 0.045);
 
     const drawX = Math.max(
       W - drawW,
-      Math.min(0, initialX - travel)
+      Math.min(0, (W - drawW) / 2 - travel)
     );
 
+    // Draw only the bottom strip, not the full old background.
     ctx.drawImage(
       img,
-      drawX,
-      drawY,
-      drawW,
-      drawH
+      0, 680, imgW, imgH - 680,
+      drawX, drawY + 680 * scale,
+      drawW, (imgH - 680) * scale
     );
-  } else {
-    ctx.fillStyle = '#172027';
-    ctx.fillRect(0, 0, W, H);
   }
+
+  // Layer 3: nearest architecture — fastest movement.
+  drawCloudburstLayer(cloudburstNearImage, 0.055);
+
+} else if (img.complete && img.naturalWidth > 0) {
+  // Fallback: keep the old background visible until all layers load.
+  const imgW = img.naturalWidth;
+  const imgH = img.naturalHeight;
+  const sourceGroundY = 710;
+
+  const scale = Math.max(
+    W / imgW,
+    (H - gy) / (imgH - sourceGroundY)
+  );
+
+  const drawW = imgW * scale;
+  const drawH = imgH * scale;
+  const drawY = gy - sourceGroundY * scale;
+  const maxTravel = Math.max(0, drawW - W);
+  const travel = Math.min(maxTravel, worldX * 0.045);
+
+  const drawX = Math.max(
+    W - drawW,
+    Math.min(0, (W - drawW) / 2 - travel)
+  );
+
+  ctx.drawImage(img, drawX, drawY, drawW, drawH);
+
+} else {
+  ctx.fillStyle = '#172027';
+  ctx.fillRect(0, 0, W, H);
+}
 
   // IMPORTANT:
   // Do not draw the old artificial stone-gradient floor.
