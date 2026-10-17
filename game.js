@@ -4225,23 +4225,15 @@ function draw() {
   // Keep the background filling the screen.
   drawBackground();
 
-  // Apply cinematic zoom to the gameplay layers.
-  ctx.save();
-
-  const cameraX = player.x + player.w / 2;
-  const cameraY = player.y + player.h / 2;
-
-  ctx.translate(cameraX, cameraY);
-  ctx.scale(cameraZoom, cameraZoom);
-  ctx.translate(-cameraX, -cameraY);
-
+  
+  // Draw gameplay without player-following camera zoom.
+  // This keeps ground-level obstacles visually stable.
   drawStormEffects();
   drawHazards();
   drawParticles();
   drawPlayerTrail();
   drawPlayer();
-
-  ctx.restore();
+  
 
   
   // V1.0 — Dynamic speed HUD.
