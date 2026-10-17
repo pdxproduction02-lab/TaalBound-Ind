@@ -553,3 +553,242 @@ body.cloudburst-theme #sectionName {
     height: 36px;
   }
 }
+
+/* =====================================================
+   TAALBOUND — LANDSCAPE-ONLY MOBILE LAYOUT
+   Applies to Pulse, Cloudburst, pause and result screens
+   ===================================================== */
+
+/* Use the actual mobile viewport height */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+#game {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+}
+
+/* Portrait mode: block gameplay and request rotation */
+.rotate-screen {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+  text-align: center;
+  background: #080b12;
+  color: #eafcff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.rotate-screen h2 {
+  margin: 0;
+  font-size: clamp(20px, 5vw, 30px);
+  letter-spacing: 0.12em;
+}
+
+.rotate-screen p {
+  margin: 0;
+  max-width: 320px;
+  color: #a9bdca;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.rotate-icon {
+  font-size: 54px;
+  color: #68e7ff;
+  line-height: 1.2;
+}
+
+/* Show rotation screen only in portrait */
+@media (orientation: portrait) {
+  .rotate-screen {
+    display: flex;
+  }
+}
+
+/* Landscape: make every overlay fit short screens */
+@media (orientation: landscape) {
+
+  .overlay {
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding:
+      max(8px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(8px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .panel {
+    box-sizing: border-box;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding: 14px 22px;
+  }
+
+  .title {
+    font-size: clamp(28px, 6vw, 48px);
+  }
+
+  .title.small {
+    font-size: clamp(24px, 5vw, 38px);
+  }
+
+  .panel button {
+    margin-top: 12px;
+    padding: 10px 20px;
+    min-height: 40px;
+    touch-action: manipulation;
+  }
+
+  /* Level selection screen */
+  .level-panel {
+    width: min(88vw, 580px);
+    padding: 14px 22px;
+  }
+
+  .level-heading {
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .level-button {
+    margin-top: 7px !important;
+    padding: 9px 14px !important;
+  }
+
+  .level-button span {
+    font-size: 16px;
+  }
+
+  .level-button small {
+    margin-top: 4px;
+    font-size: 9px;
+  }
+
+  .tagline {
+    margin-top: 6px;
+  }
+
+  .hint {
+    margin-top: 7px;
+  }
+
+  /* Failed / completed screen */
+  #deathScreen .panel {
+    width: min(88vw, 480px);
+    padding: 14px 22px;
+  }
+
+  .result-kicker {
+    margin-bottom: 7px;
+    font-size: 9px;
+  }
+
+  #resultPercent {
+    font-size: clamp(36px, 8vh, 58px);
+  }
+
+  .result-progress {
+    margin-top: 10px;
+  }
+
+  .result-progress-track {
+    margin-top: 8px;
+  }
+
+  #resultCaption {
+    margin-top: 7px;
+  }
+
+  #deathScreen button {
+    min-width: 0;
+    width: min(100%, 300px);
+    margin-top: 8px;
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+
+  /* Pause menu */
+  .pause-panel {
+    width: min(82vw, 360px);
+    padding: 14px 22px;
+  }
+
+  #pauseScreen .panel button {
+    margin-top: 8px;
+    padding: 10px 12px;
+    min-height: 38px;
+  }
+}
+
+/* Extra-small landscape screens */
+@media (orientation: landscape) and (max-height: 380px) {
+
+  .level-panel {
+    padding: 8px 18px;
+  }
+
+  .level-heading {
+    margin-top: 8px;
+    margin-bottom: 5px;
+  }
+
+  .level-button {
+    margin-top: 5px !important;
+    padding: 6px 12px !important;
+  }
+
+  .level-button small {
+    margin-top: 2px;
+  }
+
+  .panel button {
+    margin-top: 7px;
+    min-height: 34px;
+    padding: 7px 14px;
+  }
+
+  #deathScreen .panel {
+    padding: 9px 18px;
+  }
+
+  #resultPercent {
+    font-size: 34px;
+  }
+
+  .result-progress {
+    margin-top: 5px;
+  }
+
+  #deathScreen button {
+    margin-top: 5px;
+    min-height: 32px;
+    padding: 6px 10px;
+  }
+
+  .pause-panel {
+    padding: 9px 18px;
+  }
+
+  #pauseScreen .panel button {
+    margin-top: 5px;
+    min-height: 32px;
+    padding: 7px 10px;
+  }
+}
