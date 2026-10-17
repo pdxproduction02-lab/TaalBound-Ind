@@ -26,6 +26,33 @@
     <div id="percent">0%</div>
     <div id="sectionName">INTRO</div>
   </div>
+  
+<!-- IN-GAME PAUSE BUTTON -->
+<div id="pauseControls" class="hidden">
+  <button id="pauseButton" type="button"
+    aria-label="Pause game">Ⅱ</button>
+</div>
+
+<!-- PAUSE MENU -->
+<div id="pauseScreen" class="overlay hidden">
+  <div class="panel pause-panel">
+    <div class="title small">PAUSED</div>
+    <div class="pause-subtitle">TAKE A BREATHER</div>
+
+    <button id="resumeButton" type="button">
+      ▶ RESUME
+    </button>
+
+    <button id="pauseRestartButton" type="button">
+      ↻ RESTART
+    </button>
+
+    <button id="pauseExitButton" type="button">
+      ✕ EXIT TO LEVELS
+    </button>
+  </div>
+</div>
+  
 
   <div id="startScreen" class="overlay">
     <div class="panel level-panel">
