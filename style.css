@@ -528,3 +528,28 @@ body.cloudburst-theme #sectionName {
   border-color: rgba(255, 140, 170, 0.55);
   background: linear-gradient(110deg, #321923, #171321);
 }
+
+/* FIX — Separate Pause Button from Percentage HUD */
+
+#pauseControls {
+  top: 58px;
+  right: 14px;
+}
+
+#pauseButton {
+  width: 38px;
+  height: 38px;
+  font-size: 19px;
+}
+
+@media (max-width: 600px) {
+  #pauseControls {
+    top: 58px;
+    right: 12px;
+  }
+
+  #pauseButton {
+    width: 36px;
+    height: 36px;
+  }
+}
