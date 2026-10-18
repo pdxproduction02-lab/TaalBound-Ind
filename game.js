@@ -1379,6 +1379,31 @@ cloudburstLevelButton.addEventListener('click', () => {
   selectLevel('cloudburst');
 });
   
+async function requestLandscapeMode() {
+  try {
+    if (!document.fullscreenElement) {
+      const enterFullscreen =
+        document.documentElement.requestFullscreen;
+
+      if (enterFullscreen) {
+        await enterFullscreen.call(
+          document.documentElement
+        );
+      }
+    }
+
+    if (screen.orientation?.lock) {
+      await screen.orientation.lock('landscape');
+    }
+  } catch (error) {
+    // Some browsers block fullscreen or orientation lock.
+    // The game should still be allowed to start.
+    console.info(
+      'Landscape lock is unavailable in this browser.'
+    );
+  }
+}
+  
 
 function startGameFromButton(e) {
   if (e) {
@@ -1387,7 +1412,7 @@ function startGameFromButton(e) {
   }
 
   if (running && !dead && !finished) return;
-
+ requestLandscapeMode();
   try {
     reset();
   } catch (error) {
