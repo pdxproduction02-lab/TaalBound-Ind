@@ -2423,7 +2423,8 @@ cloudburstMidImage.src = 'assets/cloudburst-bg-mid.png';
 
 const cloudburstNearImage = new Image();
 cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
-  function drawCloudburstLayer(img, speed) {
+  
+function drawCloudburstLayer(img, speed) {
   if (!img.complete || img.naturalWidth === 0) {
     return false;
   }
@@ -2431,8 +2432,6 @@ cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
   const gy = GROUND_Y();
   const imgW = img.naturalWidth;
   const imgH = img.naturalHeight;
-
-  // Keep the layers aligned to the same source-ground proportion.
   const sourceGroundY = imgH * (710 / 864);
 
   const scale = Math.max(
@@ -2444,17 +2443,16 @@ cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
   const drawH = imgH * scale;
   const drawY = gy - sourceGroundY * scale;
 
-  const maxTravel = Math.max(0, drawW - W);
-  const travel = Math.min(maxTravel, worldX * speed);
+  // Continuous horizontal wrap instead of clamping at the image edge.
+  const offset = ((worldX * speed) % drawW + drawW) % drawW;
 
-  const drawX = Math.max(
-    W - drawW,
-    Math.min(0, (W - drawW) / 2 - travel)
-  );
-
-  ctx.drawImage(img, drawX, drawY, drawW, drawH);
-  return true;
+  for (let x = -offset; x < W; x += drawW) {
+    ctx.drawImage(img, x, drawY, drawW, drawH);
   }
+
+  return true;
+}
+  
   
 
 function drawCloudburstProceduralBackground() {
@@ -2795,31 +2793,38 @@ if (layersReady) {
   // The image's own stone ledge should remain visible.
   // Physics still uses GROUND_Y().
 
-  // Rain overlay adds movement while the scenery scrolls.
+  
+  // Animated monsoon rain overlay.
   ctx.save();
-
   ctx.beginPath();
   ctx.rect(0, 0, W, H);
   ctx.clip();
 
-  ctx.strokeStyle = 'rgba(202, 220, 222, 0.18)';
-  ctx.lineWidth = 1;
+  const rainTime = performance.now() * 0.001;
 
-  for (let i = 0; i < 100; i++) {
-    const x =
-      ((i * 97 + time * (180 + (i % 4) * 25))
-      % (W + 20) + W + 20) % (W + 20);
+  for (let i = 0; i < 170; i++) {
+    const speed = 240 + (i % 5) * 55;
+    const x = (
+      i * 83 - rainTime * speed + W * 4
+    ) % (W + 40);
 
-    const y =
-      (i * 61 + time * 330) % H;
+    const y = (
+      i * 67 + rainTime * speed * 1.25
+    ) % (H + 40);
 
+    ctx.strokeStyle = i % 3 === 0
+      ? 'rgba(215, 229, 231, 0.34)'
+      : 'rgba(184, 204, 210, 0.23)';
+
+    ctx.lineWidth = i % 4 === 0 ? 1.4 : 0.9;
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.lineTo(x - 5, y + 16);
+    ctx.lineTo(x - 7, y + 20);
     ctx.stroke();
   }
 
   ctx.restore();
+  
 
   // Subtle lightning flash.
   const phase = time % 11;
