@@ -1277,6 +1277,29 @@ resultCaption.textContent = 'PROGRESS ACHIEVED';
 
 }
 
+/* ============================================================
+   TAALBOUND — PULSE ROCKET MODE
+   ============================================================ */
+
+const ROCKET_START_TIME = 50;
+const ROCKET_END_TIME = 65;
+
+const ROCKET_GRAVITY = 1050;
+const ROCKET_THRUST = 2200;
+const ROCKET_MAX_UP_SPEED = 480;
+const ROCKET_MAX_DOWN_SPEED = 520;
+  
+
+let rocketThrusting = false;
+
+function isRocketMode() {
+  return (
+    selectedLevel === 'pulse' &&
+    music.currentTime >= ROCKET_START_TIME &&
+    music.currentTime < ROCKET_END_TIME
+  );
+}
+  
 
 // ============================================================
 // JUMP
@@ -1309,38 +1332,47 @@ function performJump() {
 // INPUT
 // ============================================================
 
-addEventListener(
-  'keydown',
-  e => {
 
-    if (
-      e.code === 'Space' ||
-      e.code === 'ArrowUp'
-    ) {
-
-      e.preventDefault();
-
-      jump();
-
-    }
-
-  }
-);
-
-
-canvas.addEventListener(
-  'pointerdown',
-  e => {
-
+addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
 
-    jump();
-
-  },
-  {
-    passive: false
+    if (isRocketMode()) {
+      rocketThrusting = true;
+    } else if (!e.repeat) {
+      jump();
+    }
   }
-);
+});
+
+addEventListener('keyup', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp') {
+    rocketThrusting = false;
+  }
+});
+
+canvas.addEventListener('pointerdown', e => {
+  e.preventDefault();
+
+  if (isRocketMode()) {
+    rocketThrusting = true;
+  } else {
+    jump();
+  }
+}, { passive: false });
+
+addEventListener('pointerup', () => {
+  rocketThrusting = false;
+});
+
+addEventListener('pointercancel', () => {
+  rocketThrusting = false;
+});
+
+addEventListener('blur', () => {
+  rocketThrusting = false;
+});
+  
 
 
 function selectLevel(level) {
@@ -2104,11 +2136,26 @@ jumpBufferTimer =
 // GRAVITY
 // ----------------------------------------------------------
 
-player.vy +=
-  GRAVITY * dt;
 
-player.y +=
-  player.vy * dt;
+if (isRocketMode()) {
+  // Rocket flight: thrust while held, descend when released.
+  player.vy += ROCKET_GRAVITY * dt;
+
+  if (rocketThrusting) {
+    player.vy -= ROCKET_THRUST * dt;
+  }
+
+  player.vy = Math.max(
+    -ROCKET_MAX_UP_SPEED,
+    Math.min(ROCKET_MAX_DOWN_SPEED, player.vy)
+  );
+} else {
+  // Preserve the original square-mode physics.
+  player.vy += GRAVITY * dt;
+}
+
+player.y += player.vy * dt;
+  
 
 
 // ----------------------------------------------------------
