@@ -2457,6 +2457,253 @@ cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
   }
   
 
+function drawCloudburstProceduralBackground() {
+  const gy = GROUND_Y();
+  const t = worldX;
+
+  // 1. Storm sky
+  const sky = ctx.createLinearGradient(0, 0, 0, gy);
+  sky.addColorStop(0, '#080f16');
+  sky.addColorStop(0.48, '#263541');
+  sky.addColorStop(1, '#718087');
+
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+
+  // 2. Layered storm clouds
+  for (let layer = 0; layer < 3; layer++) {
+    ctx.fillStyle = [
+      'rgba(7,13,20,0.72)',
+      'rgba(27,39,48,0.58)',
+      'rgba(87,103,111,0.24)'
+    ][layer];
+
+    for (let i = 0; i < 15; i++) {
+      const x =
+        (((i * 173 - t * (0.012 + layer * 0.009))
+          % (W + 240)) + W + 240) % (W + 240) - 120;
+
+      const y = 35 + layer * 42 + (i % 4) * 24;
+
+      ctx.beginPath();
+      ctx.ellipse(
+        x, y,
+        95 + (i % 3) * 32,
+        22 + (i % 4) * 10,
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+    }
+  }
+
+  // 3. Distant mountain ridges
+  function mountainLayer(baseY, color, speed, seed) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, gy);
+
+    for (let x = -100; x <= W + 120; x += 35) {
+      const wx = x + t * speed;
+      const peak =
+        baseY -
+        Math.abs(Math.sin(wx * 0.009 + seed)) * 95 -
+        Math.abs(Math.sin(wx * 0.021 + seed)) * 38;
+
+      ctx.lineTo(x, peak);
+    }
+
+    ctx.lineTo(W, gy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  mountainLayer(gy * 0.68, '#303f49', 0.018, 1.2);
+  mountainLayer(gy * 0.78, '#202f38', 0.035, 3.4);
+
+  // 4. Distant temple silhouettes
+  function temple(x, base, scale, color) {
+    ctx.save();
+    ctx.translate(x, base);
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = color;
+
+    // Main temple body
+    ctx.fillRect(-34, -105, 68, 105);
+    ctx.fillRect(-49, -12, 98, 12);
+
+    // Tiered Indian shikhara
+    ctx.beginPath();
+    ctx.moveTo(-36, -105);
+    ctx.lineTo(-26, -145);
+    ctx.lineTo(-17, -161);
+    ctx.lineTo(-10, -184);
+    ctx.lineTo(0, -207);
+    ctx.lineTo(10, -184);
+    ctx.lineTo(17, -161);
+    ctx.lineTo(26, -145);
+    ctx.lineTo(36, -105);
+    ctx.closePath();
+    ctx.fill();
+
+    // Crown
+    ctx.fillRect(-5, -218, 10, 13);
+    ctx.beginPath();
+    ctx.arc(0, -220, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Carved horizontal tiers
+    for (let y = -145; y < -35; y += 18) {
+      ctx.fillRect(-31, y, 62, 3);
+    }
+
+    // Dark entrance
+    ctx.fillStyle = '#080f13';
+    ctx.fillRect(-10, -43, 20, 43);
+
+    // Tiny warm lamp
+    ctx.fillStyle = 'rgba(255,176,83,0.8)';
+    ctx.fillRect(20, -54, 3, 7);
+
+    ctx.restore();
+  }
+
+  for (let i = 0; i < 9; i++) {
+    const x =
+      (((i * 191 - t * 0.045) % (W + 250))
+        + W + 250) % (W + 250) - 100;
+
+    temple(
+      x,
+      gy * (0.77 + (i % 3) * 0.035),
+      0.35 + (i % 3) * 0.12,
+      '#18272e'
+    );
+  }
+
+  // 5. Foreground temple pillars
+  const pillarWidth = Math.max(48, W * 0.075);
+
+  function pillar(x) {
+    const top = -12;
+    const bottom = gy - 6;
+
+    ctx.fillStyle = '#111d21';
+    ctx.fillRect(x, top, pillarWidth, bottom - top);
+
+    // Stone edges and carved bands
+    ctx.fillStyle = '#35433f';
+    ctx.fillRect(x, top, 7, bottom - top);
+    ctx.fillRect(x + pillarWidth - 7, top, 7, bottom - top);
+
+    ctx.fillStyle = '#536052';
+    for (let y = 30; y < bottom; y += 49) {
+      ctx.fillRect(x - 5, y, pillarWidth + 10, 7);
+      ctx.fillStyle = '#1a2828';
+      ctx.fillRect(x + 7, y + 8, pillarWidth - 14, 3);
+      ctx.fillStyle = '#536052';
+    }
+
+    // Repeated stone reliefs
+    for (let y = 65; y < bottom - 35; y += 74) {
+      ctx.strokeStyle = '#64705e';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + 13, y, pillarWidth - 26, 31);
+
+      ctx.beginPath();
+      ctx.arc(
+        x + pillarWidth / 2,
+        y + 15,
+        8, 0, Math.PI * 2
+      );
+      ctx.stroke();
+    }
+  }
+
+  // Side framing, with slow movement for depth
+  const offset = (t * 0.07) % (pillarWidth * 2);
+  pillar(-pillarWidth * 0.35 - offset);
+  pillar(W - pillarWidth * 0.65 - offset);
+
+  // 6. Ornate overhead arch
+  ctx.fillStyle = '#111b1e';
+  ctx.fillRect(0, 0, W, 31);
+  ctx.fillRect(0, 28, W, 13);
+
+  // Carved arch border
+  ctx.strokeStyle = '#526052';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(8, 7, W - 16, 20);
+
+  for (let x = 15; x < W; x += 29) {
+    ctx.strokeStyle = '#35453f';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(x, 17, 7, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // 7. Hanging vines
+  for (let i = 0; i < 18; i++) {
+    const x = (i * W / 17 + 11) % W;
+    const length = 20 + (i % 5) * 13;
+
+    ctx.strokeStyle = '#243c30';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.quadraticCurveTo(
+      x - 9, length * 0.6,
+      x + Math.sin(i) * 7, length
+    );
+    ctx.stroke();
+
+    ctx.fillStyle = '#38543a';
+    for (let j = 0; j < 4; j++) {
+      const ly = length * (j + 1) / 5;
+      ctx.beginPath();
+      ctx.ellipse(
+        x + Math.sin(i + j) * 4,
+        ly, 3, 7, 0.5, 0, Math.PI * 2
+      );
+      ctx.fill();
+    }
+  }
+
+  // 8. Wet stone gameplay platform
+  const stone = ctx.createLinearGradient(0, gy, 0, H);
+  stone.addColorStop(0, '#56615a');
+  stone.addColorStop(0.12, '#293632');
+  stone.addColorStop(1, '#101b1b');
+
+  ctx.fillStyle = stone;
+  ctx.fillRect(0, gy, W, H - gy);
+
+  ctx.fillStyle = '#899087';
+  ctx.fillRect(0, gy, W, 3);
+
+  ctx.fillStyle = '#182522';
+  ctx.fillRect(0, gy + 9, W, 4);
+
+  // Stone joints and subtle engraved details
+  for (let x = -40; x < W + 40; x += 62) {
+    const sx = x - (t * 0.16 % 62);
+
+    ctx.strokeStyle = 'rgba(7,13,12,0.8)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(sx, gy + 14);
+    ctx.lineTo(sx - 4, H);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(143,153,135,0.23)';
+    ctx.beginPath();
+    ctx.moveTo(sx + 5, gy + 19);
+    ctx.lineTo(sx + 18, gy + 19);
+    ctx.stroke();
+  }
+      }
+  
 function drawCloudburstBackground() {
   const gy = GROUND_Y();
   const time = music.currentTime;
