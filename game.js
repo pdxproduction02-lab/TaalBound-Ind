@@ -1347,6 +1347,7 @@ function selectLevel(level) {
   if (running) return;
 
   selectedLevel = level;
+  requestLandscapeMode();
 
   const config = LEVELS[level];
 
