@@ -3800,6 +3800,102 @@ const half = size / 2;
   ctx.translate(cx, cy);
   ctx.rotate(player.rot);
   
+  // ROCKET MODE — draw the ship instead of the square.
+  if (isRocketMode()) {
+    const pitch = Math.max(
+      -0.35,
+      Math.min(0.35, player.vy / 1000)
+    );
+
+    ctx.rotate(pitch);
+
+    const flameLength = rocketThrusting
+      ? 13 + Math.sin(performance.now() * 0.035) * 4
+      : 5 + Math.sin(performance.now() * 0.012) * 2;
+
+    // Engine flame behind the rocket.
+    ctx.save();
+    ctx.shadowColor = '#38eaff';
+    ctx.shadowBlur = rocketThrusting ? 18 : 7;
+
+    ctx.fillStyle = rocketThrusting ? '#fff4a8' : '#55dfff';
+    ctx.beginPath();
+    ctx.moveTo(-11, -5);
+    ctx.lineTo(-11 - flameLength, 0);
+    ctx.lineTo(-11, 5);
+    ctx.closePath();
+    ctx.fill();
+
+    if (rocketThrusting) {
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(-11, -2);
+      ctx.lineTo(-11 - flameLength * 0.55, 0);
+      ctx.lineTo(-11, 2);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+
+    // Rear stabiliser fins.
+    ctx.fillStyle = '#167d9e';
+    ctx.beginPath();
+    ctx.moveTo(-8, -5);
+    ctx.lineTo(-14, -12);
+    ctx.lineTo(0, -7);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(-8, 5);
+    ctx.lineTo(-14, 12);
+    ctx.lineTo(0, 7);
+    ctx.closePath();
+    ctx.fill();
+
+    // Main metallic body, pointing right.
+    const rocketShell = ctx.createLinearGradient(
+      0, -10, 0, 10
+    );
+    rocketShell.addColorStop(0, '#ffffff');
+    rocketShell.addColorStop(0.42, '#b8f6ff');
+    rocketShell.addColorStop(1, '#3199c7');
+
+    ctx.fillStyle = rocketShell;
+    ctx.strokeStyle = '#eaffff';
+    ctx.lineWidth = 1.5;
+
+    ctx.beginPath();
+    ctx.moveTo(15, 0);
+    ctx.lineTo(5, -7);
+    ctx.lineTo(-9, -7);
+    ctx.lineTo(-12, -4);
+    ctx.lineTo(-12, 4);
+    ctx.lineTo(-9, 7);
+    ctx.lineTo(5, 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // Dark cockpit.
+    ctx.fillStyle = '#102c48';
+    ctx.beginPath();
+    ctx.ellipse(4, 0, 4.5, 3.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.strokeStyle = '#71f3ff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Small reflected highlight.
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(-5, -4, 7, 1.5);
+
+    ctx.restore();
+    return;
+  }
+  
+  
 
   
 
