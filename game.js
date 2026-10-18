@@ -2757,7 +2757,7 @@ if (layersReady) {
   }
 
   // Layer 3: nearest architecture — fastest movement.
-  drawCloudburstLayer(cloudburstNearImage, 0.055);
+  drawCloudburstLayer(cloudburstNearImage, 1.0);
 
 } else if (img.complete && img.naturalWidth > 0) {
   // Fallback: keep the old background visible until all layers load.
