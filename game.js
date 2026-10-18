@@ -2851,7 +2851,7 @@ function drawBackground() {
   );
 
   if (selectedLevel === 'cloudburst') {
-    drawCloudburstProceduralBackground();
+    drawCloudburstBackground();
     return;
   }
 
