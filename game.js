@@ -2292,11 +2292,21 @@ const overThunderVoid =
   );
 
   
-if (isRocketMode()) {
-  // Rocket mode must never use square-mode landing physics.
+if (isWaveMode()) {
+  // Wave mode: touching the floor or ceiling is fatal.
   player.onGround = false;
 
-  // Hitting the ground while descending destroys the rocket.
+  if (
+    player.y <= 0 ||
+    player.y + player.h >= gy
+  ) {
+    die();
+    return;
+  }
+} else if (isRocketMode()) {
+  // Preserve rocket collision behaviour.
+  player.onGround = false;
+
   if (
     player.y + player.h >= gy &&
     !overThunderVoid &&
@@ -2310,11 +2320,6 @@ if (isRocketMode()) {
   !overThunderVoid &&
   player.y < gy
 ) {
-    // Rocket mode: touching the spike floor is fatal.
-  if (isRocketMode()) {
-    die();
-    return;
-  }
   player.y = gy - player.h;
   player.vy = 0;
   player.onGround = true;
@@ -2455,19 +2460,15 @@ if (playerTrail.length > 16) {
 // Once the player lands, the physics system above
 // has already snapped rotation to exactly 0°.
 
-
-if (!isRocketMode() && !player.onGround) {
-
-  player.rot +=
-    8 * dt;
-
-} else if (isRocketMode()) {
-
+if (
+  !isRocketMode() &&
+  !isWaveMode() &&
+  !player.onGround
+) {
+  player.rot += 8 * dt;
+} else if (isRocketMode() || isWaveMode()) {
   player.rot = 0;
-
 }
-  
-
 
   // ==========================================================
   // COLLISION
