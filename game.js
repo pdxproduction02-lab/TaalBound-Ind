@@ -2581,6 +2581,38 @@ if (
       if (h.type === 'thunderVoid') {
   continue;
       }
+      
+      // ========================================================
+      // WAVE MODE — PORTAL BARRIERS AND ZIGZAG COLLISIONS
+      // ========================================================
+      if (h.type === 'waveBlock') {
+        // Wave blocks are dangerous only during Wave mode.
+        if (!isWaveMode()) {
+          continue;
+        }
+
+        const wavePlayerBox = {
+          x: playerWorldX + 6,
+          y: player.y + 6,
+          w: player.w - 12,
+          h: player.h - 10
+        };
+
+        const waveBlockBox = {
+          x: h.x,
+          y: h.y,
+          w: h.w,
+          h: h.h
+        };
+
+        if (rectHit(wavePlayerBox, waveBlockBox)) {
+          die();
+          return;
+        }
+
+        continue;
+      }
+      
             // ========================================================
       // ROCKET MODE — GATE AND AERIAL OBSTACLE COLLISIONS
       // ========================================================
@@ -4564,6 +4596,81 @@ if (
 ) {
   continue;
 }
+    
+    // ========================================================
+    // PULSE — WAVE PORTAL BARRIERS AND ZIGZAG BLOCKS
+    // ========================================================
+    if (h.type === 'waveBlock') {
+      if (h.h <= 0 || h.w <= 0) continue;
+
+      ctx.save();
+
+      // Dark metallic body with cyan energy edges.
+      ctx.shadowColor = '#42f5ff';
+      ctx.shadowBlur = 12 + beatPulse * 5;
+
+      const waveGradient = ctx.createLinearGradient(
+        sx, h.y, sx + h.w, h.y + h.h
+      );
+
+      waveGradient.addColorStop(0, '#10283d');
+      waveGradient.addColorStop(0.45, '#24627a');
+      waveGradient.addColorStop(0.75, '#153c56');
+      waveGradient.addColorStop(1, '#091a30');
+
+      ctx.fillStyle = waveGradient;
+      ctx.fillRect(sx, h.y, h.w, h.h);
+
+      // Inner panel.
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = 'rgba(4, 19, 35, 0.55)';
+      ctx.fillRect(
+        sx + 4,
+        h.y + 4,
+        Math.max(0, h.w - 8),
+        Math.max(0, h.h - 8)
+      );
+
+      // Repeating metallic grooves.
+      ctx.strokeStyle = 'rgba(100, 239, 255, 0.65)';
+      ctx.lineWidth = 1.5;
+
+      for (let y = h.y + 14; y < h.y + h.h - 5; y += 24) {
+        ctx.beginPath();
+        ctx.moveTo(sx + 4, y);
+        ctx.lineTo(sx + h.w - 4, y);
+        ctx.stroke();
+      }
+
+      // Neon outer border.
+      ctx.shadowColor = '#42f5ff';
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = '#8df8ff';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
+        sx + 1,
+        h.y + 1,
+        Math.max(0, h.w - 2),
+        Math.max(0, h.h - 2)
+      );
+
+      // Magenta accent along the inner-facing edge.
+      ctx.shadowColor = '#ff45d4';
+      ctx.shadowBlur = 8;
+      ctx.strokeStyle = '#ff45d4';
+      ctx.lineWidth = 2;
+
+      const edgeX = sx < PLAYER_X ? sx + h.w : sx;
+
+      ctx.beginPath();
+      ctx.moveTo(edgeX, h.y);
+      ctx.lineTo(edgeX, h.y + h.h);
+      ctx.stroke();
+
+      ctx.restore();
+      continue;
+    }
+    
     // ========================================================
     // PULSE — ROCKET ENTRY GATE
     // ========================================================
