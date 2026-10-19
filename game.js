@@ -4263,6 +4263,85 @@ ctx.fillStyle = selectedLevel === 'cloudburst'
 // HAZARDS
 // ============================================================
 
+function drawWavePortals() {
+  if (selectedLevel !== 'pulse') return;
+
+  const gy = GROUND_Y();
+
+  const portals = [
+    {
+      time: LEVEL_DURATION * WAVE_START_PERCENT,
+      color: '#42f5ff',
+      core: '#ffffff',
+      label: 'WAVE IN'
+    },
+    {
+      time: LEVEL_DURATION * WAVE_END_PERCENT,
+      color: '#ff45d4',
+      core: '#ffffff',
+      label: 'WAVE OUT'
+    }
+  ];
+
+  for (const portal of portals) {
+    const portalWorldX =
+      getWorldXForTime(portal.time) + player.x;
+
+    const x = portalWorldX - worldX;
+    const centerY = gy - 92;
+    const pulse = 1 + Math.sin(
+      music.currentTime * 8
+    ) * 0.06;
+
+    // Skip portals outside the visible screen.
+    if (x < -45 || x > W + 45) continue;
+
+    ctx.save();
+    ctx.translate(x, centerY);
+    ctx.scale(pulse, 1);
+
+    // Outer energy ring.
+    ctx.shadowColor = portal.color;
+    ctx.shadowBlur = 24 + beatPulse * 10;
+    ctx.strokeStyle = portal.color;
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 23, 48, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Bright inner ring.
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = portal.core;
+    ctx.lineWidth = 1.8;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 15, 39, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Energy bands across the portal.
+    ctx.shadowColor = portal.color;
+    ctx.strokeStyle = portal.color;
+    ctx.lineWidth = 2;
+
+    for (let i = -2; i <= 2; i++) {
+      ctx.beginPath();
+      ctx.moveTo(-12, i * 10);
+      ctx.lineTo(12, i * 10);
+      ctx.stroke();
+    }
+
+    // Center energy core.
+    ctx.fillStyle = portal.core;
+    ctx.shadowBlur = 18;
+    ctx.beginPath();
+    ctx.arc(0, 0, 4 + beatPulse * 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+  
 function drawHazards() {
 
   const gy = GROUND_Y();
@@ -5331,6 +5410,7 @@ function draw() {
   // This keeps ground-level obstacles visually stable.
   drawStormEffects();
   drawHazards();
+  drawWavePortals();
   drawRocketPortals(); 
   drawParticles();
   drawPlayerTrail();
