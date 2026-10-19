@@ -3024,7 +3024,8 @@ function drawCloudburstBackground() {
   // Adjust this value slightly after checking the live game.
   const sourceGroundY = 710;
 
-  const layersReady =
+  
+const layersReady =
   cloudburstFarImage.complete &&
   cloudburstFarImage.naturalWidth > 0 &&
   cloudburstMidImage.complete &&
@@ -3033,73 +3034,52 @@ function drawCloudburstBackground() {
   cloudburstNearImage.naturalWidth > 0;
 
 if (layersReady) {
-  // Layer 1: distant scenery — slowest movement.
-  drawCloudburstLayer(cloudburstFarImage, 0.012);
-
-  // Layer 2: temple silhouettes — medium movement.
-  drawCloudburstLayer(cloudburstMidImage, 0.028);
-
-  // Preserve the original temple artwork's stone ledge.
-  if (img.complete && img.naturalWidth > 0) {
-    const imgW = img.naturalWidth;
-    const imgH = img.naturalHeight;
-    const sourceGroundY = 710;
-
-    const scale = Math.max(
-      W / imgW,
-      (H - gy) / (imgH - sourceGroundY)
-    );
-
-    const drawW = imgW * scale;
-    const drawY = gy - sourceGroundY * scale;
-    const maxTravel = Math.max(0, drawW - W);
-    const travel = Math.min(maxTravel, worldX * 0.045);
-
-    const drawX = Math.max(
-      W - drawW,
-      Math.min(0, (W - drawW) / 2 - travel)
-    );
-
-    // Draw only the bottom strip, not the full old background.
-    ctx.drawImage(
-      img,
-      0, 680, imgW, imgH - 680,
-      drawX, drawY + 680 * scale,
-      drawW, (imgH - 680) * scale
-    );
-  }
-
-  // Layer 3: nearest architecture — fastest movement.
-  drawCloudburstLayer(cloudburstNearImage, 1.0);
-
-} else if (img.complete && img.naturalWidth > 0) {
-  // Fallback: keep the old background visible until all layers load.
-  const imgW = img.naturalWidth;
-  const imgH = img.naturalHeight;
-  const sourceGroundY = 710;
-
-  const scale = Math.max(
-    W / imgW,
-    (H - gy) / (imgH - sourceGroundY)
+  // Layer 1: distant storm scenery.
+  drawCloudburstLayer(
+    cloudburstFarImage,
+    0.012,
+    0.55,
+    H * 0.55
   );
 
+  // Layer 2: temple complex.
+  drawCloudburstLayer(
+    cloudburstMidImage,
+    0.028,
+    0.65,
+    gy * 0.88
+  );
+
+  // Layer 3: foreground architecture and platform.
+  drawCloudburstLayer(
+    cloudburstNearImage,
+    0.075,
+    0.55,
+    gy
+  );
+
+} else if (cloudburstTempleImage.complete &&
+           cloudburstTempleImage.naturalWidth > 0) {
+  // Keep the original background as a fallback while layers load.
+  const imgW = cloudburstTempleImage.naturalWidth;
+  const imgH = cloudburstTempleImage.naturalHeight;
+  const scale = Math.max(W / imgW, H / imgH);
   const drawW = imgW * scale;
   const drawH = imgH * scale;
-  const drawY = gy - sourceGroundY * scale;
-  const maxTravel = Math.max(0, drawW - W);
-  const travel = Math.min(maxTravel, worldX * 0.045);
 
-  const drawX = Math.max(
-    W - drawW,
-    Math.min(0, (W - drawW) / 2 - travel)
+  ctx.drawImage(
+    cloudburstTempleImage,
+    (W - drawW) / 2,
+    (H - drawH) / 2,
+    drawW,
+    drawH
   );
-
-  ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
 } else {
   ctx.fillStyle = '#172027';
   ctx.fillRect(0, 0, W, H);
 }
+  
 
   // IMPORTANT:
   // Do not draw the old artificial stone-gradient floor.
