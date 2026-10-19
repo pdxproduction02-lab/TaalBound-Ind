@@ -2742,26 +2742,23 @@ cloudburstMidImage.src = 'assets/cloudburst-bg-mid.png';
 const cloudburstNearImage = new Image();
 cloudburstNearImage.src = 'assets/cloudburst-bg-near.png';
   
-function drawCloudburstLayer(img, speed) {
+
+function drawCloudburstLayer(img, speed, heightRatio, anchorY) {
   if (!img.complete || img.naturalWidth === 0) {
     return false;
   }
 
-  const gy = GROUND_Y();
   const imgW = img.naturalWidth;
   const imgH = img.naturalHeight;
-  const sourceGroundY = imgH * (710 / 864);
 
-  const scale = Math.max(
-    W / imgW,
-    (H - gy) / (imgH - sourceGroundY)
-  );
-
+  // Scale by the intended screen height, not the
+  // old 864px artwork's ground position.
+  const drawH = H * heightRatio;
+  const scale = drawH / imgH;
   const drawW = imgW * scale;
-  const drawH = imgH * scale;
-  const drawY = gy - sourceGroundY * scale;
+  const drawY = anchorY - drawH;
 
-  // Continuous horizontal wrap instead of clamping at the image edge.
+  // Seamless horizontal wrapping.
   const offset = ((worldX * speed) % drawW + drawW) % drawW;
 
   for (let x = -offset; x < W; x += drawW) {
@@ -2770,8 +2767,6 @@ function drawCloudburstLayer(img, speed) {
 
   return true;
 }
-  
-  
 
 function drawCloudburstProceduralBackground() {
   const gy = GROUND_Y();
