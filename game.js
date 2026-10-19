@@ -2356,12 +2356,18 @@ if (playerTrail.length > 16) {
 // Once the player lands, the physics system above
 // has already snapped rotation to exactly 0°.
 
-if (!player.onGround) {
+
+if (!isRocketMode() && !player.onGround) {
 
   player.rot +=
     8 * dt;
 
+} else if (isRocketMode()) {
+
+  player.rot = 0;
+
 }
+  
 
 
   // ==========================================================
