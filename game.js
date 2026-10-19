@@ -970,13 +970,13 @@ alternating(
     rocketPortals.push(
       {
         type: 'rocketEntry',
-        x: getWorldXForTime(50) + PLAYER_X + player.w + 80,
+        x: getWorldXForTime(50) + PLAYER_X + player.w - 6,
         w: 48,
         h: 88
       },
       {
         type: 'rocketExit',
-        x: getWorldXForTime(65) + PLAYER_X + player.w + 80,
+        x: getWorldXForTime(65) + PLAYER_X + player.w - 6,
         w: 48,
         h: 88
       }
@@ -2241,9 +2241,7 @@ if (isRocketMode()) {
     const playerTop = player.y + 6;
     const playerBottom = player.y + player.h - 6;
 
-    if (rocketModeActive) {
-  // While flying, only the exit portal can activate.
-} 
+    
     for (const portal of rocketPortals) {
       const portalTop = gy - portal.h;
       const portalBottom = gy;
