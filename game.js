@@ -184,6 +184,8 @@ let particles = [];
 // V1.0 — ROTATION-INDEPENDENT ENERGY TRAIL
 let playerTrail = [];
 let trailTimer = 0;
+  // PULSE — PERMANENT WAVE TRAIL
+let waveTrail = [];
 
 // ============================================================
 // V0.9 — THUNDERSTORM EFFECTS
@@ -1257,6 +1259,7 @@ speedVisualPulse = 0;
 
   
 playerTrail = [];
+  waveTrail = [];
 trailTimer = 0;
   
 
@@ -2391,6 +2394,13 @@ if (player.y > H + 80) {
   die();
   return;
 
+}
+  // PULSE — RECORD THE PERMANENT WAVE PATH
+if (running && !dead && isWaveMode()) {
+  waveTrail.push({
+    x: worldX + player.x + player.w / 2,
+    y: player.y + player.h / 2
+  });
 }
   // Record a short-lived trail in world space.
 trailTimer -= dt;
@@ -4017,7 +4027,59 @@ function drawPlayerTrail() {
 
   ctx.restore();
 }
-  
+
+  // PULSE — DRAW PERMANENT WAVE TRAIL
+function drawWaveTrail() {
+  if (selectedLevel !== 'pulse' || waveTrail.length < 2) {
+    return;
+  }
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // Outer pink energy glow.
+  ctx.beginPath();
+
+  for (let i = 0; i < waveTrail.length; i++) {
+    const p = waveTrail[i];
+    const x = p.x - worldX;
+
+    if (i === 0) {
+      ctx.moveTo(x, p.y);
+    } else {
+      ctx.lineTo(x, p.y);
+    }
+  }
+
+  ctx.strokeStyle = '#ff35d2';
+  ctx.lineWidth = 9;
+  ctx.shadowColor = '#ff35d2';
+  ctx.shadowBlur = 16;
+  ctx.stroke();
+
+  // Bright cyan inner trail.
+  ctx.beginPath();
+
+  for (let i = 0; i < waveTrail.length; i++) {
+    const p = waveTrail[i];
+    const x = p.x - worldX;
+
+    if (i === 0) {
+      ctx.moveTo(x, p.y);
+    } else {
+      ctx.lineTo(x, p.y);
+    }
+  }
+
+  ctx.strokeStyle = '#42f5ff';
+  ctx.lineWidth = 3;
+  ctx.shadowColor = '#42f5ff';
+  ctx.shadowBlur = 9;
+  ctx.stroke();
+
+  ctx.restore();
+}
 function drawPlayer() {
   ctx.save();
 
@@ -5423,6 +5485,7 @@ function draw() {
   drawRocketPortals(); 
   drawParticles();
   drawPlayerTrail();
+  drawWaveTrail();
   drawPlayer();
   
 
