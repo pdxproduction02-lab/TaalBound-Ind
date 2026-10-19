@@ -1278,7 +1278,9 @@ pauseControls.classList.remove('hidden');
 
   player.rot = 0;
   rocketModeActive = false;
-rocketThrusting = false;
+  rocketThrusting = false;
+  waveModeActive = false;
+  waveHolding = false;
 
 
   resultTitle.textContent =
@@ -1402,45 +1404,61 @@ function performJump() {
 // ============================================================
 
 
+
 addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
     e.preventDefault();
 
-    if (isRocketMode()) {
+    if (isWaveMode()) {
+      waveHolding = true;
+    } else if (isRocketMode()) {
       rocketThrusting = true;
     } else if (!e.repeat) {
       jump();
     }
   }
 });
+  
 
 addEventListener('keyup', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
+    waveHolding = false;
     rocketThrusting = false;
   }
 });
+  
+
+
 
 canvas.addEventListener('pointerdown', e => {
   e.preventDefault();
 
-  if (isRocketMode()) {
+  if (isWaveMode()) {
+    waveHolding = true;
+  } else if (isRocketMode()) {
     rocketThrusting = true;
   } else {
     jump();
   }
 }, { passive: false });
+  
+
 
 addEventListener('pointerup', () => {
+  waveHolding = false;
   rocketThrusting = false;
 });
 
 addEventListener('pointercancel', () => {
+  waveHolding = false;
   rocketThrusting = false;
 });
 
 addEventListener('blur', () => {
+  waveHolding = false;
   rocketThrusting = false;
 });
+  
   
 
 
