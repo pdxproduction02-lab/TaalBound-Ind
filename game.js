@@ -3190,11 +3190,38 @@ if (layersReady) {
   ctx.fillRect(0, 0, W, H);
 }
   
+// CLOUDBURST — ALIGN THE PLAYABLE FLOOR WITH PHYSICS
+// Keep the existing background layers, but fill the area
+// below the collision floor so transparent pixels cannot
+// expose an unfinished or mismatched lower section.
 
-  // IMPORTANT:
-  // Do not draw the old artificial stone-gradient floor.
-  // The image's own stone ledge should remain visible.
-  // Physics still uses GROUND_Y().
+const floor = ctx.createLinearGradient(0, gy, 0, H);
+floor.addColorStop(0, '#293632');
+floor.addColorStop(0.14, '#202d29');
+floor.addColorStop(1, '#101b1b');
+
+ctx.fillStyle = floor;
+ctx.fillRect(0, gy, W, H - gy);
+
+// Wet stone surface, aligned exactly with GROUND_Y().
+ctx.fillStyle = '#899087';
+ctx.fillRect(0, gy, W, 3);
+
+ctx.fillStyle = '#182522';
+ctx.fillRect(0, gy + 9, W, 4);
+
+// Subtle stone joints; keep them below the playable surface.
+for (let x = -40; x < W + 40; x += 62) {
+  const sx = x - (worldX * 0.16 % 62);
+
+  ctx.strokeStyle = 'rgba(7, 13, 12, 0.65)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(sx, gy + 14);
+  ctx.lineTo(sx - 4, H);
+  ctx.stroke();
+}
+  
 
   
   // Animated monsoon rain overlay.
