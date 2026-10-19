@@ -348,7 +348,9 @@ addEventListener('resize', function () {
 let hazards = [];
 let rocketPortals = [];
 
-
+const WAVE_START_PERCENT = 0.71;
+const WAVE_END_PERCENT = 0.78;
+const WAVE_SPEED = 480;
 // ============================================================
 // LEVEL BUILDER
 // ============================================================
@@ -1436,11 +1438,6 @@ const ROCKET_MAX_DOWN_SPEED = 520;
   // ============================================================
 // TAALBOUND — PULSE WAVE MODE
 // ============================================================
-
-const WAVE_START_PERCENT = 0.71;
-const WAVE_END_PERCENT = 0.78;
-
-const WAVE_SPEED = 480;
 
 let waveModeActive = false;
 let waveHolding = false;
