@@ -981,6 +981,38 @@ alternating(
         h: 88
       }
     );
+    
+    // ROCKET MODE — MANDATORY ENTRY GATE
+    const rocketEntryX = getWorldXForTime(50)
+      + PLAYER_X + player.w - 6;
+
+    hazards.push({
+      type: 'rocketGate',
+      x: rocketEntryX,
+      w: 24
+    });
+
+    // ROCKET MODE — AERIAL OBSTACLES
+    const rocketObstacleData = [
+      { time: 52.0, height: 145, w: 42, h: 32 },
+      { time: 54.0, height: 75,  w: 46, h: 34 },
+      { time: 56.2, height: 175, w: 38, h: 38 },
+      { time: 58.1, height: 95,  w: 48, h: 32 },
+      { time: 60.0, height: 155, w: 42, h: 36 },
+      { time: 62.0, height: 80,  w: 46, h: 34 }
+    ];
+
+    for (const obstacle of rocketObstacleData) {
+      hazards.push({
+        type: 'rocketObstacle',
+        x: getWorldXForTime(obstacle.time)
+          + PLAYER_X + player.w + 90,
+        yOffset: obstacle.height,
+        w: obstacle.w,
+        h: obstacle.h
+      });
+    }
+    
   }
   
 
@@ -2384,6 +2416,56 @@ if (!isRocketMode() && !player.onGround) {
   ) {
       if (h.type === 'thunderVoid') {
   continue;
+      }
+            // ========================================================
+      // ROCKET MODE — GATE AND AERIAL OBSTACLE COLLISIONS
+      // ========================================================
+
+      if (
+        h.type === 'rocketGate' ||
+        h.type === 'rocketObstacle'
+      ) {
+        // Aerial obstacles only affect the rocket section.
+        if (
+          h.type === 'rocketObstacle' &&
+          !isRocketMode()
+        ) {
+          continue;
+        }
+
+        const rocketPlayerBox = {
+          x: playerWorldX + 6,
+          y: player.y + 6,
+          w: player.w - 12,
+          h: player.h - 10
+        };
+
+        let obstacleBox;
+
+        if (h.type === 'rocketGate') {
+          // Leave the entry portal's lower opening clear.
+          obstacleBox = {
+            x: h.x,
+            y: 0,
+            w: h.w,
+            h: Math.max(0, gy - 88)
+          };
+        } else {
+          // yOffset measures upward from the ground.
+          obstacleBox = {
+            x: h.x,
+            y: gy - h.yOffset - h.h,
+            w: h.w,
+            h: h.h
+          };
+        }
+
+        if (rectHit(rocketPlayerBox, obstacleBox)) {
+          die();
+          return;
+        }
+
+        continue;
       }
 
     // ========================================================
