@@ -344,6 +344,7 @@ addEventListener('resize', function () {
 // ============================================================
 
 let hazards = [];
+let rocketPortals = [];
 
 
 // ============================================================
@@ -353,6 +354,7 @@ let hazards = [];
 function buildLevel() {
 
   hazards = [];
+  rocketPortals = [];
 
 
   // ==========================================================
@@ -961,6 +963,26 @@ alternating(
   368,
   3
 );
+  
+  // PULSE — ROCKET MODE PORTALS
+  // Positioned in the world using the music timeline.
+  if (selectedLevel === 'pulse') {
+    rocketPortals.push(
+      {
+        type: 'rocketEntry',
+        x: getWorldXForTime(50) + PLAYER_X + player.w + 80,
+        w: 48,
+        h: 88
+      },
+      {
+        type: 'rocketExit',
+        x: getWorldXForTime(65) + PLAYER_X + player.w + 80,
+        w: 48,
+        h: 88
+      }
+    );
+  }
+  
 
 }
 
@@ -1223,6 +1245,8 @@ pauseControls.classList.remove('hidden');
   player.onGround = true;
 
   player.rot = 0;
+  rocketModeActive = false;
+rocketThrusting = false;
 
 
   resultTitle.textContent =
@@ -1292,12 +1316,10 @@ const ROCKET_MAX_DOWN_SPEED = 520;
 
 let rocketThrusting = false;
 
+let rocketModeActive = false;
+
 function isRocketMode() {
-  return (
-    selectedLevel === 'pulse' &&
-    music.currentTime >= ROCKET_START_TIME &&
-    music.currentTime < ROCKET_END_TIME
-  );
+  return selectedLevel === 'pulse' && rocketModeActive;
 }
   
 
@@ -2175,32 +2197,82 @@ const overThunderVoid =
     playerCenterWorldX
   );
 
-if (
+  
+if (isRocketMode()) {
+  // Rocket mode must never use square-mode landing physics.
+  player.onGround = false;
+
+  // Hitting the ground while descending destroys the rocket.
+  if (
+    player.y + player.h >= gy &&
+    !overThunderVoid &&
+    player.vy >= 0
+  ) {
+    die();
+    return;
+  }
+} else if (
   player.y + player.h >= gy &&
   !overThunderVoid &&
   player.y < gy
 ) {
-
   player.y = gy - player.h;
   player.vy = 0;
   player.onGround = true;
 
   if (!wasOnGround) {
-
     createLandingParticles();
     player.rot = 0;
-
   }
 
   if (jumpBufferTimer > 0) {
     performJump();
   }
-
 } else {
-
   player.onGround = false;
-
 }
+  
+  
+  // PORTAL COLLISION — transform only on actual contact.
+  if (selectedLevel === 'pulse') {
+    const playerWorldX = worldX + player.x;
+    const playerLeft = playerWorldX + 6;
+    const playerRight = playerWorldX + player.w - 6;
+    const playerTop = player.y + 6;
+    const playerBottom = player.y + player.h - 6;
+
+    if (rocketModeActive) {
+  // While flying, only the exit portal can activate.
+} 
+    for (const portal of rocketPortals) {
+      const portalTop = gy - portal.h;
+      const portalBottom = gy;
+
+      const overlaps =
+        playerRight >= portal.x &&
+        playerLeft <= portal.x + portal.w &&
+        playerBottom >= portalTop &&
+        playerTop <= portalBottom;
+
+      if (!overlaps) continue;
+
+      if (portal.type === 'rocketEntry' && !rocketModeActive) {
+        rocketModeActive = true;
+        rocketThrusting = false;
+        player.vy = -320;
+        player.onGround = false;
+        player.rot = 0;
+      } else if (portal.type === 'rocketExit' && rocketModeActive) {
+        rocketModeActive = false;
+        rocketThrusting = false;
+        player.y = gy - player.h;
+        player.vy = 0;
+        player.onGround = true;
+        player.rot = 0;
+      }
+    }
+          }
+  
 
 // Falling into a void is fatal.
 if (player.y > H + 80) {
@@ -4798,6 +4870,63 @@ function drawStormEffects() {
   ctx.restore();
 
 }
+  
+function drawRocketPortals() {
+  if (selectedLevel !== 'pulse') return;
+
+  const gy = GROUND_Y();
+
+  for (const portal of rocketPortals) {
+    const sx = portal.x - worldX;
+
+    // Skip portals far outside the visible screen.
+    if (sx + portal.w < -40 || sx > W + 40) continue;
+
+    const cx = sx + portal.w / 2;
+    const cy = gy - portal.h / 2;
+    const pulse = 0.5 + 0.5 * Math.sin(performance.now() * 0.006);
+    const isEntry = portal.type === 'rocketEntry';
+
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    // Outer cyan energy halo.
+    ctx.shadowColor = isEntry ? '#38eaff' : '#9b8cff';
+    ctx.shadowBlur = 12 + pulse * 12;
+    ctx.strokeStyle = isEntry
+      ? `rgba(56,234,255,${0.65 + pulse * 0.3})`
+      : `rgba(155,140,255,${0.65 + pulse * 0.3})`;
+    ctx.lineWidth = 5;
+
+    ctx.beginPath();
+    ctx.ellipse(0, 0, portal.w * 0.42, portal.h * 0.46, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Inner energy ring.
+    ctx.shadowBlur = 5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, portal.w * 0.30, portal.h * 0.38, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Portal core.
+    const core = ctx.createLinearGradient(-portal.w / 2, 0, portal.w / 2, 0);
+    core.addColorStop(0, 'rgba(30,180,255,0.05)');
+    core.addColorStop(0.5, isEntry
+      ? `rgba(56,234,255,${0.12 + pulse * 0.16})`
+      : `rgba(155,140,255,${0.12 + pulse * 0.16})`);
+    core.addColorStop(1, 'rgba(30,180,255,0.05)');
+
+    ctx.fillStyle = core;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, portal.w * 0.28, portal.h * 0.36, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+  
 
 function draw() {
 
@@ -4809,6 +4938,7 @@ function draw() {
   // This keeps ground-level obstacles visually stable.
   drawStormEffects();
   drawHazards();
+  drawRocketPortals(); 
   drawParticles();
   drawPlayerTrail();
   drawPlayer();
