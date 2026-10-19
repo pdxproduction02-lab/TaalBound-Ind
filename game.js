@@ -1101,15 +1101,13 @@ if (selectedLevel === 'pulse') {
         h: Math.max(0, H - gapBottom)
       }
     );
+      }
   }
- }  
-
 }
 
 // ============================================================
 // SECTION SYSTEM
 // ============================================================
-
 
 function getSection(time) {
   if (selectedLevel === 'cloudburst') {
