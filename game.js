@@ -2228,8 +2228,11 @@ jumpBufferTimer =
 // ----------------------------------------------------------
 
 
-if (isRocketMode()) {
-  // Rocket flight: thrust while held, descend when released.
+if (isWaveMode()) {
+  // Wave: hold to rise, release to descend.
+  player.vy = waveHolding ? -WAVE_SPEED : WAVE_SPEED;
+} else if (isRocketMode()) {
+  // Preserve existing rocket flight physics.
   player.vy += ROCKET_GRAVITY * dt;
 
   if (rocketThrusting) {
@@ -2241,10 +2244,32 @@ if (isRocketMode()) {
     Math.min(ROCKET_MAX_DOWN_SPEED, player.vy)
   );
 } else {
-  // Preserve the original square-mode physics.
+  // Preserve original square-mode physics.
   player.vy += GRAVITY * dt;
 }
+  const progressRatio = music.currentTime / LEVEL_DURATION;
 
+if (selectedLevel === 'pulse') {
+  const shouldBeWave =
+    progressRatio >= WAVE_START_PERCENT &&
+    progressRatio < WAVE_END_PERCENT;
+
+  if (shouldBeWave !== waveModeActive) {
+    waveModeActive = shouldBeWave;
+    waveHolding = false;
+    player.vy = 0;
+    player.rot = 0;
+    player.onGround = false;
+
+    if (waveModeActive) {
+      const groundY = GROUND_Y();
+      player.y = Math.max(
+        60,
+        Math.min(player.y, groundY - player.h - 60)
+      );
+    }
+  }
+}
 player.y += player.vy * dt;
   
 
