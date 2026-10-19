@@ -1344,6 +1344,21 @@ const ROCKET_GRAVITY = 1050;
 const ROCKET_THRUST = 2200;
 const ROCKET_MAX_UP_SPEED = 480;
 const ROCKET_MAX_DOWN_SPEED = 520;
+  // ============================================================
+// TAALBOUND — PULSE WAVE MODE
+// ============================================================
+
+const WAVE_START_PERCENT = 0.71;
+const WAVE_END_PERCENT = 0.77;
+
+const WAVE_SPEED = 480;
+
+let waveModeActive = false;
+let waveHolding = false;
+
+function isWaveMode() {
+  return selectedLevel === 'pulse' && waveModeActive;
+}
   
 
 let rocketThrusting = false;
