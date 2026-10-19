@@ -2356,6 +2356,12 @@ if (selectedLevel === 'pulse') {
 }
 player.y += player.vy * dt;
   
+if (isRocketMode() && player.y < 28) {
+  die();
+  return;
+}
+  
+  
 
 
 // ----------------------------------------------------------
@@ -4496,10 +4502,69 @@ function drawHazards() {
 
   const gy = GROUND_Y();
   
-  // PULSE ROCKET MODE — DANGEROUS SPIKE FLOOR
-  if (isRocketMode()) {
+  // PULSE ROCKET MODE — TOP AND BOTTOM SPIKE BOUNDARIES
+if (isRocketMode()) {
     const spikeWidth = 28;
     const offset = -(worldX % spikeWidth);
+    
+    // TOP CEILING — UPSIDE-DOWN SPIKES
+    ctx.save();
+
+    for (
+      let x = offset;
+      x < W + spikeWidth;
+      x += spikeWidth
+    ) {
+      const index = Math.floor(
+        (x - offset) / spikeWidth
+      );
+
+      const spikeHeight =
+        17 + ((index * 7) % 9);
+
+      const tipX = x + spikeWidth / 2;
+      const tipY = spikeHeight;
+
+      // Cyan metallic energy glow.
+      ctx.shadowColor = '#35eaff';
+      ctx.shadowBlur = 9 + beatPulse * 5;
+
+      // Dark metallic spike body, pointing downward.
+      ctx.fillStyle = '#17465f';
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(x + spikeWidth, 0);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bright inner edge.
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#42dff4';
+      ctx.beginPath();
+      ctx.moveTo(x + 5, 1);
+      ctx.lineTo(tipX, tipY - 7);
+      ctx.lineTo(x + spikeWidth - 5, 1);
+      ctx.closePath();
+      ctx.fill();
+
+      // Metallic highlight.
+      ctx.strokeStyle = '#c8fbff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x + 2, 1);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(x + spikeWidth - 2, 1);
+      ctx.stroke();
+    }
+
+    // Dark ceiling strip behind the spikes.
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#102333';
+    ctx.fillRect(0, 0, W, 3);
+
+    ctx.restore();
+  
 
     ctx.save();
 
