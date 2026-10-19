@@ -991,6 +991,15 @@ alternating(
       x: rocketEntryX,
       w: 24
     });
+    // ROCKET MODE — MANDATORY EXIT GATE
+const rocketExitX = getWorldXForTime(65)
+  + PLAYER_X + player.w - 6;
+
+hazards.push({
+  type: 'rocketGate',
+  x: rocketExitX,
+  w: 24
+});
 
     // ROCKET MODE — AERIAL OBSTACLES
     const rocketObstacleData = [
