@@ -4122,6 +4122,72 @@ const half = size / 2;
   }
   
   
+  // WAVE MODE — sharp directional arrow with neon trail.
+  if (isWaveMode()) {
+    const waveAngle = Math.atan2(
+      player.vy,
+      Math.max(260, currentSpeed)
+    );
+
+    ctx.save();
+    ctx.rotate(waveAngle);
+
+    // Angular trail behind the Wave arrow.
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(-42, 0);
+    ctx.lineTo(-25, 0);
+    ctx.lineTo(-11, 0);
+
+    ctx.strokeStyle = '#ff4fd8';
+    ctx.lineWidth = 9;
+    ctx.shadowColor = '#ff35d2';
+    ctx.shadowBlur = 18;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(-39, 0);
+    ctx.lineTo(-13, 0);
+
+    ctx.strokeStyle = '#42f5ff';
+    ctx.lineWidth = 3;
+    ctx.shadowColor = '#42f5ff';
+    ctx.shadowBlur = 12;
+    ctx.stroke();
+
+    // Sharp arrow silhouette.
+    ctx.beginPath();
+    ctx.moveTo(15, 0);
+    ctx.lineTo(-5, -10);
+    ctx.lineTo(-1, 0);
+    ctx.lineTo(-5, 10);
+    ctx.closePath();
+
+    ctx.fillStyle = '#ff45d4';
+    ctx.shadowColor = '#ff35d2';
+    ctx.shadowBlur = 18;
+    ctx.fill();
+
+    // Bright cyan inner arrow.
+    ctx.beginPath();
+    ctx.moveTo(11, 0);
+    ctx.lineTo(-3, -6);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(-3, 6);
+    ctx.closePath();
+
+    ctx.fillStyle = '#eaffff';
+    ctx.shadowColor = '#42f5ff';
+    ctx.shadowBlur = 12;
+    ctx.fill();
+
+    ctx.restore();
+    ctx.restore();
+    return;
+  }
+  
 
   
 
