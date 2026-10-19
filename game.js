@@ -1025,7 +1025,84 @@ hazards.push({
     }
     
   }
-  
+// ==========================================================
+// PULSE — WAVE PORTAL BARRIERS + CHALLENGE PATH
+// ==========================================================
+if (selectedLevel === 'pulse') {
+  const waveStartX =
+    getWorldXForTime(LEVEL_DURATION * WAVE_START_PERCENT);
+
+  const waveEndX =
+    getWorldXForTime(LEVEL_DURATION * WAVE_END_PERCENT);
+
+  const gy = GROUND_Y();
+
+  // Keep the portal opening aligned with the visible portal.
+  const openingTop = gy - 150;
+  const openingBottom = gy - 34;
+
+  // Entry and exit barriers: upper and lower blocks.
+  for (const gateX of [waveStartX, waveEndX]) {
+    hazards.push(
+      {
+        type: 'waveBlock',
+        x: gateX,
+        y: 0,
+        w: 24,
+        h: Math.max(0, openingTop)
+      },
+      {
+        type: 'waveBlock',
+        x: gateX,
+        y: openingBottom,
+        w: 24,
+        h: Math.max(0, H - openingBottom)
+      }
+    );
+  }
+
+  // Wave zigzag challenge — the safe opening moves up and down.
+  const wavePath = [
+    { p: 0.12, gapY: 0.35 },
+    { p: 0.22, gapY: 0.62 },
+    { p: 0.32, gapY: 0.40 },
+    { p: 0.42, gapY: 0.68 },
+    { p: 0.52, gapY: 0.32 },
+    { p: 0.62, gapY: 0.60 },
+    { p: 0.72, gapY: 0.38 },
+    { p: 0.82, gapY: 0.65 },
+    { p: 0.91, gapY: 0.45 }
+  ];
+
+  const pathStartX = waveStartX + 100;
+  const pathWidth = waveEndX - waveStartX - 200;
+  const gapHeight = Math.min(150, H * 0.24);
+  const margin = 55;
+
+  for (const point of wavePath) {
+    const x = pathStartX + pathWidth * point.p;
+    const gapCenter = margin + (gy - margin * 2) * point.gapY;
+    const gapTop = Math.max(margin, gapCenter - gapHeight / 2);
+    const gapBottom = Math.min(gy - 12, gapCenter + gapHeight / 2);
+
+    hazards.push(
+      {
+        type: 'waveBlock',
+        x,
+        y: 0,
+        w: 34,
+        h: gapTop
+      },
+      {
+        type: 'waveBlock',
+        x,
+        y: gapBottom,
+        w: 34,
+        h: Math.max(0, H - gapBottom)
+      }
+    );
+  }
+ }  
 
 }
 
