@@ -2252,6 +2252,11 @@ if (isRocketMode()) {
   !overThunderVoid &&
   player.y < gy
 ) {
+    // Rocket mode: touching the spike floor is fatal.
+  if (isRocketMode()) {
+    die();
+    return;
+  }
   player.y = gy - player.h;
   player.vy = 0;
   player.onGround = true;
@@ -4136,6 +4141,70 @@ ctx.fillStyle = selectedLevel === 'cloudburst'
 function drawHazards() {
 
   const gy = GROUND_Y();
+  
+  // PULSE ROCKET MODE — DANGEROUS SPIKE FLOOR
+  if (isRocketMode()) {
+    const spikeWidth = 28;
+    const offset = -(worldX % spikeWidth);
+
+    ctx.save();
+
+    for (
+      let x = offset;
+      x < W + spikeWidth;
+      x += spikeWidth
+    ) {
+      const index = Math.floor(
+        (x - offset) / spikeWidth
+      );
+
+      const spikeHeight =
+        17 + ((index * 7) % 9);
+
+      const tipX = x + spikeWidth / 2;
+      const tipY = gy - spikeHeight;
+
+      // Cyan energy glow.
+      ctx.shadowColor = '#35eaff';
+      ctx.shadowBlur = 9 + beatPulse * 5;
+
+      // Metallic dark-blue spike body.
+      ctx.fillStyle = '#17465f';
+      ctx.beginPath();
+      ctx.moveTo(x, gy);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(x + spikeWidth, gy);
+      ctx.closePath();
+      ctx.fill();
+
+      // Bright inner edge.
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = '#42dff4';
+      ctx.beginPath();
+      ctx.moveTo(x + 5, gy - 1);
+      ctx.lineTo(tipX, tipY + 7);
+      ctx.lineTo(x + spikeWidth - 5, gy - 1);
+      ctx.closePath();
+      ctx.fill();
+
+      // Sharp metallic highlight.
+      ctx.strokeStyle = '#c8fbff';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(x + 2, gy - 2);
+      ctx.lineTo(tipX, tipY);
+      ctx.lineTo(x + spikeWidth - 2, gy - 2);
+      ctx.stroke();
+    }
+
+    // Dark foundation beneath the spikes.
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#102333';
+    ctx.fillRect(0, gy, W, H - gy);
+
+    ctx.restore();
+  }
+  
 
   for (const h of hazards) {
 
