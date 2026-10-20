@@ -1063,22 +1063,19 @@ if (selectedLevel === 'pulse') {
     );
   }
 
-  // Wave zigzag challenge — the safe opening moves up and down.
+     // Wave zigzag challenge — readable, high-speed obstacle rhythm.
   const wavePath = [
-    { p: 0.12, gapY: 0.35 },
-    { p: 0.22, gapY: 0.62 },
-    { p: 0.32, gapY: 0.40 },
-    { p: 0.42, gapY: 0.68 },
-    { p: 0.52, gapY: 0.32 },
-    { p: 0.62, gapY: 0.60 },
-    { p: 0.72, gapY: 0.38 },
-    { p: 0.82, gapY: 0.65 },
-    { p: 0.91, gapY: 0.45 }
+    { p: 0.14, gapY: 0.42 },
+    { p: 0.29, gapY: 0.59 },
+    { p: 0.44, gapY: 0.38 },
+    { p: 0.59, gapY: 0.61 },
+    { p: 0.74, gapY: 0.41 },
+    { p: 0.89, gapY: 0.56 }
   ];
 
   const pathStartX = waveStartX + 100;
   const pathWidth = waveEndX - waveStartX - 200;
-  const gapHeight = Math.min(150, H * 0.24);
+  const gapHeight = Math.min(190, H * 0.31);
   const margin = 55;
 
   for (const point of wavePath) {
@@ -4717,6 +4714,50 @@ if (
         Math.max(0, h.w - 2),
         Math.max(0, h.h - 2)
       );
+            // Sharp teeth facing into the flight corridor.
+      ctx.shadowBlur = 5;
+      ctx.fillStyle = '#071522';
+      ctx.strokeStyle = '#42f5ff';
+      ctx.lineWidth = 1.2;
+
+      const toothSize = 9;
+      const toothSpacing = 18;
+
+      if (h.y === 0) {
+        // Ceiling blocks: teeth point downward.
+        const edgeY = h.y + h.h;
+
+        for (
+          let tx = sx + 5;
+          tx < sx + h.w - toothSize;
+          tx += toothSpacing
+        ) {
+          ctx.beginPath();
+          ctx.moveTo(tx, edgeY - toothSize);
+          ctx.lineTo(tx + toothSize / 2, edgeY);
+          ctx.lineTo(tx + toothSize, edgeY - toothSize);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      } else {
+        // Floor blocks: teeth point upward.
+        const edgeY = h.y;
+
+        for (
+          let tx = sx + 5;
+          tx < sx + h.w - toothSize;
+          tx += toothSpacing
+        ) {
+          ctx.beginPath();
+          ctx.moveTo(tx, edgeY + toothSize);
+          ctx.lineTo(tx + toothSize / 2, edgeY);
+          ctx.lineTo(tx + toothSize, edgeY + toothSize);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+        }
+      }
 
       // Magenta accent along the inner-facing edge.
       ctx.shadowColor = '#ff45d4';
