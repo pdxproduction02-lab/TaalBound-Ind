@@ -4632,7 +4632,10 @@ if (isRocketMode()) {
 
   for (const h of hazards) {
 
-    
+  // No ordinary floor spikes during the Wave section.
+if (isWaveMode() && h.type === 'spike') {
+  continue;
+}  
 const sx =
   h.x - worldX;
 
