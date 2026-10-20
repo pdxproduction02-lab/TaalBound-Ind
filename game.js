@@ -2859,17 +2859,11 @@ function drawCloudburstLayer(img, speed, heightRatio, anchorY) {
     return false;
   }
 
-  const imgW = img.naturalWidth;
-  const imgH = img.naturalHeight;
-
-  // Scale by the intended screen height, not the
-  // old 864px artwork's ground position.
-  const drawH = H * heightRatio;
-  const scale = drawH / imgH;
-  const drawW = imgW * scale;
+  const scale = (H * heightRatio) / img.naturalHeight;
+  const drawW = img.naturalWidth * scale;
+  const drawH = img.naturalHeight * scale;
   const drawY = anchorY - drawH;
 
-  // Seamless horizontal wrapping.
   const offset = ((worldX * speed) % drawW + drawW) % drawW;
 
   for (let x = -offset; x < W; x += drawW) {
@@ -3145,29 +3139,20 @@ const layersReady =
   cloudburstNearImage.naturalWidth > 0;
 
 if (layersReady) {
-  // Layer 1: distant storm scenery.
-  drawCloudburstLayer(
-    cloudburstFarImage,
-    0.012,
-    0.55,
-    H * 0.55
-  );
+  // Distant scenery — independent depth, common reference.
+drawCloudburstLayer(
+  cloudburstFarImage, 0.012, 0.55, gy
+);
 
-  // Layer 2: temple complex.
-  drawCloudburstLayer(
-    cloudburstMidImage,
-    0.028,
-    0.65,
-    gy * 0.88
-  );
+// Midground temples.
+drawCloudburstLayer(
+  cloudburstMidImage, 0.028, 0.65, gy
+);
 
-  // Layer 3: foreground architecture and platform.
-  drawCloudburstLayer(
-    cloudburstNearImage,
-    0.075,
-    0.55,
-    gy
-  );
+// Foreground platform.
+drawCloudburstLayer(
+  cloudburstNearImage, 0.075, 0.55, gy
+);
 
 } else if (cloudburstTempleImage.complete &&
            cloudburstTempleImage.naturalWidth > 0) {
@@ -3191,37 +3176,7 @@ if (layersReady) {
   ctx.fillRect(0, 0, W, H);
 }
   
-// CLOUDBURST — ALIGN THE PLAYABLE FLOOR WITH PHYSICS
-// Keep the existing background layers, but fill the area
-// below the collision floor so transparent pixels cannot
-// expose an unfinished or mismatched lower section.
 
-const floor = ctx.createLinearGradient(0, gy, 0, H);
-floor.addColorStop(0, '#293632');
-floor.addColorStop(0.14, '#202d29');
-floor.addColorStop(1, '#101b1b');
-
-ctx.fillStyle = floor;
-ctx.fillRect(0, gy, W, H - gy);
-
-// Wet stone surface, aligned exactly with GROUND_Y().
-ctx.fillStyle = '#899087';
-ctx.fillRect(0, gy, W, 3);
-
-ctx.fillStyle = '#182522';
-ctx.fillRect(0, gy + 9, W, 4);
-
-// Subtle stone joints; keep them below the playable surface.
-for (let x = -40; x < W + 40; x += 62) {
-  const sx = x - (worldX * 0.16 % 62);
-
-  ctx.strokeStyle = 'rgba(7, 13, 12, 0.65)';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(sx, gy + 14);
-  ctx.lineTo(sx - 4, H);
-  ctx.stroke();
-}
   
 
   
