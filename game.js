@@ -2579,6 +2579,10 @@ if (
       if (h.type === 'thunderVoid') {
   continue;
       }
+      // Remove ordinary floor spikes during Wave mode.
+if (isWaveMode() && h.type === 'spike') {
+  continue;
+}
       
       // ========================================================
       // WAVE MODE — PORTAL BARRIERS AND ZIGZAG COLLISIONS
