@@ -3151,7 +3151,7 @@ drawCloudburstLayer(
 
 // Foreground platform.
 drawCloudburstLayer(
-  cloudburstNearImage, 0.075, 0.55, gy
+  cloudburstNearImage, 0.075, 0.55, gy + H * 0.15
 );
 
 } else if (cloudburstTempleImage.complete &&
