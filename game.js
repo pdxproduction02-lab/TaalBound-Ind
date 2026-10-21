@@ -3177,7 +3177,18 @@ if (layersReady) {
 }
   
 
-  
+  // CLOUDBURST — hide the unwanted bottom image strip.
+const bandY = Math.floor(H * 0.87);
+
+const bottomFill = ctx.createLinearGradient(
+  0, bandY, 0, H
+);
+
+bottomFill.addColorStop(0, '#27383b');
+bottomFill.addColorStop(1, '#111d24');
+
+ctx.fillStyle = bottomFill;
+ctx.fillRect(0, bandY, W, H - bandY);
 
   
   // Animated monsoon rain overlay.
