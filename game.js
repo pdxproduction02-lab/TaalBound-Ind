@@ -3154,7 +3154,7 @@ if (layersReady) {
   drawCloudburstLayer(
     cloudburstNearImage, 0.075, 1.0, gy + H * 0.14
   );
-}
+
   
 } else if (cloudburstTempleImage.complete &&
            cloudburstTempleImage.naturalWidth > 0) {
