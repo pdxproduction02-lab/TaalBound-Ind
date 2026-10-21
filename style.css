@@ -1052,3 +1052,135 @@ body {
     transition: none;
   }
     }
+
+/* ==============================================
+   TAALBOUND — STEP 2: VISUAL POLISH
+   ============================================== */
+
+#startScreen .level-panel {
+  border-color: rgba(130, 224, 246, 0.30);
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.52),
+    0 0 55px rgba(42, 184, 225, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+#startScreen .title {
+  background: linear-gradient(
+    180deg,
+    #ffffff 5%,
+    #d8f7ff 55%,
+    #8edced 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 15px rgba(83, 221, 246, 0.14));
+}
+
+#startScreen .tagline {
+  text-shadow: 0 0 14px rgba(112, 231, 250, 0.24);
+}
+
+/* Level cards: add depth and corner highlights */
+#startScreen .level-button {
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+#startScreen .level-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.065),
+    transparent 42%
+  );
+  opacity: 0.7;
+}
+
+#startScreen .level-button::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 18%;
+  bottom: 18%;
+  width: 3px;
+  border-radius: 0 4px 4px 0;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+  opacity: 0.8;
+}
+
+/* PULSE: crisp electric-cyan identity */
+#startScreen .pulse-level {
+  color: #6deaff;
+  border-color: rgba(83, 221, 246, 0.46) !important;
+}
+
+#startScreen .pulse-level.selected {
+  border-color: #8af2ff !important;
+  box-shadow:
+    0 0 0 1px rgba(109, 234, 255, 0.14),
+    0 8px 28px rgba(35, 181, 224, 0.19),
+    inset 0 0 26px rgba(72, 204, 240, 0.09);
+}
+
+/* CLOUDBURST: restrained sandstone identity */
+#startScreen .cloudburst-level {
+  color: #d0ba91;
+  border-color: rgba(192, 170, 126, 0.42) !important;
+}
+
+#startScreen .cloudburst-level.selected {
+  border-color: #e1cca2 !important;
+  box-shadow:
+    0 0 0 1px rgba(219, 198, 153, 0.12),
+    0 8px 28px rgba(190, 160, 103, 0.17),
+    inset 0 0 26px rgba(190, 160, 103, 0.08);
+}
+
+/* Smooth, deliberate card interaction */
+#startScreen .level-button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.09);
+}
+
+#startScreen .level-button:active {
+  transform: scale(0.985);
+}
+
+#startScreen #startButton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(105deg, #55dff4, #b1f7ff);
+  box-shadow:
+    0 8px 26px rgba(36, 192, 225, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+#startScreen #startButton:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 32px rgba(36, 192, 225, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+#startScreen #startButton:active {
+  transform: scale(0.98);
+}
+
+#startScreen .hint {
+  letter-spacing: 0.08em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #startScreen .level-button,
+  #startScreen #startButton {
+    transition: none;
+  }
+}
