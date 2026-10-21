@@ -1625,3 +1625,150 @@ body {
     font-size: 11px;
   }
                     }
+
+/* ==============================================
+   TAALBOUND — DUAL INDIAN MANDALA BACKGROUND
+   Top-left: antique gold | Bottom-right: cyan
+   ============================================== */
+
+#startScreen {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Keep the menu above the decorative artwork */
+#startScreen .level-panel {
+  position: relative;
+  z-index: 2;
+}
+
+/* TOP-LEFT: Antique-gold mandala */
+#startScreen::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+
+  width: clamp(250px, 43vw, 510px);
+  aspect-ratio: 1;
+  left: clamp(-155px, -9vw, -65px);
+  top: clamp(-175px, -12vw, -65px);
+  border-radius: 50%;
+
+  opacity: .72;
+
+  background:
+    /* Fine radial engraving */
+    repeating-radial-gradient(
+      circle,
+      transparent 0 9px,
+      rgba(255, 205, 121, .58) 10px 10.8px,
+      transparent 11.8px 19px
+    ),
+
+    /* Alternating petal geometry */
+    repeating-conic-gradient(
+      from 7.5deg,
+      rgba(255, 188, 79, .48) 0deg 1.1deg,
+      transparent 1.1deg 7.5deg,
+      rgba(255, 225, 166, .25) 7.5deg 8.3deg,
+      transparent 8.3deg 15deg
+    ),
+
+    /* Main ornamental rings */
+    radial-gradient(
+      circle,
+      transparent 0 12%,
+      rgba(255, 219, 151, .85) 12.2% 12.6%,
+      transparent 12.9% 23%,
+      rgba(244, 177, 78, .8) 23.2% 23.7%,
+      transparent 24% 36%,
+      rgba(255, 209, 129, .65) 36.2% 36.7%,
+      transparent 37% 48%,
+      rgba(239, 166, 67, .7) 48.2% 48.7%,
+      transparent 49% 60%,
+      rgba(255, 211, 142, .6) 60.2% 60.6%,
+      transparent 61%
+    );
+
+  -webkit-mask-image: radial-gradient(
+    circle, #000 35%, rgba(0,0,0,.8) 56%, transparent 73%
+  );
+  mask-image: radial-gradient(
+    circle, #000 35%, rgba(0,0,0,.8) 56%, transparent 73%
+  );
+}
+
+/* BOTTOM-RIGHT: Opposite-color electric-blue mandala */
+#startScreen::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+
+  width: clamp(250px, 43vw, 510px);
+  aspect-ratio: 1;
+  right: clamp(-155px, -9vw, -65px);
+  bottom: clamp(-175px, -12vw, -65px);
+  border-radius: 50%;
+
+  opacity: .76;
+
+  background:
+    /* Fine radial engraving */
+    repeating-radial-gradient(
+      circle,
+      transparent 0 9px,
+      rgba(77, 224, 255, .62) 10px 10.8px,
+      transparent 11.8px 19px
+    ),
+
+    /* Reversed petal geometry */
+    repeating-conic-gradient(
+      from 7.5deg,
+      rgba(39, 206, 255, .46) 0deg 1.1deg,
+      transparent 1.1deg 7.5deg,
+      rgba(172, 248, 255, .27) 7.5deg 8.3deg,
+      transparent 8.3deg 15deg
+    ),
+
+    /* Main ornamental rings */
+    radial-gradient(
+      circle,
+      transparent 0 12%,
+      rgba(187, 250, 255, .9) 12.2% 12.6%,
+      transparent 12.9% 23%,
+      rgba(49, 215, 255, .85) 23.2% 23.7%,
+      transparent 24% 36%,
+      rgba(116, 237, 255, .7) 36.2% 36.7%,
+      transparent 37% 48%,
+      rgba(35, 190, 255, .75) 48.2% 48.7%,
+      transparent 49% 60%,
+      rgba(158, 246, 255, .62) 60.2% 60.6%,
+      transparent 61%
+    );
+
+  -webkit-mask-image: radial-gradient(
+    circle, #000 35%, rgba(0,0,0,.8) 56%, transparent 73%
+  );
+  mask-image: radial-gradient(
+    circle, #000 35%, rgba(0,0,0,.8) 56%, transparent 73%
+  );
+}
+
+/* Keep both ornaments understated on short landscape screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  #startScreen::before,
+  #startScreen::after {
+    width: clamp(190px, 34vw, 310px);
+    opacity: .58;
+  }
+}
+
+/* Reduce ornament intensity for users who prefer less visual motion */
+@media (prefers-reduced-motion: reduce) {
+  #startScreen::before,
+  #startScreen::after {
+    animation: none;
+  }
+}
