@@ -1367,3 +1367,261 @@ body {
     transition: none;
   }
 }
+
+/* ============================================
+   TAALBOUND — GOLD x NEON BLUE INDIAN EDITION
+   ============================================ */
+
+:root {
+  --tb-gold: #f5c66f;
+  --tb-saffron: #f19a38;
+  --tb-blue: #28dfff;
+  --tb-ice: #d9fbff;
+  --tb-dark: #080c15;
+}
+
+#startScreen {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 4% 42%,
+      rgba(255, 155, 38, .42), transparent 47%),
+    radial-gradient(ellipse at 96% 42%,
+      rgba(0, 170, 255, .40), transparent 48%),
+    linear-gradient(90deg,
+      #42240f 0%,
+      #241b1a 26%,
+      #111522 50%,
+      #0c2035 74%,
+      #06253a 100%);
+}
+
+/* Layer 1: mandala / Indian geometric pattern */
+#startScreen::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .33;
+  background:
+    repeating-conic-gradient(
+      from 0deg at 12% 50%,
+      transparent 0deg 9deg,
+      rgba(255, 200, 105, .30) 9.4deg 9.8deg,
+      transparent 10.2deg 18deg
+    ),
+    repeating-conic-gradient(
+      from 0deg at 88% 50%,
+      transparent 0deg 9deg,
+      rgba(66, 220, 255, .28) 9.4deg 9.8deg,
+      transparent 10.2deg 18deg
+    );
+  mask-image: linear-gradient(
+    90deg, black, transparent 43%, transparent 57%, black
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg, black, transparent 43%, transparent 57%, black
+  );
+}
+
+/* Layer 2: ornamental rings in both corners */
+#startScreen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .5;
+  background:
+    radial-gradient(circle at 0% 0%,
+      transparent 0 72px,
+      rgba(255, 201, 113, .55) 73px 74px,
+      transparent 75px 91px,
+      rgba(255, 201, 113, .32) 92px 93px,
+      transparent 94px),
+    radial-gradient(circle at 100% 100%,
+      transparent 0 72px,
+      rgba(64, 220, 255, .58) 73px 74px,
+      transparent 75px 91px,
+      rgba(64, 220, 255, .32) 92px 93px,
+      transparent 94px);
+}
+
+/* Premium central glass / dark-stone menu */
+#startScreen .level-panel {
+  width: min(90vw, 460px);
+  border: 1px solid rgba(232, 197, 132, .48);
+  border-radius: 20px;
+  background: linear-gradient(
+    115deg,
+    rgba(30, 23, 21, .93),
+    rgba(12, 17, 28, .92) 52%,
+    rgba(8, 24, 38, .94)
+  );
+  box-shadow:
+    0 24px 75px rgba(0, 0, 0, .48),
+    0 0 32px rgba(255, 176, 65, .10),
+    0 0 38px rgba(40, 210, 255, .10),
+    inset 0 1px 0 rgba(255, 255, 255, .10);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+#startScreen .level-panel::before {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--tb-saffron),
+    var(--tb-gold),
+    var(--tb-ice),
+    var(--tb-blue),
+    transparent
+  );
+  box-shadow: 0 0 20px rgba(255, 198, 111, .25);
+}
+
+/* Wordmark typography */
+#startScreen .title {
+  font-family: "Cinzel", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(35px, 8.5vw, 62px);
+  letter-spacing: .045em;
+  background: linear-gradient(
+    100deg,
+    #fff1c9 0%,
+    #f3bd5d 32%,
+    #fff4db 51%,
+    #a9f4ff 76%,
+    #38dfff 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 14px rgba(30, 199, 255, .12));
+}
+
+#startScreen .tagline,
+#startScreen .level-heading,
+#startScreen .level-button small,
+#startScreen #startButton,
+#startScreen .hint {
+  font-family: "Rajdhani", Arial, sans-serif;
+}
+
+#startScreen .tagline {
+  color: #f2c779;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .28em;
+}
+
+#startScreen .level-heading {
+  color: #e5d3b0;
+  font-size: 12px;
+  letter-spacing: .22em;
+}
+
+/* PULSE: electric blue */
+#startScreen .pulse-level {
+  border-color: rgba(52, 224, 255, .72) !important;
+  background: linear-gradient(
+    110deg, rgba(12, 48, 68, .96), rgba(8, 19, 35, .97)
+  ) !important;
+  box-shadow: inset 3px 0 0 rgba(48, 222, 255, .7);
+}
+
+#startScreen .pulse-level.selected {
+  border-color: #6cecff !important;
+  box-shadow:
+    0 0 22px rgba(35, 213, 255, .19),
+    inset 3px 0 0 #39dfff;
+}
+
+/* CLOUDBURST: temple gold */
+#startScreen .cloudburst-level {
+  border-color: rgba(235, 184, 108, .65) !important;
+  background: linear-gradient(
+    110deg, rgba(67, 43, 27, .96), rgba(20, 24, 31, .97)
+  ) !important;
+  box-shadow: inset 3px 0 0 rgba(240, 179, 89, .65);
+}
+
+#startScreen .cloudburst-level.selected {
+  border-color: #f3cb80 !important;
+  box-shadow:
+    0 0 22px rgba(235, 174, 81, .17),
+    inset 3px 0 0 #efb75d;
+}
+
+#startScreen .level-button span {
+  font-family: "Rajdhani", Arial, sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: .12em;
+}
+
+/* Main action: gold on the left, cyan on the right */
+#startScreen #startButton {
+  border: 1px solid rgba(255, 241, 201, .9);
+  border-radius: 10px;
+  background: linear-gradient(
+    100deg, #d88935 0%, #f1c66f 42%,
+    #d9f8ff 62%, #47dfff 100%
+  );
+  color: #111522;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: .2em;
+  box-shadow:
+    0 6px 26px rgba(255, 173, 60, .16),
+    0 0 22px rgba(44, 215, 255, .14);
+}
+
+#startScreen #startButton:hover {
+  filter: brightness(1.08);
+  box-shadow:
+    0 8px 28px rgba(255, 173, 60, .22),
+    0 0 28px rgba(44, 215, 255, .20);
+}
+
+#startScreen .hint {
+  color: #c9d5df;
+  letter-spacing: .08em;
+}
+
+/* Shared HUD: a restrained gold-to-cyan gradient */
+.brand {
+  font-family: "Cinzel", Georgia, serif;
+  color: #fff0cb;
+  letter-spacing: .12em;
+  text-shadow: 0 0 12px rgba(244, 194, 105, .28);
+}
+
+.progress > div {
+  background: linear-gradient(
+    90deg, #e79a3d, #f5d17d, #9af5ff, #28dfff
+  );
+}
+
+#percent {
+  font-family: "Rajdhani", Arial, sans-serif;
+  color: #eafaff;
+  font-weight: 700;
+}
+
+#sectionName {
+  font-family: "Rajdhani", Arial, sans-serif;
+  color: #e8c78d;
+}
+
+/* Mobile landscape: keep the title from overpowering the cards */
+@media (orientation: landscape) {
+  #startScreen .title {
+    font-size: clamp(28px, 5.7vw, 45px);
+  }
+
+  #startScreen .tagline {
+    font-size: 11px;
+  }
+                    }
