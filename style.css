@@ -1184,3 +1184,186 @@ body {
     transition: none;
   }
 }
+
+/* =====================================================
+   TAALBOUND — RHYTHM OF INDIA
+   Indian-inspired visual identity | CSS only
+   ===================================================== */
+
+#startScreen {
+  background:
+    radial-gradient(ellipse at 50% 0%,
+      rgba(190, 119, 48, .19), transparent 48%),
+    radial-gradient(ellipse at 50% 100%,
+      rgba(35, 100, 88, .13), transparent 55%),
+    linear-gradient(145deg, #101113, #171715 55%, #090e12);
+}
+
+/* Subtle jaali-inspired geometric pattern */
+#startScreen::before {
+  opacity: .23;
+  background-image:
+    repeating-linear-gradient(
+      45deg, transparent 0 17px,
+      rgba(221, 183, 119, .15) 18px 19px,
+      transparent 20px 36px
+    ),
+    repeating-linear-gradient(
+      -45deg, transparent 0 17px,
+      rgba(221, 183, 119, .10) 18px 19px,
+      transparent 20px 36px
+    );
+  background-size: 38px 38px;
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent 90%);
+  mask-image: linear-gradient(to bottom, #000, transparent 90%);
+}
+
+/* Dark stone panel with an antique-gold edge */
+#startScreen .level-panel {
+  border-color: rgba(208, 171, 105, .38);
+  background: linear-gradient(
+    145deg, rgba(35, 32, 27, .98), rgba(10, 14, 17, .99) 75%
+  );
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, .58),
+    0 0 38px rgba(190, 119, 43, .09),
+    inset 0 1px 0 rgba(255, 238, 201, .08);
+}
+
+#startScreen .level-panel::before {
+  background: linear-gradient(
+    90deg, transparent, #b87535, #f3dca6, #d98b38, transparent
+  );
+  box-shadow: 0 0 18px rgba(217, 139, 56, .28);
+}
+
+/* Ivory-to-antique-gold TAALBOUND title */
+#startScreen .title {
+  background: linear-gradient(
+    180deg, #fff9e9 0%, #f0d7a0 48%, #c58b45 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px rgba(215, 159, 77, .13));
+  letter-spacing: .095em;
+}
+
+#startScreen .tagline {
+  color: #e5b66f;
+  text-shadow: 0 0 14px rgba(229, 182, 111, .15);
+}
+
+#startScreen .level-heading {
+  color: #c7bca7;
+}
+
+/* PULSE — modern Indian EDM, retaining electric cyan */
+#startScreen .pulse-level {
+  border-color: rgba(86, 213, 229, .46) !important;
+  background: linear-gradient(
+    110deg, #10343d, #141b21
+  ) !important;
+  color: #70e5ed;
+}
+
+#startScreen .pulse-level.selected {
+  border-color: #82e8ed !important;
+  box-shadow:
+    0 0 0 1px rgba(255, 181, 86, .12),
+    0 8px 28px rgba(50, 187, 198, .16),
+    inset 0 0 22px rgba(74, 194, 204, .07);
+}
+
+/* CLOUDBURST — sandstone, old gold and storm charcoal */
+#startScreen .cloudburst-level {
+  border-color: rgba(194, 159, 105, .52) !important;
+  background: linear-gradient(
+    110deg, #423120, #171919
+  ) !important;
+  color: #dfc18d;
+}
+
+#startScreen .cloudburst-level.selected {
+  border-color: #e5c995 !important;
+  box-shadow:
+    0 0 0 1px rgba(229, 201, 149, .12),
+    0 8px 28px rgba(174, 123, 57, .16),
+    inset 0 0 24px rgba(190, 145, 78, .07);
+}
+
+#startScreen .level-button small {
+  color: #c8c0b2;
+}
+
+/* Saffron-gold START button */
+#startScreen #startButton {
+  border-color: #f3d49a;
+  background: linear-gradient(
+    105deg, #b96e2b, #e7b45f 52%, #f4d99e
+  );
+  color: #1b130a;
+  box-shadow:
+    0 8px 26px rgba(192, 119, 43, .19),
+    inset 0 1px 0 rgba(255, 250, 226, .62);
+}
+
+#startScreen #startButton:hover {
+  box-shadow:
+    0 12px 32px rgba(192, 119, 43, .27),
+    inset 0 1px 0 rgba(255, 250, 226, .72);
+}
+
+#startScreen .hint {
+  color: #bdb5a6;
+}
+
+/* Shared HUD — warm gold, without changing game logic */
+.brand {
+  color: #f4e6c9;
+  text-shadow: 0 0 8px rgba(218, 166, 89, .24);
+}
+
+.progress {
+  border-color: rgba(208, 171, 105, .23);
+  background: rgba(225, 209, 178, .10);
+}
+
+.progress > div {
+  background: linear-gradient(
+    90deg, #bd702f, #e9bd70, #fff1c9
+  );
+  box-shadow: 0 0 8px rgba(231, 185, 111, .38);
+}
+
+#percent {
+  color: #f4e6c9;
+  text-shadow: 0 0 8px rgba(218, 166, 89, .2);
+}
+
+#sectionName {
+  color: #dfbf86;
+  text-shadow: 0 0 8px rgba(218, 166, 89, .22);
+}
+
+/* Pause controls match the new palette */
+#pauseButton {
+  border-color: rgba(218, 181, 118, .56);
+  background: rgba(20, 19, 17, .9);
+  color: #f4e6c9;
+  box-shadow: 0 0 16px rgba(192, 119, 43, .12);
+}
+
+#pauseScreen .panel button {
+  border-color: rgba(208, 171, 105, .45);
+  background: linear-gradient(110deg, #39291d, #17191b);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #startScreen .level-panel,
+  #startScreen .level-button,
+  #startScreen #startButton {
+    animation: none;
+    transition: none;
+  }
+}
