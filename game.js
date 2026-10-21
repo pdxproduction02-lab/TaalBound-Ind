@@ -3140,17 +3140,21 @@ const layersReady =
 
 
 if (layersReady) {
+  // Full-screen distant background.
   drawCloudburstLayer(
-    cloudburstFarImage, 0.012, 0.55, gy
+    cloudburstFarImage, 0.012, 1.0, H
   );
 
+  // Full-screen midground scenery.
   drawCloudburstLayer(
-    cloudburstMidImage, 0.028, 0.65, gy
+    cloudburstMidImage, 0.028, 1.0, H
   );
 
+  // Foreground platform, positioned relative to gameplay ground.
   drawCloudburstLayer(
-    cloudburstNearImage, 0.075, 0.55, gy
+    cloudburstNearImage, 0.075, 0.55, gy + H * 0.075
   );
+
 
 
   
@@ -3175,20 +3179,6 @@ if (layersReady) {
   ctx.fillStyle = '#172027';
   ctx.fillRect(0, 0, W, H);
 }
-  
-
-  // CLOUDBURST — hide the unwanted bottom image strip.
-const bandY = Math.floor(H * 0.87);
-
-const bottomFill = ctx.createLinearGradient(
-  0, bandY, 0, H
-);
-
-bottomFill.addColorStop(0, '#27383b');
-bottomFill.addColorStop(1, '#111d24');
-
-ctx.fillStyle = bottomFill;
-ctx.fillRect(0, bandY, W, H - bandY);
 
   
   // Animated monsoon rain overlay.
