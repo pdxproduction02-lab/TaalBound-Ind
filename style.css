@@ -792,3 +792,263 @@ body {
     padding: 7px 10px;
   }
 }
+
+/* ==================================================
+   TAALBOUND — STEP 1: PREMIUM MAIN MENU
+   Styling only. Keep existing HTML/JS IDs unchanged.
+   ================================================== */
+
+#startScreen {
+  isolation: isolate;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse at 50% 8%,
+      rgba(24, 83, 116, .34), transparent 48%),
+    linear-gradient(145deg,
+      rgba(5, 10, 19, .98),
+      rgba(7, 11, 21, .98) 58%,
+      rgba(13, 18, 27, .98));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+#startScreen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .25;
+  background-image:
+    linear-gradient(rgba(118, 211, 238, .06) 1px,
+      transparent 1px),
+    linear-gradient(90deg, rgba(118, 211, 238, .06) 1px,
+      transparent 1px);
+  background-size: 42px 42px;
+}
+
+#startScreen .level-panel {
+  position: relative;
+  z-index: 1;
+  width: min(90vw, 460px);
+  max-height: calc(100% - 24px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(22px, 5vh, 40px) clamp(20px, 5vw, 34px);
+  border: 1px solid rgba(123, 208, 235, .24);
+  border-radius: 24px;
+  background: linear-gradient(150deg,
+    rgba(19, 29, 45, .97),
+    rgba(7, 12, 23, .98) 70%);
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, .45),
+    0 0 36px rgba(33, 164, 208, .09),
+    inset 0 1px 0 rgba(255, 255, 255, .06);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  animation: tbMenuEnter .4s ease-out both;
+}
+
+#startScreen .level-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 16%;
+  width: 68%;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent, #52dff5, #e9fdff, #52dff5, transparent);
+  box-shadow: 0 0 16px rgba(82, 223, 245, .45);
+}
+
+#startScreen .title {
+  color: #f4fbff;
+  font-size: clamp(38px, 9vw, 66px);
+  font-weight: 950;
+  letter-spacing: .075em;
+  line-height: .98;
+  text-shadow: 0 0 22px rgba(81, 218, 247, .17);
+}
+
+#startScreen .tagline {
+  margin-top: 12px;
+  color: #70e7fa;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .32em;
+}
+
+#startScreen .level-heading {
+  margin-top: 28px;
+  margin-bottom: 12px;
+  color: #aabccc;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .24em;
+}
+
+#startScreen .level-button {
+  position: relative;
+  min-height: 66px;
+  margin: 10px 0 0 !important;
+  padding: 14px 17px !important;
+  border: 1px solid rgba(123, 208, 235, .3) !important;
+  border-radius: 13px !important;
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+#startScreen .level-button span {
+  color: #f4fbff;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+
+#startScreen .level-button small {
+  margin-top: 7px;
+  color: #b6c5d4;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+
+#startScreen .pulse-level {
+  border-color: rgba(83, 221, 246, .48) !important;
+  background: linear-gradient(105deg,
+    rgba(17, 56, 76, .96),
+    rgba(12, 22, 37, .98)) !important;
+}
+
+#startScreen .cloudburst-level {
+  border-color: rgba(192, 170, 126, .48) !important;
+  background: linear-gradient(105deg,
+    rgba(57, 47, 34, .92),
+    rgba(16, 23, 31, .98)) !important;
+}
+
+#startScreen .level-button.selected {
+  transform: translateY(-1px);
+  border-color: #64e9ff !important;
+  box-shadow: 0 0 22px rgba(35, 181, 224, .17);
+}
+
+#startScreen .cloudburst-level.selected {
+  border-color: #dbc699 !important;
+  box-shadow: 0 0 22px rgba(190, 160, 103, .17);
+}
+
+#startScreen #startButton {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 20px;
+  padding: 14px 18px;
+  border: 1px solid #94f6ff;
+  border-radius: 12px;
+  background: linear-gradient(105deg, #55dff4, #a2f5ff);
+  color: #06121d;
+  font-size: 13px;
+  font-weight: 950;
+  letter-spacing: .2em;
+  box-shadow: 0 8px 24px rgba(36, 192, 225, .19);
+  transition: transform .18s ease, box-shadow .18s ease;
+  touch-action: manipulation;
+}
+
+#startScreen #startButton:hover {
+  box-shadow: 0 10px 30px rgba(36, 192, 225, .3);
+}
+
+#startScreen .level-button:focus-visible,
+#startScreen #startButton:focus-visible {
+  outline: 2px solid #e9fdff;
+  outline-offset: 3px;
+}
+
+#startScreen .hint {
+  margin-top: 13px;
+  color: #9aabba;
+  font-size: 10px;
+  letter-spacing: .05em;
+  opacity: .9;
+}
+
+@keyframes tbMenuEnter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Landscape phones */
+@media (orientation: landscape) {
+  #startScreen .level-panel {
+    width: min(78vw, 520px);
+    padding: 12px 24px;
+  }
+
+  #startScreen .title {
+    font-size: clamp(30px, 6vw, 46px);
+  }
+
+  #startScreen .tagline {
+    margin-top: 5px;
+  }
+
+  #startScreen .level-heading {
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+
+  #startScreen .level-button {
+    min-height: 45px;
+    margin-top: 5px !important;
+    padding: 7px 12px !important;
+  }
+
+  #startScreen .level-button span {
+    font-size: 14px;
+  }
+
+  #startScreen .level-button small {
+    margin-top: 3px;
+    font-size: 8px;
+  }
+
+  #startScreen #startButton {
+    min-height: 40px;
+    margin-top: 8px;
+    padding: 9px 12px;
+  }
+
+  #startScreen .hint {
+    margin-top: 5px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 380px) {
+  #startScreen .level-panel {
+    padding: 7px 18px;
+  }
+
+  #startScreen .level-button {
+    min-height: 39px;
+    padding: 5px 11px !important;
+  }
+
+  #startScreen #startButton {
+    min-height: 34px;
+    margin-top: 6px;
+    padding: 6px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #startScreen .level-panel {
+    animation: none;
+  }
+
+  #startScreen .level-button,
+  #startScreen #startButton {
+    transition: none;
+  }
+    }
