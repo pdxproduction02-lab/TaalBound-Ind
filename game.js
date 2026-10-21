@@ -3138,22 +3138,24 @@ const layersReady =
   cloudburstNearImage.complete &&
   cloudburstNearImage.naturalWidth > 0;
 
+
 if (layersReady) {
-  // Distant scenery — independent depth, common reference.
-drawCloudburstLayer(
-  cloudburstFarImage, 0.012, 0.55, gy
-);
+  // Distant scenery — expanded vertically.
+  drawCloudburstLayer(
+    cloudburstFarImage, 0.012, 1.0, gy
+  );
 
-// Midground temples.
-drawCloudburstLayer(
-  cloudburstMidImage, 0.028, 0.65, gy
-);
+  // Midground temples — fill the central and upper screen.
+  drawCloudburstLayer(
+    cloudburstMidImage, 0.028, 1.0, gy
+  );
 
-// Foreground platform.
-drawCloudburstLayer(
-  cloudburstNearImage, 0.075, 0.55, gy + H * 0.075
-);
-
+  // Foreground platform — preserve the ground alignment.
+  drawCloudburstLayer(
+    cloudburstNearImage, 0.075, 1.0, gy + H * 0.14
+  );
+}
+  
 } else if (cloudburstTempleImage.complete &&
            cloudburstTempleImage.naturalWidth > 0) {
   // Keep the original background as a fallback while layers load.
