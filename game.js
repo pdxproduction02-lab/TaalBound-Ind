@@ -3140,20 +3140,18 @@ const layersReady =
 
 
 if (layersReady) {
-  // Distant scenery — expanded vertically.
   drawCloudburstLayer(
-    cloudburstFarImage, 0.012, 1.0, gy
+    cloudburstFarImage, 0.012, 0.55, gy
   );
 
-  // Midground temples — fill the central and upper screen.
   drawCloudburstLayer(
-    cloudburstMidImage, 0.028, 1.0, gy
+    cloudburstMidImage, 0.028, 0.65, gy
   );
 
-  // Foreground platform — preserve the ground alignment.
   drawCloudburstLayer(
-    cloudburstNearImage, 0.075, 1.0, gy + H * 0.14
+    cloudburstNearImage, 0.075, 0.55, gy + H * 0.075
   );
+
 
   
 } else if (cloudburstTempleImage.complete &&
