@@ -1626,3 +1626,89 @@ body {
   }
                     }
 
+
+/* =========================================
+   TAALBOUND — SUBTLE GEOMETRIC BACKGROUND
+   Inspired by the supplied reference image
+   ========================================= */
+
+#startScreen {
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* Thin geometric rays + understated corner arcs */
+#startScreen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+
+  background:
+    /* Top-left ornamental arcs */
+    radial-gradient(
+      circle at 0% 0%,
+      transparent 0 82px,
+      rgba(255, 211, 142, .34) 83px 85px,
+      transparent 86px 111px,
+      rgba(255, 211, 142, .24) 112px 114px,
+      transparent 115px 140px,
+      rgba(255, 211, 142, .15) 141px 143px,
+      transparent 144px
+    ),
+
+    /* Fine golden rays spreading from the left */
+    repeating-conic-gradient(
+      from 0deg at 0% 50%,
+      transparent 0deg 11.8deg,
+      rgba(255, 214, 154, .11) 11.9deg 12.1deg,
+      transparent 12.2deg 23.8deg
+    );
+}
+
+/* Blue corner arcs + subtle opposing geometric rays */
+#startScreen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+
+  background:
+    /* Bottom-right ornamental arcs */
+    radial-gradient(
+      circle at 100% 100%,
+      transparent 0 82px,
+      rgba(79, 222, 255, .36) 83px 85px,
+      transparent 86px 111px,
+      rgba(79, 222, 255, .25) 112px 114px,
+      transparent 115px 140px,
+      rgba(79, 222, 255, .16) 141px 143px,
+      transparent 144px
+    ),
+
+    /* Fine cyan rays spreading from the right */
+    repeating-conic-gradient(
+      from 0deg at 100% 50%,
+      transparent 0deg 11.8deg,
+      rgba(91, 220, 255, .10) 11.9deg 12.1deg,
+      transparent 12.2deg 23.8deg
+    );
+}
+
+/* Preserve the central menu above the decorations */
+#startScreen .level-panel {
+  position: relative;
+  z-index: 2;
+}
+
+/* Slightly quieter decoration on short landscape screens */
+@media (orientation: landscape) and (max-height: 500px) {
+  #startScreen::before,
+  #startScreen::after {
+    opacity: .8;
+  }
+}
