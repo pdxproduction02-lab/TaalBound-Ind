@@ -146,11 +146,16 @@ const LEVELS = {
 
 const PLAYER_X = 140;
 
+
 const GROUND_OFFSET = 105;
+const CLOUDBURST_GROUND_OFFSET = 40;
 
 function GROUND_Y() {
-  return H - GROUND_OFFSET;
+  return selectedLevel === 'cloudburst'
+    ? H - CLOUDBURST_GROUND_OFFSET
+    : H - GROUND_OFFSET;
 }
+  
 
 
 // ============================================================
