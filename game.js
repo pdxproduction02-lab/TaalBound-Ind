@@ -3147,12 +3147,12 @@ const layersReady =
 if (layersReady) {
   // Full-screen distant background.
   drawCloudburstLayer(
-    cloudburstFarImage, 0.012, 1.0, H
+    cloudburstFarImage, 0.025, 1.0, H
   );
 
   // Full-screen midground scenery.
   drawCloudburstLayer(
-    cloudburstMidImage, 0.028, 1.0, H
+    cloudburstMidImage, 0.075, 1.0, H
   );
 
   // Foreground platform, positioned relative to gameplay ground.
