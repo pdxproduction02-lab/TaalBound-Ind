@@ -3157,7 +3157,7 @@ if (layersReady) {
 
   // Foreground platform, positioned relative to gameplay ground.
   drawCloudburstLayer(
-  cloudburstNearImage, 0.075, 1.0, H
+  cloudburstNearImage, 1.0, 1.0, H
 );
 
   
