@@ -17,6 +17,12 @@ cloudburstSpikeImage.src = 'assets/cloudburst-spike.png';
 const cloudburstGuardianImage = new Image();
 cloudburstGuardianImage.src = 'assets/cloudburst-guardian.png';
 
+const cloudburstPlayerImage = new Image();
+cloudburstPlayerImage.src = 'assets/cloudburst-player.png';
+
+const cloudburstRhythmBlockImage = new Image();
+cloudburstRhythmBlockImage.src = 'assets/cloudburst-rhythm-block.png';
+  
 const startScreen = document.getElementById('startScreen');
 const deathScreen = document.getElementById('deathScreen');
 
@@ -4308,8 +4314,23 @@ const half = size / 2;
     return;
   }
   
+  // CLOUDBURST — DETAILED STONE PLAYER SPRITE
+  if (
+    selectedLevel === 'cloudburst' &&
+    cloudburstPlayerImage.complete &&
+    cloudburstPlayerImage.naturalWidth > 0
+  ) {
+    ctx.drawImage(
+      cloudburstPlayerImage,
+      -half,
+      -half,
+      size,
+      size
+    );
 
-  
+    ctx.restore();
+    return;
+      }
 
   // Outer energy halo.
   ctx.save();
@@ -5167,54 +5188,35 @@ if (h.type === 'rhythmBlock') {
 
   ctx.save();
 
+  
   if (selectedLevel === 'cloudburst') {
-    const stone = ctx.createLinearGradient(
-      sx, blockY, sx + h.w, gy
-    );
+    if (
+      cloudburstRhythmBlockImage.complete &&
+      cloudburstRhythmBlockImage.naturalWidth > 0
+    ) {
+      ctx.drawImage(
+        cloudburstRhythmBlockImage,
+        sx,
+        blockY,
+        h.w,
+        h.h
+      );
+    } else {
+      // Fallback while the PNG loads.
+      ctx.fillStyle = '#65695b';
+      ctx.fillRect(sx, blockY, h.w, h.h);
 
-    stone.addColorStop(0, '#a9a18a');
-    stone.addColorStop(0.5, '#65695b');
-    stone.addColorStop(1, '#282f2c');
-
-    ctx.fillStyle = stone;
-    ctx.fillRect(sx, blockY, h.w, h.h);
-
-    ctx.fillStyle = 'rgba(12, 19, 17, 0.36)';
-    ctx.fillRect(
-      sx + 4, blockY + 4,
-      Math.max(1, h.w - 8),
-      Math.max(1, h.h - 8)
-    );
-
-    ctx.strokeStyle = '#b4b39c';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(sx + 2, blockY + 2, h.w - 4, h.h - 4);
-
-    // Worn stone bands.
-    ctx.strokeStyle = 'rgba(207, 210, 190, 0.42)';
-    ctx.lineWidth = 1;
-
-    for (let y = blockY + 13; y < gy - 7; y += 15) {
-      ctx.beginPath();
-      ctx.moveTo(sx + 7, y);
-      ctx.lineTo(sx + h.w - 7, y);
-      ctx.stroke();
+      ctx.strokeStyle = '#b4b39c';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(
+        sx + 2,
+        blockY + 2,
+        h.w - 4,
+        h.h - 4
+      );
     }
-
-    // Carved central diamond.
-    ctx.beginPath();
-    ctx.moveTo(sx + h.w / 2, blockY + 8);
-    ctx.lineTo(sx + h.w / 2 + 7, blockY + 17);
-    ctx.lineTo(sx + h.w / 2, blockY + 26);
-    ctx.lineTo(sx + h.w / 2 - 7, blockY + 17);
-    ctx.closePath();
-    ctx.stroke();
-
-    // Moss along the upper edge.
-    ctx.fillStyle = 'rgba(77, 105, 63, 0.7)';
-    ctx.fillRect(sx + 4, blockY + 2, h.w * 0.35, 3);
-
   } else {
+    
     // Preserve the original neon rhythm blocks.
     ctx.shadowColor = '#35eaff';
     ctx.shadowBlur = 12 + beatPulse * 10;
