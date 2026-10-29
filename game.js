@@ -60,6 +60,59 @@ const resultCaption =
   document.getElementById('resultCaption');
 
 
+function drawCloudburstAura(x, y, w, h, seed = 0) {
+  const t = performance.now() * 0.001;
+  const pulse = 0.5 + 0.5 * Math.sin(t * 2.1 + seed);
+
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+
+  // Soft amber flame around the silhouette.
+  const glow = ctx.createRadialGradient(
+    x + w * 0.5, y + h * 0.55, 1,
+    x + w * 0.5, y + h * 0.55,
+    Math.max(w, h) * 0.72
+  );
+
+  glow.addColorStop(0, 'rgba(205, 156, 72, 0.00)');
+  glow.addColorStop(0.55, `rgba(190, 133, 54, ${0.07 + pulse * 0.04})`);
+  glow.addColorStop(0.82, `rgba(111, 145, 91, ${0.08 + pulse * 0.04})`);
+  glow.addColorStop(1, 'rgba(80, 111, 80, 0)');
+
+  ctx.fillStyle = glow;
+  ctx.fillRect(
+    x - w * 0.35,
+    y - h * 0.22,
+    w * 1.7,
+    h * 1.45
+  );
+
+  // Sparse rising embers, animated without particle objects.
+  for (let i = 0; i < 5; i++) {
+    const phase = t * (0.65 + i * 0.08) + seed * 1.7 + i * 1.9;
+    const rise = ((phase * 13) % (h + 18));
+
+    const px = x + w * (
+      0.12 + 0.76 *
+      (0.5 + 0.5 * Math.sin(phase * 1.3 + i))
+    );
+
+    const py = y + h - rise;
+    const radius = 0.7 + 0.7 * (0.5 + 0.5 * Math.sin(phase * 2));
+
+    ctx.globalAlpha = 0.25 + pulse * 0.3;
+    ctx.fillStyle = i % 3 === 0 ? '#b9d3a0' : '#e6b86b';
+    ctx.shadowColor = i % 3 === 0 ? '#9fcf9a' : '#dca45b';
+    ctx.shadowBlur = 5;
+
+    ctx.beginPath();
+    ctx.arc(px, py, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.restore();
+}
+  
 // ============================================================
 // DISPLAY
 // ============================================================
@@ -4320,6 +4373,23 @@ const half = size / 2;
     cloudburstPlayerImage.complete &&
     cloudburstPlayerImage.naturalWidth > 0
   ) {
+    
+    drawCloudburstAura(
+      -half - 5,
+      -half - 5,
+      size + 10,
+      size + 10,
+      1
+    );
+
+    ctx.drawImage(
+      cloudburstPlayerImage,
+      -half,
+      -half,
+      size,
+      size
+    );
+    
     ctx.drawImage(
       cloudburstPlayerImage,
       -half,
@@ -5022,6 +5092,15 @@ if (h.type === 'spike') {
       cloudburstSpikeImage.complete &&
       cloudburstSpikeImage.naturalWidth > 0
     ) {
+      
+      drawCloudburstAura(
+        sx - 5,
+        gy - h.h - 4,
+        h.w + 10,
+        h.h + 8,
+        Math.floor(sx / 40)
+      );
+      
       ctx.drawImage(
         cloudburstSpikeImage,
         sx,
@@ -5128,6 +5207,14 @@ const statueWidth =
   cloudburstGuardianImage.naturalWidth /
   cloudburstGuardianImage.naturalHeight;
 
+drawCloudburstAura(
+  sx - 7,
+  gy - statueHeight - 5,
+  Math.max(h.w, statueWidth) + 14,
+  statueHeight + 10,
+  Math.floor(sx / 60) + 2
+);
+      
 ctx.drawImage(
   cloudburstGuardianImage,
   sx + (h.w - statueWidth) / 2,
@@ -5194,6 +5281,15 @@ if (h.type === 'rhythmBlock') {
       cloudburstRhythmBlockImage.complete &&
       cloudburstRhythmBlockImage.naturalWidth > 0
     ) {
+      
+      drawCloudburstAura(
+        sx - 5,
+        blockY - 4,
+        h.w + 10,
+        h.h + 8,
+        Math.floor(sx / 50) + 3
+      );
+      
       ctx.drawImage(
         cloudburstRhythmBlockImage,
         sx,
