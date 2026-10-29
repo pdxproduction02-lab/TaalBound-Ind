@@ -148,7 +148,7 @@ const PLAYER_X = 140;
 
 
 const GROUND_OFFSET = 105;
-const CLOUDBURST_GROUND_OFFSET = 54;
+const CLOUDBURST_GROUND_OFFSET = 56;
 
 function GROUND_Y() {
   return selectedLevel === 'cloudburst'
@@ -3147,12 +3147,12 @@ const layersReady =
 if (layersReady) {
   // Full-screen distant background.
   drawCloudburstLayer(
-    cloudburstFarImage, 0.025, 1.0, H
+    cloudburstFarImage, 0.25, 1.0, H
   );
 
   // Full-screen midground scenery.
   drawCloudburstLayer(
-    cloudburstMidImage, 0.075, 1.0, H
+    cloudburstMidImage, 0.75, 1.0, H
   );
 
   // Foreground platform, positioned relative to gameplay ground.
